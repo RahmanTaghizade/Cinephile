@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/searchFragment">
+
+    <!-- Bottom Navigation Fragments -->
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.cinephile.ui.search.SearchFragment"
+        android:label="Search"
+        tools:layout="@layout/fragment_search" />
+
+    <fragment
+        android:id="@+id/watchlistsFragment"
+        android:name="com.example.cinephile.ui.watchlists.WatchlistsFragment"
+        android:label="Watchlists"
+        tools:layout="@layout/fragment_watchlists" />
+
+    <fragment
+        android:id="@+id/quizListFragment"
+        android:name="com.example.cinephile.ui.quiz.QuizListFragment"
+        android:label="Quiz"
+        tools:layout="@layout/fragment_quiz_list" />
+
+    <fragment
+        android:id="@+id/recommendationsFragment"
+        android:name="com.example.cinephile.ui.recommendations.RecommendationsFragment"
+        android:label="Recommendations"
+        tools:layout="@layout/fragment_recommendations" />
+
+    <!-- Detail Fragments -->
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.example.cinephile.ui.details.DetailsFragment"
+        android:label="Movie Details"
+        tools:layout="@layout/fragment_details">
+        <argument
+            android:name="movieId"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/watchlistDetailsFragment"
+        android:name="com.example.cinephile.ui.watchlists.WatchlistDetailsFragment"
+        android:label="Watchlist Details"
+        tools:layout="@layout/fragment_watchlist_details">
+        <argument
+            android:name="watchlistId"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/quizDetailsFragment"
+        android:name="com.example.cinephile.ui.quiz.QuizDetailsFragment"
+        android:label="Quiz Details"
+        tools:layout="@layout/fragment_quiz_details">
+        <argument
+            android:name="quizId"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/quizPlayFragment"
+        android:name="com.example.cinephile.ui.quiz.QuizPlayFragment"
+        android:label="Play Quiz"
+        tools:layout="@layout/fragment_quiz_play">
+        <argument
+            android:name="quizId"
+            app:argType="long" />
+    </fragment>
+
+</navigation>
