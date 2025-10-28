@@ -2,7 +2,7 @@ package com.example.cinephile.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.cinephile.data.remote.TmdbService
+import com.example.cinephile.domain.repository.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,19 +12,20 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val tmdbService: TmdbService
+    private val movieRepository: MovieRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow("Hello from SearchViewModel with TmdbService injected!")
+    private val _uiState = MutableStateFlow("Hello from SearchViewModel with MovieRepository injected!")
     val uiState: StateFlow<String> = _uiState.asStateFlow()
 
     init {
-        // Test that TmdbService is properly injected
+        // Test that MovieRepository is properly injected
         viewModelScope.launch {
             try {
-                // This is just a test call to ensure the service is working
+                // This is just a test call to ensure the repository is working
                 // We'll implement actual search functionality later
-                _uiState.value = "TmdbService successfully injected and ready!"
+                val helloMessage = movieRepository.getHelloMessage()
+                _uiState.value = helloMessage
             } catch (e: Exception) {
                 _uiState.value = "Error: ${e.message}"
             }
