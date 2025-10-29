@@ -1,5 +1,6 @@
 package com.example.cinephile.domain.repository
 
+import com.example.cinephile.ui.search.MovieUiModel
 import kotlinx.coroutines.flow.Flow
 
 interface MovieRepository {
@@ -9,15 +10,4 @@ interface MovieRepository {
     suspend fun rateMovie(movieId: Long, rating: Float)
     suspend fun getFavorites(): Flow<List<MovieUiModel>>
     suspend fun getRatedMovies(): Flow<List<MovieUiModel>>
-    suspend fun getHelloMessage(): String
 }
-
-data class MovieUiModel(
-    val id: Long,
-    val title: String,
-    val posterUrl: String?,
-    val director: String?,
-    val releaseDate: String?,
-    val isFavorite: Boolean = false,
-    val userRating: Float? = null
-)

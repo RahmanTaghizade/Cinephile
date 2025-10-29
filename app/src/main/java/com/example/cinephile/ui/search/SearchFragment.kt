@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doAfterTextChanged
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -36,6 +38,24 @@ class SearchFragment : Fragment() {
         
         setupRecyclerView()
         observeViewModel()
+        setupSearchInput()
+    }
+    
+    private fun setupSearchInput() {
+        // Handle text changes in the search input
+        binding.editTextTitle.setOnEditorActionListener { _, _, _ ->
+            viewModel.onSearchClick()
+            true
+        }
+        
+        binding.editTextTitle.doAfterTextChanged { text ->
+            viewModel.onQueryChanged(text.toString())
+        }
+        
+        // Handle search button click
+        binding.buttonSearch.setOnClickListener {
+            viewModel.onSearchClick()
+        }
     }
 
     private fun setupRecyclerView() {
@@ -62,8 +82,20 @@ class SearchFragment : Fragment() {
 
     private fun observeViewModel() {
         lifecycleScope.launch {
-            viewModel.movies.collect { movies ->
-                movieAdapter.submitList(movies)
+            viewModel.searchUiState.collect { state ->
+                // Update movie list
+                movieAdapter.submitList(state.movies)
+                
+                // Handle loading state (can add progress bar later)
+                if (state.isLoading) {
+                    // Show loading indicator if needed
+                }
+                
+                // Handle error state
+                state.error?.let { error ->
+                    Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
+                    viewModel.clearError()
+                }
             }
         }
     }

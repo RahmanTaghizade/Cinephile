@@ -3,7 +3,7 @@ package com.example.cinephile.data.repository
 import com.example.cinephile.data.local.dao.WatchlistDao
 import com.example.cinephile.domain.repository.WatchlistRepository
 import com.example.cinephile.domain.repository.WatchlistUiModel
-import com.example.cinephile.domain.repository.MovieUiModel
+import com.example.cinephile.ui.search.MovieUiModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject

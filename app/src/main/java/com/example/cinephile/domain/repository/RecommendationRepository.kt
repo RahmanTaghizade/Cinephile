@@ -1,5 +1,6 @@
 package com.example.cinephile.domain.repository
 
+import com.example.cinephile.ui.search.MovieUiModel
 import kotlinx.coroutines.flow.Flow
 
 interface RecommendationRepository {

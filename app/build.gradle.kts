@@ -6,9 +6,20 @@ plugins {
     alias(libs.plugins.navigation.safe.args)
 }
 
+import java.util.Properties
+
 android {
     namespace = "com.example.cinephile"
     compileSdk = 36
+
+    // Load TMDB_API_KEY from local.properties (fallback to env var)
+    val localProps = Properties().apply {
+        val file = rootProject.file("local.properties")
+        if (file.exists()) file.inputStream().use { load(it) }
+    }
+    val tmdbApiKey = (localProps.getProperty("TMDB_API_KEY")
+        ?: System.getenv("TMDB_API_KEY")
+        ?: "")
 
     defaultConfig {
         applicationId = "com.example.cinephile"
@@ -19,7 +30,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        buildConfigField("String", "TMDB_API_KEY", "\"${project.findProperty("TMDB_API_KEY") ?: ""}\"")
+        buildConfigField("String", "TMDB_API_KEY", "\"$tmdbApiKey\"")
     }
 
     buildFeatures {

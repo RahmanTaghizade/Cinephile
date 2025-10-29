@@ -1,5 +1,6 @@
 package com.example.cinephile.data.remote
 
+import com.squareup.moshi.Json
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -56,32 +57,32 @@ interface TmdbService {
     ): TmdbSearchResponse
 }
 
-// DTOs - These will be implemented in the next steps
+// DTOs
 data class TmdbSearchResponse(
     val page: Int,
     val results: List<TmdbMovie>,
-    val total_pages: Int,
-    val total_results: Int
+    @Json(name = "total_pages") val totalPages: Int,
+    @Json(name = "total_results") val totalResults: Int
 )
 
 data class TmdbMovie(
     val id: Long,
     val title: String,
-    val poster_path: String?,
+    @Json(name = "poster_path") val posterPath: String?,
     val overview: String,
-    val release_date: String?,
-    val vote_average: Double,
-    val genre_ids: List<Int>
+    @Json(name = "release_date") val releaseDate: String?,
+    @Json(name = "vote_average") val voteAverage: Double,
+    @Json(name = "genre_ids") val genreIds: List<Int>
 )
 
 data class TmdbMovieDetails(
     val id: Long,
     val title: String,
-    val poster_path: String?,
+    @Json(name = "poster_path") val posterPath: String?,
     val overview: String,
-    val release_date: String?,
+    @Json(name = "release_date") val releaseDate: String?,
     val runtime: Int?,
-    val vote_average: Double,
+    @Json(name = "vote_average") val voteAverage: Double,
     val genres: List<TmdbGenre>
 )
 
@@ -117,14 +118,14 @@ data class TmdbKeyword(
 data class TmdbPersonSearchResponse(
     val page: Int,
     val results: List<TmdbPerson>,
-    val total_pages: Int,
-    val total_results: Int
+    @Json(name = "total_pages") val totalPages: Int,
+    @Json(name = "total_results") val totalResults: Int
 )
 
 data class TmdbPerson(
     val id: Long,
     val name: String,
-    val known_for_department: String
+    @Json(name = "known_for_department") val knownForDepartment: String
 )
 
 data class TmdbGenresResponse(
