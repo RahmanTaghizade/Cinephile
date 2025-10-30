@@ -10,4 +10,7 @@ interface MovieRepository {
     suspend fun rateMovie(movieId: Long, rating: Float)
     suspend fun getFavorites(): Flow<List<MovieUiModel>>
     suspend fun getRatedMovies(): Flow<List<MovieUiModel>>
+    suspend fun fetchAndCacheGenres()
+    fun getGenresFlow(): Flow<List<com.example.cinephile.data.local.entities.GenreEntity>>
+    val tmdbService: com.example.cinephile.data.remote.TmdbService
 }

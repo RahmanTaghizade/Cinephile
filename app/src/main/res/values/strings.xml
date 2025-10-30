@@ -5,4 +5,6 @@
     <string name="movie_director_prefix">Director: %1$s</string>
     <string name="movie_date_prefix">Release: %1$s</string>
     <string name="rating_badge">⭐ %.1f</string>
+    <string name="search_actor">Search actors...</string>
+    <string name="search_director">Search directors...</string>
 </resources>

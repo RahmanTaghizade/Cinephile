@@ -39,4 +39,9 @@ object DatabaseModule {
     fun provideCachedSearchDao(database: CinephileDb): CachedSearchDao {
         return database.cachedSearchDao()
     }
+
+    @Provides
+    fun provideGenreDao(database: CinephileDb): GenreDao {
+        return database.genreDao()
+    }
 }

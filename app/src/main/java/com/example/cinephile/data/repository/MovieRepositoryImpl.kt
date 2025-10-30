@@ -1,19 +1,24 @@
 package com.example.cinephile.data.repository
 
 import com.example.cinephile.data.local.dao.MovieDao
+import com.example.cinephile.data.local.dao.GenreDao
 import com.example.cinephile.data.local.entities.MovieEntity
+import com.example.cinephile.data.local.entities.GenreEntity
 import com.example.cinephile.data.remote.TmdbService
 import com.example.cinephile.domain.repository.MovieRepository
 import com.example.cinephile.ui.search.MovieUiModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class MovieRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
-    private val tmdbService: TmdbService
+    private val genreDao: GenreDao,
+    override val tmdbService: TmdbService
 ) : MovieRepository {
 
     override suspend fun searchMovies(query: String): Flow<List<MovieUiModel>> {
@@ -80,6 +85,22 @@ class MovieRepositoryImpl @Inject constructor(
     override suspend fun getRatedMovies(): Flow<List<MovieUiModel>> {
         // Stub implementation - return empty list for now
         return flowOf(emptyList())
+    }
+
+    override suspend fun fetchAndCacheGenres() {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = tmdbService.getGenres()
+                val genres = response.genres.map { GenreEntity(it.id, it.name) }
+                genreDao.upsertAll(genres)
+            } catch (e: Exception) {
+                // You may want to log this error for debugging.
+            }
+        }
+    }
+
+    override fun getGenresFlow(): Flow<List<GenreEntity>> {
+        return genreDao.getAll()
     }
     
     private fun entityToUiModel(entity: MovieEntity): MovieUiModel {

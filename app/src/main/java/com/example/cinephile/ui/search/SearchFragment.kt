@@ -15,6 +15,9 @@ import com.example.cinephile.R
 import com.example.cinephile.databinding.FragmentSearchBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import com.google.android.material.chip.Chip
+import android.widget.AutoCompleteTextView
+import com.example.cinephile.data.remote.TmdbPerson
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
@@ -38,6 +41,9 @@ class SearchFragment : Fragment() {
         
         setupRecyclerView()
         observeViewModel()
+        observeGenreChips()
+        setupPersonSuggestions()
+        observePersonChips()
         setupSearchInput()
     }
     
@@ -95,6 +101,108 @@ class SearchFragment : Fragment() {
                 state.error?.let { error ->
                     Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
                     viewModel.clearError()
+                }
+            }
+        }
+    }
+
+    private fun observeGenreChips() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.genres.collect { genres ->
+                val chipGroup = binding.chipGroupGenres
+                chipGroup.removeAllViews()
+                genres.forEach { genre ->
+                    val chip = Chip(requireContext())
+                    chip.text = genre.name
+                    chip.isCheckable = true
+                    chip.isChecked = viewModel.selectedGenreIds.value.contains(genre.id)
+                    chip.setOnClickListener {
+                        viewModel.onGenreChipClicked(genre.id)
+                    }
+                    chipGroup.addView(chip)
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.selectedGenreIds.collect { selected ->
+                val chipGroup = binding.chipGroupGenres
+                for (i in 0 until chipGroup.childCount) {
+                    val chip = chipGroup.getChildAt(i) as? Chip ?: continue
+                    val genre = viewModel.genres.value.getOrNull(i)
+                    chip.isChecked = genre?.let { selected.contains(it.id) } == true
+                }
+            }
+        }
+    }
+
+    private lateinit var actorAdapter: PersonSearchAdapter
+    private lateinit var directorAdapter: PersonSearchAdapter
+
+    private fun setupPersonSuggestions() {
+        actorAdapter = PersonSearchAdapter(requireContext())
+        directorAdapter = PersonSearchAdapter(requireContext())
+        binding.autocompleteActor.setAdapter(actorAdapter)
+        binding.autocompleteDirector.setAdapter(directorAdapter)
+        binding.autocompleteActor.threshold = 1
+        binding.autocompleteDirector.threshold = 1
+
+        binding.autocompleteActor.doAfterTextChanged { text ->
+            viewModel.onActorSearchQueryChanged(text?.toString().orEmpty())
+        }
+        binding.autocompleteDirector.doAfterTextChanged { text ->
+            viewModel.onDirectorSearchQueryChanged(text?.toString().orEmpty())
+        }
+        binding.autocompleteActor.setOnItemClickListener { _, _, position, _ ->
+            val person = actorAdapter.getItem(position)
+            person?.let {
+                viewModel.addSelectedActor(it)
+                binding.autocompleteActor.setText("")
+            }
+        }
+        binding.autocompleteDirector.setOnItemClickListener { _, _, position, _ ->
+            val person = directorAdapter.getItem(position)
+            person?.let {
+                viewModel.addSelectedDirector(it)
+                binding.autocompleteDirector.setText("")
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.actorSuggestions.collect { suggestions ->
+                actorAdapter.updateData(suggestions)
+            }
+        }
+        lifecycleScope.launch {
+            viewModel.directorSuggestions.collect { suggestions ->
+                directorAdapter.updateData(suggestions)
+            }
+        }
+    }
+
+    private fun observePersonChips() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.selectedActors.collect { actors ->
+                val chipGroup = binding.chipGroupActors
+                chipGroup.removeAllViews()
+                actors.forEach { actor ->
+                    val chip = Chip(requireContext())
+                    chip.text = actor.name
+                    chip.isCloseIconVisible = true
+                    chip.setOnCloseIconClickListener { viewModel.removeSelectedActor(actor.id) }
+                    chipGroup.addView(chip)
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.selectedDirectors.collect { directors ->
+                val chipGroup = binding.chipGroupDirectors
+                chipGroup.removeAllViews()
+                directors.forEach { director ->
+                    val chip = Chip(requireContext())
+                    chip.text = director.name
+                    chip.isCloseIconVisible = true
+                    chip.setOnCloseIconClickListener { viewModel.removeSelectedDirector(director.id) }
+                    chipGroup.addView(chip)
                 }
             }
         }

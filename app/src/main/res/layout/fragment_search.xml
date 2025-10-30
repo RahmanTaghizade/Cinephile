@@ -40,6 +40,79 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/text_input_layout_title" />
 
+        <!-- NEW: Actor search and chips -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_layout_actor"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="12dp"
+            android:hint="@string/search_actor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_input_layout_title"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <AutoCompleteTextView
+                android:id="@+id/autocomplete_actor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="@string/search_actor" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_actors"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            app:singleSelection="false"
+            app:layout_constraintTop_toBottomOf="@id/text_input_layout_actor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- NEW: Director search and chips -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_layout_director"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:hint="@string/search_director"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/chip_group_actors"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <AutoCompleteTextView
+                android:id="@+id/autocomplete_director"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:hint="@string/search_director" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_directors"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            app:singleSelection="false"
+            app:layout_constraintTop_toBottomOf="@id/text_input_layout_director"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_genres"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:singleSelection="false"
+            app:layout_constraintTop_toBottomOf="@id/chip_group_directors"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/recycler_view_movies"
+            />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_movies"
             android:layout_width="0dp"
@@ -49,7 +122,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_input_layout_title"
+            app:layout_constraintTop_toBottomOf="@id/chip_group_genres"
             tools:listitem="@layout/item_movie" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
