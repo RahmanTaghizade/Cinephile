@@ -8,3 +8,4 @@ data class GenreEntity(
     @PrimaryKey val id: Int,
     val name: String
 )
+

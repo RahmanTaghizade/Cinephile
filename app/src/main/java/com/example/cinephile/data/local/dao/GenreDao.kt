@@ -15,3 +15,4 @@ interface GenreDao {
     @Query("SELECT * FROM genres ORDER BY name ASC")
     fun getAll(): Flow<List<GenreEntity>>
 }
+

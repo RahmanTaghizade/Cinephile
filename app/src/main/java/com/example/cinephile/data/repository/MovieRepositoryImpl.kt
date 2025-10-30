@@ -6,6 +6,8 @@ import com.example.cinephile.data.local.entities.MovieEntity
 import com.example.cinephile.data.local.entities.GenreEntity
 import com.example.cinephile.data.remote.TmdbService
 import com.example.cinephile.domain.repository.MovieRepository
+import com.example.cinephile.domain.repository.MovieFilters
+import com.example.cinephile.domain.repository.MovieSearchResult
 import com.example.cinephile.ui.search.MovieUiModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -21,46 +23,113 @@ class MovieRepositoryImpl @Inject constructor(
     override val tmdbService: TmdbService
 ) : MovieRepository {
 
-    override suspend fun searchMovies(query: String): Flow<List<MovieUiModel>> {
-        return try {
-            // Call TMDB API
-            val response = tmdbService.searchMovies(query = query, page = 1)
-            
-            // Map TMDB movies to entities and cache them
-            val entities = response.results.map { tmdbMovie ->
-                MovieEntity(
-                    id = tmdbMovie.id,
-                    title = tmdbMovie.title,
-                    posterPath = tmdbMovie.posterPath,
-                    overview = tmdbMovie.overview,
-                    releaseDate = tmdbMovie.releaseDate,
-                    directorId = null, // Will be populated on details fetch
-                    directorName = null,
-                    castIds = emptyList(),
-                    castNames = emptyList(),
-                    genreIds = tmdbMovie.genreIds,
-                    keywordIds = emptyList(),
-                    runtime = null,
-                    lastUpdated = System.currentTimeMillis(),
-                    isFavorite = false,
-                    userRating = 0f
+    // Cache for director mappings (movieId -> directorId)
+    private val directorCache = mutableMapOf<Long, Long?>()
+
+    override suspend fun searchMovies(filters: MovieFilters, page: Int): MovieSearchResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = if (filters.query != null) {
+                    // Use search endpoint for title-based queries
+                    tmdbService.searchMovies(query = filters.query, page = page)
+                } else {
+                    // Use discover endpoint for filtered searches
+                    tmdbService.discoverMovies(
+                        year = filters.primaryReleaseYear,
+                        genreIds = filters.genreIds.takeIf { it.isNotEmpty() }?.joinToString(","),
+                        castIds = filters.actorIds.takeIf { it.isNotEmpty() }?.joinToString(","),
+                        crewIds = null, // We'll filter directors after fetching
+                        page = page
+                    )
+                }
+
+                // Map TMDB movies to entities
+                var entities = response.results.map { tmdbMovie ->
+                    MovieEntity(
+                        id = tmdbMovie.id,
+                        title = tmdbMovie.title,
+                        posterPath = tmdbMovie.posterPath,
+                        overview = tmdbMovie.overview,
+                        releaseDate = tmdbMovie.releaseDate,
+                        directorId = null,
+                        directorName = null,
+                        castIds = emptyList(),
+                        castNames = emptyList(),
+                        genreIds = tmdbMovie.genreIds,
+                        keywordIds = emptyList(),
+                        runtime = null,
+                        lastUpdated = System.currentTimeMillis(),
+                        isFavorite = false,
+                        userRating = 0f
+                    )
+                }
+
+                // Filter by directors if needed
+                if (filters.directorIds.isNotEmpty()) {
+                    entities = filterMoviesByDirectors(entities, filters.directorIds)
+                }
+
+                // Cache entities
+                entities.forEach { entity ->
+                    movieDao.upsert(entity)
+                }
+
+                // Map to UI models
+                val uiModels = entities.map { entity ->
+                    entityToUiModel(entity)
+                }
+
+                MovieSearchResult(
+                    movies = uiModels,
+                    currentPage = response.page,
+                    totalPages = response.totalPages
+                )
+            } catch (e: Exception) {
+                MovieSearchResult(
+                    movies = emptyList(),
+                    currentPage = page,
+                    totalPages = 1,
+                    isLoading = false
                 )
             }
-            
-            // Cache entities
-            entities.forEach { entity ->
-                movieDao.upsert(entity)
+        }
+    }
+
+    private suspend fun filterMoviesByDirectors(
+        entities: List<MovieEntity>,
+        directorIds: List<Long>
+    ): List<MovieEntity> {
+        val filteredMovies = mutableListOf<MovieEntity>()
+        
+        for (entity in entities) {
+            val directorId = getDirectorIdForMovie(entity.id)
+            if (directorId in directorIds) {
+                filteredMovies.add(entity.copy(directorId = directorId))
             }
-            
-            // Map to UI models
-            val uiModels = entities.map { entity ->
-                entityToUiModel(entity)
+        }
+        
+        return filteredMovies
+    }
+
+    private suspend fun getDirectorIdForMovie(movieId: Long): Long? {
+        // Check cache first
+        directorCache[movieId]?.let { return it }
+
+        // Fetch from API if not cached
+        return withContext(Dispatchers.IO) {
+            try {
+                val credits = tmdbService.getCredits(movieId)
+                val director = credits.crew.firstOrNull { it.job == "Director" }
+                val directorId = director?.id
+                
+                // Cache the result
+                directorCache[movieId] = directorId
+                
+                directorId
+            } catch (e: Exception) {
+                directorCache[movieId] = null
+                null
             }
-            
-            flowOf(uiModels)
-        } catch (e: Exception) {
-            // Return empty list on error for now
-            flowOf(emptyList())
         }
     }
 

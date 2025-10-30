@@ -83,6 +83,22 @@ class SearchFragment : Fragment() {
         binding.recyclerViewMovies.apply {
             layoutManager = GridLayoutManager(context, spanCount)
             adapter = movieAdapter
+            
+            // Add scroll listener for endless scrolling
+            addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    
+                    val layoutManager = recyclerView.layoutManager as? GridLayoutManager ?: return
+                    val totalItemCount = layoutManager.itemCount
+                    val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+                    val visibleThreshold = 5 // Load more when 5 items from the end
+                    
+                    if (totalItemCount > 0 && lastVisibleItem + visibleThreshold >= totalItemCount) {
+                        viewModel.loadNextPage()
+                    }
+                }
+            })
         }
     }
 

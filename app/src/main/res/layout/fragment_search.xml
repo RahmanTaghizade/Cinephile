@@ -101,17 +101,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chip_group_genres"
+        <HorizontalScrollView
+            android:id="@+id/scroll_view_genres"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:singleSelection="false"
             app:layout_constraintTop_toBottomOf="@id/chip_group_directors"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/recycler_view_movies"
-            />
+            app:layout_constraintBottom_toTopOf="@id/recycler_view_movies">
+            
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_genres"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleSelection="false" />
+        </HorizontalScrollView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_movies"

@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cinephile.domain.repository.MovieRepository
+import com.example.cinephile.domain.repository.MovieFilters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -27,6 +28,9 @@ class SearchViewModel @Inject constructor(
     val searchUiState: StateFlow<SearchUiState> = _searchUiState.asStateFlow()
     
     private var searchJob: Job? = null
+    private var currentPage = 1
+    private var totalPages = 1
+    private var isLoadingPage = false
 
     private val _genres = MutableStateFlow<List<GenreEntity>>(emptyList())
     val genres: StateFlow<List<GenreEntity>> = _genres.asStateFlow()
@@ -57,35 +61,78 @@ class SearchViewModel @Inject constructor(
         // Debounce search with 400ms delay
         searchJob = viewModelScope.launch {
             delay(400)
-            if (query.trim().isNotEmpty()) {
-                performSearch(query.trim())
+            if (query.trim().isNotEmpty() || hasActiveFilters()) {
+                currentPage = 1
+                performSearch()
             }
         }
     }
     
     fun onSearchClick() {
-        val query = _searchUiState.value.query.trim()
-        if (query.isNotEmpty()) {
-            performSearch(query)
+        currentPage = 1
+        performSearch()
+    }
+
+    fun loadNextPage() {
+        if (currentPage < totalPages && !isLoadingPage) {
+            isLoadingPage = true
+            performSearch(isLoadMore = true)
         }
     }
     
-    private fun performSearch(query: String) {
+    private fun hasActiveFilters(): Boolean {
+        val state = _searchUiState.value
+        return state.selectedYear != null || 
+               _selectedGenreIds.value.isNotEmpty() ||
+               _selectedActors.value.isNotEmpty() ||
+               _selectedDirectors.value.isNotEmpty()
+    }
+
+    private fun buildFilters(): MovieFilters {
+        val query = _searchUiState.value.query.trim().takeIf { it.isNotEmpty() }
+        val selectedYear = _searchUiState.value.selectedYear
+        val genreIds = _selectedGenreIds.value.toList()
+        val actorIds = _selectedActors.value.map { it.id }
+        val directorIds = _selectedDirectors.value.map { it.id }
+        
+        return MovieFilters(
+            query = query,
+            primaryReleaseYear = selectedYear,
+            genreIds = genreIds,
+            actorIds = actorIds,
+            directorIds = directorIds
+        )
+    }
+    
+    private fun performSearch(isLoadMore: Boolean = false) {
         viewModelScope.launch {
             try {
-                _searchUiState.value = _searchUiState.value.copy(
-                    isLoading = true,
-                    error = null
-                )
+                if (!isLoadMore) {
+                    _searchUiState.value = _searchUiState.value.copy(
+                        isLoading = true,
+                        error = null
+                    )
+                }
                 
-                // Get the first emission from the flow
-                val movies = movieRepository.searchMovies(query).first()
+                val filters = buildFilters()
+                val result = movieRepository.searchMovies(filters, currentPage)
                 
-                _searchUiState.value = _searchUiState.value.copy(
-                    movies = movies,
-                    isLoading = false
-                )
+                currentPage = result.currentPage
+                totalPages = result.totalPages
+                isLoadingPage = false
+                
+                if (isLoadMore) {
+                    _searchUiState.value = _searchUiState.value.copy(
+                        movies = _searchUiState.value.movies + result.movies
+                    )
+                } else {
+                    _searchUiState.value = _searchUiState.value.copy(
+                        movies = result.movies,
+                        isLoading = false
+                    )
+                }
             } catch (e: Exception) {
+                isLoadingPage = false
                 _searchUiState.value = _searchUiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "Unknown error occurred"
@@ -170,5 +217,6 @@ data class SearchUiState(
     val query: String = "",
     val movies: List<MovieUiModel> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val selectedYear: Int? = null
 )
