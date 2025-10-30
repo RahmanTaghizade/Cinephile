@@ -7,4 +7,6 @@
     <string name="rating_badge">⭐ %.1f</string>
     <string name="search_actor">Search actors...</string>
     <string name="search_director">Search directors...</string>
+    <string name="results_from_cache">Results from cache</string>
+    <string name="results_from_cache_with_timestamp">Results from cache (%1$s)</string>
 </resources>

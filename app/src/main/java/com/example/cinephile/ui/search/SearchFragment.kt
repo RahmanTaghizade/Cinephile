@@ -113,6 +113,18 @@ class SearchFragment : Fragment() {
                     // Show loading indicator if needed
                 }
                 
+                // Handle offline banner
+                binding.offlineBanner.visibility = if (state.isOffline && state.cacheTimestamp != null) {
+                    val timestamp = java.text.SimpleDateFormat(
+                        "MMM dd, yyyy HH:mm",
+                        java.util.Locale.getDefault()
+                    ).format(java.util.Date(state.cacheTimestamp))
+                    binding.offlineText.text = getString(R.string.results_from_cache_with_timestamp, timestamp)
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+                
                 // Handle error state
                 state.error?.let { error ->
                     Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()

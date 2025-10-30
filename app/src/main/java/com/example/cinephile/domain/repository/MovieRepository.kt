@@ -15,7 +15,9 @@ data class MovieSearchResult(
     val movies: List<MovieUiModel>,
     val currentPage: Int,
     val totalPages: Int,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isFromCache: Boolean = false,
+    val cacheTimestamp: Long? = null
 )
 
 interface MovieRepository {

@@ -10,18 +10,42 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!-- Offline Banner -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/offline_banner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@android:color/holo_orange_light"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/offline_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:text="@string/results_from_cache"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+        </com.google.android.material.card.MaterialCardView>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/text_input_layout_title"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:hint="@string/search_hint"
             app:layout_constraintEnd_toStartOf="@id/button_search"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/offline_banner">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_text_title"
@@ -106,6 +130,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
             app:layout_constraintTop_toBottomOf="@id/chip_group_directors"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -127,7 +152,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/chip_group_genres"
+            app:layout_constraintTop_toBottomOf="@id/scroll_view_genres"
             tools:listitem="@layout/item_movie" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

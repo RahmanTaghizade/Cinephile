@@ -2,8 +2,10 @@ package com.example.cinephile.data.repository
 
 import com.example.cinephile.data.local.dao.MovieDao
 import com.example.cinephile.data.local.dao.GenreDao
+import com.example.cinephile.data.local.dao.CachedSearchDao
 import com.example.cinephile.data.local.entities.MovieEntity
 import com.example.cinephile.data.local.entities.GenreEntity
+import com.example.cinephile.data.local.entities.CachedSearchEntity
 import com.example.cinephile.data.remote.TmdbService
 import com.example.cinephile.domain.repository.MovieRepository
 import com.example.cinephile.domain.repository.MovieFilters
@@ -15,19 +17,42 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.security.MessageDigest
 
 @Singleton
 class MovieRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
     private val genreDao: GenreDao,
+    private val cachedSearchDao: CachedSearchDao,
     override val tmdbService: TmdbService
 ) : MovieRepository {
 
     // Cache for director mappings (movieId -> directorId)
     private val directorCache = mutableMapOf<Long, Long?>()
+    
+    // Generate deterministic hash from filters
+    private fun generateQueryHash(filters: MovieFilters): String {
+        val filterString = buildString {
+            append("query:").append(filters.query ?: "")
+            append("|year:").append(filters.primaryReleaseYear ?: "")
+            append("|genres:").append(filters.genreIds.sorted().joinToString(","))
+            append("|actors:").append(filters.actorIds.sorted().joinToString(","))
+            append("|directors:").append(filters.directorIds.sorted().joinToString(","))
+        }
+        return md5(filterString)
+    }
+    
+    private fun md5(input: String): String {
+        val md = MessageDigest.getInstance("MD5")
+        val digest = md.digest(input.toByteArray())
+        return digest.joinToString("") { "%02x".format(it) }
+    }
 
     override suspend fun searchMovies(filters: MovieFilters, page: Int): MovieSearchResult {
         return withContext(Dispatchers.IO) {
+            val queryHash = generateQueryHash(filters)
+            var isFromCache = false
+            
             try {
                 val response = if (filters.query != null) {
                     // Use search endpoint for title-based queries
@@ -73,6 +98,17 @@ class MovieRepositoryImpl @Inject constructor(
                 entities.forEach { entity ->
                     movieDao.upsert(entity)
                 }
+                
+                // Store search results in cache (only for first page)
+                if (page == 1) {
+                    val movieIds = entities.map { it.id }
+                    val cachedSearch = CachedSearchEntity(
+                        queryHash = queryHash,
+                        resultMovieIds = movieIds,
+                        createdAt = System.currentTimeMillis()
+                    )
+                    cachedSearchDao.upsert(cachedSearch)
+                }
 
                 // Map to UI models
                 val uiModels = entities.map { entity ->
@@ -82,15 +118,61 @@ class MovieRepositoryImpl @Inject constructor(
                 MovieSearchResult(
                     movies = uiModels,
                     currentPage = response.page,
-                    totalPages = response.totalPages
+                    totalPages = response.totalPages,
+                    isFromCache = isFromCache
                 )
             } catch (e: Exception) {
-                MovieSearchResult(
-                    movies = emptyList(),
-                    currentPage = page,
-                    totalPages = 1,
-                    isLoading = false
-                )
+                // Try to load from cache on error (only for first page)
+                if (page == 1) {
+                    val cachedSearch = cachedSearchDao.getByHash(queryHash)
+                    if (cachedSearch != null) {
+                        // Check if cache is recent (within 24 hours)
+                        val cacheAge = System.currentTimeMillis() - cachedSearch.createdAt
+                        val maxCacheAge = 24 * 60 * 60 * 1000L // 24 hours
+                        
+                        if (cacheAge < maxCacheAge) {
+                            // Load movies from cache
+                            val cachedEntities = movieDao.getByIds(cachedSearch.resultMovieIds)
+                            val uiModels = cachedEntities.map { entity ->
+                                entityToUiModel(entity)
+                            }
+                            
+                            MovieSearchResult(
+                                movies = uiModels,
+                                currentPage = 1,
+                                totalPages = 1,
+                                isLoading = false,
+                                isFromCache = true,
+                                cacheTimestamp = cachedSearch.createdAt
+                            )
+                        } else {
+                            // Cache too old, return empty
+                            MovieSearchResult(
+                                movies = emptyList(),
+                                currentPage = page,
+                                totalPages = 1,
+                                isLoading = false,
+                                isFromCache = false
+                            )
+                        }
+                    } else {
+                        MovieSearchResult(
+                            movies = emptyList(),
+                            currentPage = page,
+                            totalPages = 1,
+                            isLoading = false,
+                            isFromCache = false
+                        )
+                    }
+                } else {
+                    MovieSearchResult(
+                        movies = emptyList(),
+                        currentPage = page,
+                        totalPages = 1,
+                        isLoading = false,
+                        isFromCache = false
+                    )
+                }
             }
         }
     }

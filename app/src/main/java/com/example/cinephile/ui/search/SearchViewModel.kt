@@ -110,7 +110,9 @@ class SearchViewModel @Inject constructor(
                 if (!isLoadMore) {
                     _searchUiState.value = _searchUiState.value.copy(
                         isLoading = true,
-                        error = null
+                        error = null,
+                        isOffline = false,
+                        cacheTimestamp = null
                     )
                 }
                 
@@ -128,7 +130,9 @@ class SearchViewModel @Inject constructor(
                 } else {
                     _searchUiState.value = _searchUiState.value.copy(
                         movies = result.movies,
-                        isLoading = false
+                        isLoading = false,
+                        isOffline = result.isFromCache,
+                        cacheTimestamp = result.cacheTimestamp
                     )
                 }
             } catch (e: Exception) {
@@ -210,6 +214,8 @@ class SearchViewModel @Inject constructor(
         val current = _selectedGenreIds.value
         _selectedGenreIds.value = if (id in current)
             current - id else current + id
+        // Trigger search on filter change
+        onSearchClick()
     }
 }
 
@@ -218,5 +224,7 @@ data class SearchUiState(
     val movies: List<MovieUiModel> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
-    val selectedYear: Int? = null
+    val selectedYear: Int? = null,
+    val isOffline: Boolean = false,
+    val cacheTimestamp: Long? = null
 )
