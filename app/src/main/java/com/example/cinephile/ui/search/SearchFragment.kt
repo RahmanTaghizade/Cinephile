@@ -13,6 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.cinephile.R
 import com.example.cinephile.databinding.FragmentSearchBinding
+import androidx.navigation.fragment.findNavController
+import com.example.cinephile.ui.search.SearchFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import com.google.android.material.chip.Chip
@@ -75,7 +77,8 @@ class SearchFragment : Fragment() {
 
         movieAdapter = MovieAdapter(
             onItemClick = { movieId ->
-                // TODO: Navigate to DetailsFragment
+                val action = SearchFragmentDirections.actionSearchFragmentToDetailsFragment(movieId)
+                findNavController().navigate(action)
             },
             onLongPress = { movieId ->
                 viewModel.addToCurrentWatchlist(movieId)
