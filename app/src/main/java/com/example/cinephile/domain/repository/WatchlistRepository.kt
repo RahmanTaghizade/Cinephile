@@ -13,6 +13,7 @@ interface WatchlistRepository {
     suspend fun addToWatchlist(watchlistId: Long, movieId: Long)
     suspend fun removeFromWatchlist(watchlistId: Long, movieId: Long)
     suspend fun getWatchlistMovies(watchlistId: Long): Flow<List<MovieUiModel>>
+    suspend fun addToCurrent(movieId: Long)
 }
 
 data class WatchlistUiModel(

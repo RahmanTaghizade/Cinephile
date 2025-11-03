@@ -12,7 +12,10 @@ class ListConverters {
     @TypeConverter
     fun fromLongList(value: List<Long>?): String? {
         if (value == null) return null
-        val type: ParameterizedType = Types.newParameterizedType(List::class.java, Long::class.java)
+        val type: ParameterizedType = Types.newParameterizedType(
+            List::class.java,
+            java.lang.Long::class.javaObjectType
+        )
         val adapter = moshi.adapter<List<Long>>(type)
         return adapter.toJson(value)
     }
@@ -20,7 +23,10 @@ class ListConverters {
     @TypeConverter
     fun toLongList(value: String?): List<Long>? {
         if (value == null) return null
-        val type: ParameterizedType = Types.newParameterizedType(List::class.java, Long::class.java)
+        val type: ParameterizedType = Types.newParameterizedType(
+            List::class.java,
+            java.lang.Long::class.javaObjectType
+        )
         val adapter = moshi.adapter<List<Long>>(type)
         return adapter.fromJson(value)
     }
@@ -44,7 +50,10 @@ class ListConverters {
     @TypeConverter
     fun fromIntList(value: List<Int>?): String? {
         if (value == null) return null
-        val type: ParameterizedType = Types.newParameterizedType(List::class.java, Int::class.java)
+        val type: ParameterizedType = Types.newParameterizedType(
+            List::class.java,
+            java.lang.Integer::class.javaObjectType
+        )
         val adapter = moshi.adapter<List<Int>>(type)
         return adapter.toJson(value)
     }
@@ -52,7 +61,10 @@ class ListConverters {
     @TypeConverter
     fun toIntList(value: String?): List<Int>? {
         if (value == null) return null
-        val type: ParameterizedType = Types.newParameterizedType(List::class.java, Int::class.java)
+        val type: ParameterizedType = Types.newParameterizedType(
+            List::class.java,
+            java.lang.Integer::class.javaObjectType
+        )
         val adapter = moshi.adapter<List<Int>>(type)
         return adapter.fromJson(value)
     }

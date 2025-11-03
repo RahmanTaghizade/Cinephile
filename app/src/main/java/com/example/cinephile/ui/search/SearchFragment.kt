@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import com.google.android.material.chip.Chip
 import android.widget.AutoCompleteTextView
 import com.example.cinephile.data.remote.TmdbPerson
+import com.google.android.material.snackbar.Snackbar
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
@@ -45,6 +46,7 @@ class SearchFragment : Fragment() {
         setupPersonSuggestions()
         observePersonChips()
         setupSearchInput()
+        observeUiEvents()
     }
     
     private fun setupSearchInput() {
@@ -76,7 +78,7 @@ class SearchFragment : Fragment() {
                 // TODO: Navigate to DetailsFragment
             },
             onLongPress = { movieId ->
-                // TODO: Show snackbar for adding to watchlist
+                viewModel.addToCurrentWatchlist(movieId)
             }
         )
 
@@ -129,6 +131,23 @@ class SearchFragment : Fragment() {
                 state.error?.let { error ->
                     Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
                     viewModel.clearError()
+                }
+            }
+        }
+    }
+
+    private fun observeUiEvents() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is SearchUiEvent.ShowAddedToWatchlist -> {
+                        Snackbar.make(requireView(), getString(R.string.added_to_watchlist), Snackbar.LENGTH_LONG)
+                            .setAction(R.string.undo) { viewModel.undoAdd() }
+                            .show()
+                    }
+                    is SearchUiEvent.ShowUndoFailed -> {
+                        Snackbar.make(requireView(), getString(R.string.action_failed), Snackbar.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

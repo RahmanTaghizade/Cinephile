@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.security.MessageDigest
+import android.util.Log
 
 @Singleton
 class MovieRepositoryImpl @Inject constructor(
@@ -26,6 +27,8 @@ class MovieRepositoryImpl @Inject constructor(
     private val cachedSearchDao: CachedSearchDao,
     override val tmdbService: TmdbService
 ) : MovieRepository {
+
+    private val TAG = "MovieRepo"
 
     // Cache for director mappings (movieId -> directorId)
     private val directorCache = mutableMapOf<Long, Long?>()
@@ -54,6 +57,7 @@ class MovieRepositoryImpl @Inject constructor(
             var isFromCache = false
             
             try {
+                Log.d(TAG, "searchMovies call | page=$page | filters=$filters")
                 val response = if (filters.query != null) {
                     // Use search endpoint for title-based queries
                     tmdbService.searchMovies(query = filters.query, page = page)
@@ -91,6 +95,7 @@ class MovieRepositoryImpl @Inject constructor(
 
                 // Filter by directors if needed
                 if (filters.directorIds.isNotEmpty()) {
+                    Log.d(TAG, "Filtering by directors: ${filters.directorIds}")
                     entities = filterMoviesByDirectors(entities, filters.directorIds)
                 }
 
@@ -108,6 +113,7 @@ class MovieRepositoryImpl @Inject constructor(
                         createdAt = System.currentTimeMillis()
                     )
                     cachedSearchDao.upsert(cachedSearch)
+                    Log.d(TAG, "Cached first page for hash=$queryHash idsCount=${movieIds.size}")
                 }
 
                 // Map to UI models
@@ -122,6 +128,7 @@ class MovieRepositoryImpl @Inject constructor(
                     isFromCache = isFromCache
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "searchMovies failed | attempting cache (page=$page)", e)
                 // Try to load from cache on error (only for first page)
                 if (page == 1) {
                     val cachedSearch = cachedSearchDao.getByHash(queryHash)
@@ -137,6 +144,7 @@ class MovieRepositoryImpl @Inject constructor(
                                 entityToUiModel(entity)
                             }
                             
+                            Log.d(TAG, "Returning results from cache | count=${uiModels.size} ageMs=$cacheAge")
                             MovieSearchResult(
                                 movies = uiModels,
                                 currentPage = 1,
@@ -146,6 +154,7 @@ class MovieRepositoryImpl @Inject constructor(
                                 cacheTimestamp = cachedSearch.createdAt
                             )
                         } else {
+                            Log.d(TAG, "Cache too old; returning empty | ageMs=$cacheAge")
                             // Cache too old, return empty
                             MovieSearchResult(
                                 movies = emptyList(),
@@ -156,6 +165,7 @@ class MovieRepositoryImpl @Inject constructor(
                             )
                         }
                     } else {
+                        Log.d(TAG, "No cache entry for hash=$queryHash")
                         MovieSearchResult(
                             movies = emptyList(),
                             currentPage = page,

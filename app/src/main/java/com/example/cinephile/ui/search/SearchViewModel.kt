@@ -3,6 +3,7 @@ package com.example.cinephile.ui.search
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.util.Log
 import com.example.cinephile.domain.repository.MovieRepository
 import com.example.cinephile.domain.repository.MovieFilters
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,12 +18,18 @@ import javax.inject.Inject
 import com.example.cinephile.data.local.entities.GenreEntity
 import kotlinx.coroutines.flow.collect
 import com.example.cinephile.data.remote.TmdbPerson
+import com.example.cinephile.domain.repository.WatchlistRepository
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val movieRepository: MovieRepository,
+    private val watchlistRepository: WatchlistRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    private val TAG = "SearchVM"
 
     private val _searchUiState = MutableStateFlow(SearchUiState())
     val searchUiState: StateFlow<SearchUiState> = _searchUiState.asStateFlow()
@@ -51,6 +58,12 @@ class SearchViewModel @Inject constructor(
     private var actorSearchJob: Job? = null
     private var directorSearchJob: Job? = null
 
+    // UI event for showing snackbars/actions (single-use)
+    private val _uiEvent = MutableSharedFlow<SearchUiEvent>()
+    val uiEvent: SharedFlow<SearchUiEvent> = _uiEvent
+
+    private var lastAdded: Pair<Long, Long>? = null // watchlistId to movieId
+
     fun onQueryChanged(query: String) {
         savedStateHandle["query"] = query
         _searchUiState.value = _searchUiState.value.copy(query = query)
@@ -62,6 +75,7 @@ class SearchViewModel @Inject constructor(
         searchJob = viewModelScope.launch {
             delay(400)
             if (query.trim().isNotEmpty() || hasActiveFilters()) {
+                Log.d(TAG, "Debounced query change -> triggering search; query='${query.trim()}'")
                 currentPage = 1
                 performSearch()
             }
@@ -69,12 +83,14 @@ class SearchViewModel @Inject constructor(
     }
     
     fun onSearchClick() {
+        Log.d(TAG, "Search button clicked with query='${_searchUiState.value.query.trim()}' and filters year=${_searchUiState.value.selectedYear} genres=${_selectedGenreIds.value} actors=${_selectedActors.value.map { it.id }} directors=${_selectedDirectors.value.map { it.id }}")
         currentPage = 1
         performSearch()
     }
 
     fun loadNextPage() {
         if (currentPage < totalPages && !isLoadingPage) {
+            Log.d(TAG, "Loading next page: current=$currentPage total=$totalPages")
             isLoadingPage = true
             performSearch(isLoadMore = true)
         }
@@ -117,6 +133,7 @@ class SearchViewModel @Inject constructor(
                 }
                 
                 val filters = buildFilters()
+                Log.d(TAG, "performSearch start | page=$currentPage isLoadMore=$isLoadMore | filters=$filters")
                 val result = movieRepository.searchMovies(filters, currentPage)
                 
                 currentPage = result.currentPage
@@ -127,6 +144,7 @@ class SearchViewModel @Inject constructor(
                     _searchUiState.value = _searchUiState.value.copy(
                         movies = _searchUiState.value.movies + result.movies
                     )
+                    Log.d(TAG, "performSearch success (append) | added=${result.movies.size} total=${_searchUiState.value.movies.size}")
                 } else {
                     _searchUiState.value = _searchUiState.value.copy(
                         movies = result.movies,
@@ -134,6 +152,7 @@ class SearchViewModel @Inject constructor(
                         isOffline = result.isFromCache,
                         cacheTimestamp = result.cacheTimestamp
                     )
+                    Log.d(TAG, "performSearch success | movies=${result.movies.size} page=${result.currentPage}/${result.totalPages} fromCache=${result.isFromCache}")
                 }
             } catch (e: Exception) {
                 isLoadingPage = false
@@ -141,6 +160,7 @@ class SearchViewModel @Inject constructor(
                     isLoading = false,
                     error = e.message ?: "Unknown error occurred"
                 )
+                Log.e(TAG, "performSearch failed", e)
             }
         }
     }
@@ -196,6 +216,36 @@ class SearchViewModel @Inject constructor(
         _selectedDirectors.value = _selectedDirectors.value.filterNot { it.id == personId }
     }
 
+    fun addToCurrentWatchlist(movieId: Long) {
+        viewModelScope.launch {
+            try {
+                val current = watchlistRepository.getCurrentWatchlist().first()
+                if (current != null) {
+                    watchlistRepository.addToWatchlist(current.id, movieId)
+                    lastAdded = current.id to movieId
+                    _uiEvent.emit(SearchUiEvent.ShowAddedToWatchlist(movieId))
+                } else {
+                    // No current watchlist set; optionally emit a different event/message
+                    _uiEvent.emit(SearchUiEvent.ShowUndoFailed)
+                }
+            } catch (_: Exception) {
+                _uiEvent.emit(SearchUiEvent.ShowUndoFailed)
+            }
+        }
+    }
+
+    fun undoAdd() {
+        viewModelScope.launch {
+            val (watchlistId, movieId) = lastAdded ?: return@launch
+            try {
+                watchlistRepository.removeFromWatchlist(watchlistId, movieId)
+                lastAdded = null
+            } catch (_: Exception) {
+                _uiEvent.emit(SearchUiEvent.ShowUndoFailed)
+            }
+        }
+    }
+
     init {
         // Restore saved query
         savedStateHandle.get<String>("query")?.let { query ->
@@ -228,3 +278,8 @@ data class SearchUiState(
     val isOffline: Boolean = false,
     val cacheTimestamp: Long? = null
 )
+
+sealed class SearchUiEvent {
+    data class ShowAddedToWatchlist(val movieId: Long): SearchUiEvent()
+    object ShowUndoFailed: SearchUiEvent()
+}

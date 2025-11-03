@@ -72,6 +72,7 @@ class MovieAdapter(
                     onItemClick(movie.id)
                 }
                 root.setOnLongClickListener {
+                    // Long-press callback, passes movieId (Long) to VM
                     onLongPress(movie.id)
                     true
                 }
