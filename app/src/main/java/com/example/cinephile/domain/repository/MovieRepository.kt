@@ -1,6 +1,8 @@
 package com.example.cinephile.domain.repository
 
 import com.example.cinephile.ui.search.MovieUiModel
+import com.example.cinephile.data.local.entities.MovieEntity
+import com.example.cinephile.data.local.dao.MovieUserFlags
 import kotlinx.coroutines.flow.Flow
 
 data class MovieFilters(
@@ -23,11 +25,12 @@ data class MovieSearchResult(
 interface MovieRepository {
     suspend fun searchMovies(filters: MovieFilters, page: Int = 1): MovieSearchResult
     suspend fun getMovieDetails(movieId: Long): Flow<MovieUiModel?>
-    suspend fun toggleFavorite(movieId: Long, isFavorite: Boolean)
-    suspend fun rateMovie(movieId: Long, rating: Float)
+    suspend fun toggleFavorite(movieId: Long, isFavorite: Boolean): MovieEntity?
+    suspend fun rateMovie(movieId: Long, rating: Float): MovieEntity?
     suspend fun getFavorites(): Flow<List<MovieUiModel>>
     suspend fun getRatedMovies(): Flow<List<MovieUiModel>>
     suspend fun fetchAndCacheGenres()
     fun getGenresFlow(): Flow<List<com.example.cinephile.data.local.entities.GenreEntity>>
     val tmdbService: com.example.cinephile.data.remote.TmdbService
+    fun observeUserFlags(): Flow<List<MovieUserFlags>>
 }

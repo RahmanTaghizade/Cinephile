@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.example.cinephile.data.local.entities.GenreEntity
@@ -256,6 +257,25 @@ class SearchViewModel @Inject constructor(
             movieRepository.fetchAndCacheGenres()
             movieRepository.getGenresFlow().collect { list ->
                 _genres.value = list
+            }
+        }
+
+        // Observe user flags (favorite/rating) and update current list items optimistically
+        viewModelScope.launch {
+            movieRepository.observeUserFlags().collectLatest { flagsList ->
+                if (flagsList.isEmpty()) return@collectLatest
+                val flagsMap = flagsList.associateBy { it.id }
+                val current = _searchUiState.value.movies
+                if (current.isEmpty()) return@collectLatest
+                val updated = current.map { item ->
+                    val f = flagsMap[item.id]
+                    if (f != null && (f.isFavorite != item.isFavorite || f.userRating != item.userRating)) {
+                        item.copy(isFavorite = f.isFavorite, userRating = f.userRating)
+                    } else item
+                }
+                if (updated !== current) {
+                    _searchUiState.value = _searchUiState.value.copy(movies = updated)
+                }
             }
         }
     }

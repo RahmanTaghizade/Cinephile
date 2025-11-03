@@ -42,4 +42,14 @@ interface MovieDao {
     
     @Query("DELETE FROM movies WHERE lastUpdated < :cutoffTime")
     suspend fun deleteOldMovies(cutoffTime: Long)
+
+    // Observe minimal user flag updates for all movies (for badge updates in lists)
+    @Query("SELECT id, isFavorite, userRating FROM movies")
+    fun observeUserFlags(): Flow<List<MovieUserFlags>>
 }
+
+data class MovieUserFlags(
+    val id: Long,
+    val isFavorite: Boolean,
+    val userRating: Float
+)

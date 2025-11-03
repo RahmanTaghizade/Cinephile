@@ -1,6 +1,7 @@
 package com.example.cinephile.data.repository
 
 import com.example.cinephile.data.local.dao.MovieDao
+import com.example.cinephile.data.local.dao.MovieUserFlags
 import com.example.cinephile.data.local.dao.GenreDao
 import com.example.cinephile.data.local.dao.CachedSearchDao
 import com.example.cinephile.data.local.entities.MovieEntity
@@ -13,6 +14,7 @@ import com.example.cinephile.domain.repository.MovieSearchResult
 import com.example.cinephile.ui.search.MovieUiModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -226,26 +228,75 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getMovieDetails(movieId: Long): Flow<MovieUiModel?> {
-        // Stub implementation - return null for now
-        return flowOf(null)
+        // Observe DB and emit UI model; also refresh from network and cache
+        return withContext(Dispatchers.IO) {
+            // Kick off a refresh in background
+            try {
+                val details = tmdbService.getMovie(movieId)
+                val credits = tmdbService.getCredits(movieId)
+                val keywords = tmdbService.getKeywords(movieId)
+
+                val director = credits.crew.firstOrNull { it.job == "Director" }
+                val castSorted = credits.cast.sortedBy { it.order }.take(10)
+
+                val entity = MovieEntity(
+                    id = details.id,
+                    title = details.title,
+                    posterPath = details.posterPath,
+                    overview = details.overview,
+                    releaseDate = details.releaseDate,
+                    directorId = director?.id,
+                    directorName = director?.name,
+                    castIds = castSorted.map { it.id },
+                    castNames = castSorted.map { it.name },
+                    genreIds = details.genres.map { it.id },
+                    keywordIds = keywords.keywords.map { it.id },
+                    runtime = details.runtime,
+                    lastUpdated = System.currentTimeMillis(),
+                    isFavorite = movieDao.getById(movieId)?.isFavorite ?: false,
+                    userRating = movieDao.getById(movieId)?.userRating ?: 0f
+                )
+                movieDao.upsert(entity)
+            } catch (_: Exception) {
+                // Ignore network errors; we'll rely on DB if available
+            }
+
+            // Return flow observing DB changes for this movie
+            movieDao.observeByIds(listOf(movieId)).map { list ->
+                val entity = list.firstOrNull() ?: return@map null
+                entityToUiModel(entity)
+            }
+        }
     }
 
-    override suspend fun toggleFavorite(movieId: Long, isFavorite: Boolean) {
-        // Stub implementation - no-op for now
+    override suspend fun toggleFavorite(movieId: Long, isFavorite: Boolean): MovieEntity? {
+        return withContext(Dispatchers.IO) {
+            try {
+                movieDao.updateFavorite(movieId, isFavorite)
+                movieDao.getById(movieId)
+            } catch (_: Exception) {
+                null
+            }
+        }
     }
 
-    override suspend fun rateMovie(movieId: Long, rating: Float) {
-        // Stub implementation - no-op for now
+    override suspend fun rateMovie(movieId: Long, rating: Float): MovieEntity? {
+        return withContext(Dispatchers.IO) {
+            try {
+                movieDao.updateRating(movieId, rating)
+                movieDao.getById(movieId)
+            } catch (_: Exception) {
+                null
+            }
+        }
     }
 
     override suspend fun getFavorites(): Flow<List<MovieUiModel>> {
-        // Stub implementation - return empty list for now
-        return flowOf(emptyList())
+        return movieDao.observeFavorites().map { list -> list.map { entityToUiModel(it) } }
     }
 
     override suspend fun getRatedMovies(): Flow<List<MovieUiModel>> {
-        // Stub implementation - return empty list for now
-        return flowOf(emptyList())
+        return movieDao.observeRated().map { list -> list.map { entityToUiModel(it) } }
     }
 
     override suspend fun fetchAndCacheGenres() {
@@ -262,6 +313,10 @@ class MovieRepositoryImpl @Inject constructor(
 
     override fun getGenresFlow(): Flow<List<GenreEntity>> {
         return genreDao.getAll()
+    }
+    
+    override fun observeUserFlags(): Flow<List<MovieUserFlags>> {
+        return movieDao.observeUserFlags()
     }
     
     private fun entityToUiModel(entity: MovieEntity): MovieUiModel {
