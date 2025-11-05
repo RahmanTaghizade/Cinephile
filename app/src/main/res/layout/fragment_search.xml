@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/md_theme_dark_background"
     tools:context=".ui.search.SearchFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,7 +20,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:visibility="gone"
-            app:cardBackgroundColor="@android:color/holo_orange_light"
+            app:cardBackgroundColor="@color/md_theme_dark_secondaryContainer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -30,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:padding="12dp"
                 android:text="@string/results_from_cache"
-                android:textColor="@android:color/black"
+                android:textColor="@color/md_theme_dark_onSecondaryContainer"
                 android:textStyle="bold" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -60,6 +61,7 @@
             android:layout_height="56dp"
             android:layout_marginEnd="16dp"
             android:text="@string/search_button"
+            style="@style/Widget.Material3.Button.TonalButton"
             app:layout_constraintBottom_toBottomOf="@id/text_input_layout_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/text_input_layout_title" />
@@ -148,7 +150,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipToPadding="false"
-            android:padding="4dp"
+            android:padding="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -2,4 +2,28 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Material 3 dark palette inspired by the mockup -->
+    <color name="md_theme_dark_primary">#4DA3FF</color>
+    <color name="md_theme_dark_onPrimary">#001C37</color>
+    <color name="md_theme_dark_primaryContainer">#00315F</color>
+    <color name="md_theme_dark_onPrimaryContainer">#D4E3FF</color>
+
+    <color name="md_theme_dark_secondary">#B0C6FF</color>
+    <color name="md_theme_dark_onSecondary">#11253F</color>
+    <color name="md_theme_dark_secondaryContainer">#273A58</color>
+    <color name="md_theme_dark_onSecondaryContainer">#DAE2FF</color>
+
+    <color name="md_theme_dark_background">#0B1117</color>
+    <color name="md_theme_dark_onBackground">#DCE1E6</color>
+    <color name="md_theme_dark_surface">#0E141B</color>
+    <color name="md_theme_dark_onSurface">#C9CED3</color>
+    <color name="md_theme_dark_surfaceVariant">#1A2430</color>
+    <color name="md_theme_dark_onSurfaceVariant">#AAB2BA</color>
+    <color name="md_theme_dark_outline">#45505B</color>
+
+    <color name="md_theme_dark_error">#FFB4A9</color>
+    <color name="md_theme_dark_onError">#680003</color>
+    <color name="md_theme_dark_errorContainer">#930006</color>
+    <color name="md_theme_dark_onErrorContainer">#FFDAD4</color>
 </resources>
