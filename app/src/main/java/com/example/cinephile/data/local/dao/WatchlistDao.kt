@@ -36,6 +36,15 @@ interface WatchlistDao {
         clearCurrent()
         setCurrent(id)
     }
+
+    @Query("SELECT COUNT(*) FROM watchlists")
+    suspend fun getWatchlistCount(): Int
+
+    @Query("SELECT * FROM watchlists ORDER BY name ASC")
+    suspend fun getAllOnce(): List<WatchlistEntity>
+
+    @Query("SELECT * FROM watchlists WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Long): WatchlistEntity?
     
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addMovieToWatchlist(crossRef: WatchlistMovieCrossRef)

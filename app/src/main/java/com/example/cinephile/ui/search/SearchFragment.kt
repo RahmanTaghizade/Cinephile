@@ -108,16 +108,16 @@ class SearchFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.searchUiState.collect { state ->
                 // Update movie list
                 movieAdapter.submitList(state.movies)
-                
+
                 // Handle loading state (can add progress bar later)
                 if (state.isLoading) {
                     // Show loading indicator if needed
                 }
-                
+
                 // Handle offline banner
                 binding.offlineBanner.visibility = if (state.isOffline && state.cacheTimestamp != null) {
                     val timestamp = java.text.SimpleDateFormat(
@@ -129,7 +129,7 @@ class SearchFragment : Fragment() {
                 } else {
                     View.GONE
                 }
-                
+
                 // Handle error state
                 state.error?.let { error ->
                     Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
@@ -217,15 +217,9 @@ class SearchFragment : Fragment() {
             }
         }
 
-        lifecycleScope.launch {
-            viewModel.actorSuggestions.collect { suggestions ->
-                actorAdapter.updateData(suggestions)
-            }
-        }
-        lifecycleScope.launch {
-            viewModel.directorSuggestions.collect { suggestions ->
-                directorAdapter.updateData(suggestions)
-            }
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            launch { viewModel.actorSuggestions.collect { suggestions -> actorAdapter.updateData(suggestions) } }
+            launch { viewModel.directorSuggestions.collect { suggestions -> directorAdapter.updateData(suggestions) } }
         }
     }
 

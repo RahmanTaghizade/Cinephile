@@ -10,6 +10,16 @@
     <string name="results_from_cache">Results from cache</string>
     <string name="results_from_cache_with_timestamp">Results from cache (%1$s)</string>
     <string name="added_to_watchlist">Added to watchlist</string>
+    <string name="removed_from_watchlist">Removed from watchlist</string>
     <string name="undo">Undo</string>
     <string name="action_failed">Something went wrong</string>
+    <string name="current_watchlist">Current</string>
+    <string name="dialog_rename_title">Rename watchlist</string>
+    <string name="dialog_rename_hint">Name</string>
+    <string name="dialog_delete_title">Delete watchlist?</string>
+    <string name="dialog_delete_message">This will remove the watchlist. Movies remain in your library.</string>
+    <string name="delete">Delete</string>
+    <string name="rename">Rename</string>
+    <string name="cancel">Cancel</string>
+    <string name="new_watchlist">New Watchlist</string>
 </resources>
