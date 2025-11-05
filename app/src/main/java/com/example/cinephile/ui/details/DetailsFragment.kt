@@ -11,6 +11,7 @@ import coil.load
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.cinephile.databinding.FragmentDetailsBinding
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -46,8 +47,21 @@ class DetailsFragment : Fragment() {
                 binding.textOverview.text = state.movie?.let { _ -> binding.textOverview.text }?.toString() ?: binding.textOverview.text.toString()
                 binding.ratingBar.rating = state.userRating
 
+                // Update watchlist button label
+                binding.buttonWatchlist.text = if (state.isInWatchlist) {
+                    "Remove from Watchlist"
+                } else {
+                    "Add to Watchlist"
+                }
+
                 binding.imagePoster.load(state.posterUrl) {
                     crossfade(true)
+                }
+                
+                // Show Snackbar if there's a message
+                state.snackbarMessage?.let { message ->
+                    Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+                    viewModel.clearSnackbarMessage()
                 }
             }
         }
@@ -59,7 +73,7 @@ class DetailsFragment : Fragment() {
 
         binding.buttonFavorite.setOnClickListener { viewModel.toggleFavorite() }
         binding.ratingBar.setOnRatingBarChangeListener { _, rating, _ -> viewModel.setRating(rating) }
-        binding.buttonWatchlist.setOnClickListener { viewModel.addToCurrentWatchlist() }
+        binding.buttonWatchlist.setOnClickListener { viewModel.toggleWatchlist() }
     }
 
     override fun onDestroyView() {

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -36,6 +37,11 @@ class DetailsViewModel @Inject constructor(
             try {
                 movieRepository.getMovieDetails(movieId).collect { movie ->
                     val posterUrl = movie?.posterUrl
+                    // Check if movie is in current watchlist
+                    val isInWatchlist = movie?.let { 
+                        watchlistRepository.isMovieInCurrentWatchlist(it.id) 
+                    } ?: false
+                    
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         movie = movie,
@@ -44,7 +50,8 @@ class DetailsViewModel @Inject constructor(
                         releaseDate = movie?.releaseDate,
                         director = movie?.director,
                         isFavorite = movie?.isFavorite ?: false,
-                        userRating = movie?.userRating ?: 0f
+                        userRating = movie?.userRating ?: 0f,
+                        isInWatchlist = isInWatchlist
                     )
                 }
             } catch (e: Exception) {
@@ -92,16 +99,40 @@ class DetailsViewModel @Inject constructor(
         }
     }
 
-    fun addToCurrentWatchlist() {
+    fun toggleWatchlist() {
         val current = _uiState.value.movie ?: return
+        val isCurrentlyInWatchlist = _uiState.value.isInWatchlist
+        
         viewModelScope.launch {
             try {
-                val wl = watchlistRepository.getCurrentWatchlist()
-                wl.collect { curr ->
-                    curr?.let { watchlistRepository.addToWatchlist(it.id, current.id) }
+                val currentWatchlist = watchlistRepository.getCurrentWatchlist().first()
+                currentWatchlist?.let { watchlist ->
+                    if (isCurrentlyInWatchlist) {
+                        // Remove from watchlist
+                        watchlistRepository.removeFromWatchlist(watchlist.id, current.id)
+                        _uiState.value = _uiState.value.copy(
+                            isInWatchlist = false,
+                            snackbarMessage = "${current.title} removed from watchlist"
+                        )
+                    } else {
+                        // Add to watchlist
+                        watchlistRepository.addToWatchlist(watchlist.id, current.id)
+                        _uiState.value = _uiState.value.copy(
+                            isInWatchlist = true,
+                            snackbarMessage = "${current.title} added to watchlist"
+                        )
+                    }
                 }
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    snackbarMessage = "Error updating watchlist: ${e.message}"
+                )
+            }
         }
+    }
+    
+    fun clearSnackbarMessage() {
+        _uiState.value = _uiState.value.copy(snackbarMessage = null)
     }
 }
 
@@ -114,7 +145,9 @@ data class DetailsUiState(
     val releaseDate: String? = null,
     val director: String? = null,
     val isFavorite: Boolean = false,
-    val userRating: Float = 0f
+    val userRating: Float = 0f,
+    val isInWatchlist: Boolean = false,
+    val snackbarMessage: String? = null
 )
 
 

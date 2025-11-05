@@ -111,4 +111,13 @@ class WatchlistRepositoryImpl @Inject constructor(
         }
         ensured?.let { addToWatchlist(it.id, movieId) }
     }
+
+    override suspend fun isMovieInWatchlist(watchlistId: Long, movieId: Long): Boolean {
+        return watchlistDao.isMovieInWatchlist(watchlistId, movieId)
+    }
+
+    override suspend fun isMovieInCurrentWatchlist(movieId: Long): Boolean {
+        val current = watchlistDao.getCurrent() ?: return false
+        return watchlistDao.isMovieInWatchlist(current.id, movieId)
+    }
 }
