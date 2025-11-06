@@ -21,6 +21,8 @@ import com.google.android.material.chip.Chip
 import android.widget.AutoCompleteTextView
 import com.example.cinephile.data.remote.TmdbPerson
 import com.google.android.material.snackbar.Snackbar
+import javax.inject.Inject
+import com.example.cinephile.util.ConnectivityMonitor
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
@@ -28,6 +30,7 @@ class SearchFragment : Fragment() {
     private val binding get() = _binding!!
     
     private val viewModel: SearchViewModel by viewModels()
+    @Inject lateinit var connectivityMonitor: ConnectivityMonitor
     private lateinit var movieAdapter: MovieAdapter
 
     override fun onCreateView(
@@ -44,6 +47,7 @@ class SearchFragment : Fragment() {
         
         setupRecyclerView()
         observeViewModel()
+        observeConnectivity()
         observeGenreChips()
         setupPersonSuggestions()
         observePersonChips()
@@ -88,6 +92,8 @@ class SearchFragment : Fragment() {
         binding.recyclerViewMovies.apply {
             layoutManager = GridLayoutManager(context, spanCount)
             adapter = movieAdapter
+            // Save and restore scroll position on configuration changes
+            setHasFixedSize(true)
             
             // Add scroll listener for endless scrolling
             addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
@@ -113,27 +119,57 @@ class SearchFragment : Fragment() {
                 // Update movie list
                 movieAdapter.submitList(state.movies)
 
-                // Handle loading state (can add progress bar later)
-                if (state.isLoading) {
-                    // Show loading indicator if needed
+                // Handle loading state
+                binding.progressLoading.visibility = if (state.isLoading && state.movies.isEmpty()) View.VISIBLE else View.GONE
+                
+                // Handle empty state
+                val isEmpty = !state.isLoading && state.movies.isEmpty() && state.error == null
+                binding.textEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
+                binding.recyclerViewMovies.visibility = if (isEmpty || state.isLoading) View.GONE else View.VISIBLE
+                
+                // Handle error state
+                val hasError = state.error != null && !state.isLoading
+                binding.errorCard.visibility = if (hasError) View.VISIBLE else View.GONE
+                if (hasError) {
+                    binding.textError.text = state.error
+                    binding.recyclerViewMovies.visibility = View.GONE
+                }
+                
+                // Show recycler view when we have data
+                if (!state.isLoading && state.movies.isNotEmpty() && state.error == null) {
+                    binding.recyclerViewMovies.visibility = View.VISIBLE
                 }
 
-                // Handle offline banner
-                binding.offlineBanner.visibility = if (state.isOffline && state.cacheTimestamp != null) {
+                // When results are from cache, show banner with timestamp text
+                if (state.isOffline && state.cacheTimestamp != null) {
                     val timestamp = java.text.SimpleDateFormat(
                         "MMM dd, yyyy HH:mm",
                         java.util.Locale.getDefault()
                     ).format(java.util.Date(state.cacheTimestamp))
                     binding.offlineText.text = getString(R.string.results_from_cache_with_timestamp, timestamp)
-                    View.VISIBLE
-                } else {
-                    View.GONE
+                    binding.offlineBanner.visibility = View.VISIBLE
                 }
+            }
+        }
+        
+        // Setup retry button
+        binding.buttonRetry.setOnClickListener {
+            viewModel.onSearchClick()
+        }
+    }
 
-                // Handle error state
-                state.error?.let { error ->
-                    Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
-                    viewModel.clearError()
+    private fun observeConnectivity() {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            connectivityMonitor.isOnlineFlow.collect { isOnline ->
+                if (!isOnline) {
+                    // Show generic offline banner text when offline and no cached timestamp yet
+                    binding.offlineText.text = getString(R.string.results_from_cache)
+                    binding.offlineBanner.visibility = View.VISIBLE
+                } else {
+                    // Only hide if not currently showing cached timestamp state
+                    if (!viewModel.searchUiState.value.isOffline) {
+                        binding.offlineBanner.visibility = View.GONE
+                    }
                 }
             }
         }

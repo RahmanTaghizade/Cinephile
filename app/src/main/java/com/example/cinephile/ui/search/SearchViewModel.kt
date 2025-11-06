@@ -68,6 +68,11 @@ class SearchViewModel @Inject constructor(
     fun onQueryChanged(query: String) {
         savedStateHandle["query"] = query
         _searchUiState.value = _searchUiState.value.copy(query = query)
+        // Save filter state
+        savedStateHandle["selectedYear"] = _searchUiState.value.selectedYear
+        savedStateHandle["selectedGenreIds"] = _selectedGenreIds.value
+        savedStateHandle["selectedActorIds"] = _selectedActors.value.map { it.id }
+        savedStateHandle["selectedDirectorIds"] = _selectedDirectors.value.map { it.id }
         
         // Cancel previous search
         searchJob?.cancel()
@@ -203,18 +208,22 @@ class SearchViewModel @Inject constructor(
     fun addSelectedActor(person: TmdbPerson) {
         if (!_selectedActors.value.any { it.id == person.id }) {
             _selectedActors.value = _selectedActors.value + person
+            savedStateHandle["selectedActorIds"] = _selectedActors.value.map { it.id }
         }
     }
     fun removeSelectedActor(personId: Long) {
         _selectedActors.value = _selectedActors.value.filterNot { it.id == personId }
+        savedStateHandle["selectedActorIds"] = _selectedActors.value.map { it.id }
     }
     fun addSelectedDirector(person: TmdbPerson) {
         if (!_selectedDirectors.value.any { it.id == person.id }) {
             _selectedDirectors.value = _selectedDirectors.value + person
+            savedStateHandle["selectedDirectorIds"] = _selectedDirectors.value.map { it.id }
         }
     }
     fun removeSelectedDirector(personId: Long) {
         _selectedDirectors.value = _selectedDirectors.value.filterNot { it.id == personId }
+        savedStateHandle["selectedDirectorIds"] = _selectedDirectors.value.map { it.id }
     }
 
     fun addToCurrentWatchlist(movieId: Long) {
@@ -252,6 +261,22 @@ class SearchViewModel @Inject constructor(
         savedStateHandle.get<String>("query")?.let { query ->
             _searchUiState.value = _searchUiState.value.copy(query = query)
         }
+        // Restore selected year
+        savedStateHandle.get<Int>("selectedYear")?.let { year ->
+            _searchUiState.value = _searchUiState.value.copy(selectedYear = year)
+        }
+        // Restore selected genre IDs
+        savedStateHandle.get<Set<Int>>("selectedGenreIds")?.let { ids ->
+            _selectedGenreIds.value = ids
+        }
+        // Restore selected actors (serialized as List<Long> IDs)
+        savedStateHandle.get<List<Long>>("selectedActorIds")?.let { actorIds ->
+            // Will be restored when genres are loaded
+        }
+        // Restore selected directors (serialized as List<Long> IDs)
+        savedStateHandle.get<List<Long>>("selectedDirectorIds")?.let { directorIds ->
+            // Will be restored when genres are loaded
+        }
         // Fetch & observe genres
         viewModelScope.launch {
             movieRepository.fetchAndCacheGenres()
@@ -284,8 +309,14 @@ class SearchViewModel @Inject constructor(
         val current = _selectedGenreIds.value
         _selectedGenreIds.value = if (id in current)
             current - id else current + id
+        savedStateHandle["selectedGenreIds"] = _selectedGenreIds.value
         // Trigger search on filter change
         onSearchClick()
+    }
+    
+    fun setSelectedYear(year: Int?) {
+        _searchUiState.value = _searchUiState.value.copy(selectedYear = year)
+        savedStateHandle["selectedYear"] = year
     }
 }
 

@@ -15,12 +15,15 @@ import com.example.cinephile.R
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import com.example.cinephile.util.ConnectivityMonitor
 
 @AndroidEntryPoint
 class WatchlistDetailsFragment : Fragment() {
     private var _binding: FragmentWatchlistDetailsBinding? = null
     private val binding get() = _binding!!
     private val viewModel: WatchlistDetailsViewModel by viewModels()
+    @Inject lateinit var connectivityMonitor: ConnectivityMonitor
 
     private lateinit var adapter: WatchlistMoviesAdapter
     private var lastDeleted: Long? = null
@@ -38,6 +41,7 @@ class WatchlistDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupList()
         collectMovies()
+        collectConnectivity()
     }
 
     override fun onDestroyView() {
@@ -62,7 +66,10 @@ class WatchlistDetailsFragment : Fragment() {
                     .show()
             }
         )
-        binding.recyclerMovies.adapter = adapter
+        binding.recyclerMovies.apply {
+            adapter = this@WatchlistDetailsFragment.adapter
+            setHasFixedSize(true)
+        }
     }
 
     private fun collectMovies() {
@@ -72,7 +79,24 @@ class WatchlistDetailsFragment : Fragment() {
                 launch {
                     moviesState.collect { list ->
                         adapter.submitList(list)
-                        binding.textEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+                        // Handle empty state
+                        val isEmpty = list.isEmpty()
+                        binding.textEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
+                        binding.recyclerMovies.visibility = if (isEmpty) View.GONE else View.VISIBLE
+                        binding.progressLoading.visibility = View.GONE
+                        binding.errorCard.visibility = View.GONE
+                    }
+                }
+            }
+        }
+    }
+
+    private fun collectConnectivity() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    connectivityMonitor.isOnlineFlow.collect { isOnline ->
+                        binding.offlineBanner.visibility = if (isOnline) View.GONE else View.VISIBLE
                     }
                 }
             }

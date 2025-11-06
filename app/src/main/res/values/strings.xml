@@ -22,4 +22,9 @@
     <string name="rename">Rename</string>
     <string name="cancel">Cancel</string>
     <string name="new_watchlist">New Watchlist</string>
+    <string name="no_results">No results found</string>
+    <string name="error_loading">Error loading results</string>
+    <string name="retry">Retry</string>
+    <string name="loading">Loading...</string>
+    <string name="no_movies">No movies yet</string>
 </resources>
