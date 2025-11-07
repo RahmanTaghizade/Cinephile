@@ -3,13 +3,13 @@ package com.example.cinephile.domain.repository
 import kotlinx.coroutines.flow.Flow
 
 interface QuizRepository {
-    suspend fun getAllQuizzes(): Flow<List<QuizUiModel>>
+    fun getAllQuizzes(): Flow<List<QuizUiModel>>
     suspend fun createQuiz(name: String, watchlistId: Long, questionCount: Int, difficulty: QuizDifficulty, mode: QuizMode): Long
-    suspend fun getQuiz(quizId: Long): Flow<QuizUiModel?>
+    fun getQuiz(quizId: Long): Flow<QuizUiModel?>
     suspend fun generateQuestions(quizId: Long): QuizGenerationResult
-    suspend fun getQuizQuestions(quizId: Long): Flow<List<QuizQuestionUiModel>>
+    fun getQuizQuestions(quizId: Long): Flow<List<QuizQuestionUiModel>>
     suspend fun saveQuizResult(quizId: Long, score: Int, durationSec: Int, correctCount: Int, wrongCount: Int, mode: QuizMode)
-    suspend fun getQuizResults(quizId: Long): Flow<List<QuizResultUiModel>>
+    fun getQuizResults(quizId: Long): Flow<List<QuizResultUiModel>>
 }
 
 enum class QuizDifficulty {

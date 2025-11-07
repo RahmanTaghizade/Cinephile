@@ -26,7 +26,11 @@
         android:id="@+id/quizListFragment"
         android:name="com.example.cinephile.ui.quiz.QuizListFragment"
         android:label="Quiz"
-        tools:layout="@layout/fragment_quiz_list" />
+        tools:layout="@layout/fragment_quiz_list">
+        <action
+            android:id="@+id/action_quizListFragment_to_quizDetailsFragment"
+            app:destination="@id/quizDetailsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/recommendationsFragment"
