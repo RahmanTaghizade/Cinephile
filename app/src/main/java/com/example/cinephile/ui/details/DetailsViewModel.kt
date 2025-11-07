@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.cinephile.domain.repository.MovieRepository
 import com.example.cinephile.domain.repository.WatchlistRepository
 import com.example.cinephile.ui.search.MovieUiModel
+import com.example.cinephile.ui.search.CastMember
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,11 +15,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import com.example.cinephile.data.remote.TmdbService
 
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
     private val movieRepository: MovieRepository,
     private val watchlistRepository: WatchlistRepository,
+    private val tmdbService: TmdbService,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -35,6 +38,22 @@ class DetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
+                // Fetch cast and rating from API
+                val details = kotlin.runCatching { tmdbService.getMovie(movieId) }.getOrNull()
+                val credits = kotlin.runCatching { tmdbService.getCredits(movieId) }.getOrNull()
+                
+                val voteAverage = details?.voteAverage ?: 0.0
+                val cast = credits?.cast?.sortedBy { it.order }?.take(10)?.map { castMember ->
+                    CastMember(
+                        id = castMember.id,
+                        name = castMember.name,
+                        character = castMember.character,
+                        profileImageUrl = castMember.profilePath?.let { 
+                            "https://image.tmdb.org/t/p/w185$it" 
+                        }
+                    )
+                } ?: emptyList()
+                
                 movieRepository.getMovieDetails(movieId).collect { movie ->
                     val posterUrl = movie?.posterUrl
                     // Check if movie is in current watchlist
@@ -42,9 +61,15 @@ class DetailsViewModel @Inject constructor(
                         watchlistRepository.isMovieInCurrentWatchlist(it.id) 
                     } ?: false
                     
+                    // Merge movie data with cast and rating
+                    val movieWithDetails = movie?.copy(
+                        voteAverage = voteAverage,
+                        cast = cast
+                    )
+                    
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        movie = movie,
+                        movie = movieWithDetails,
                         posterUrl = posterUrl,
                         title = movie?.title,
                         releaseDate = movie?.releaseDate,

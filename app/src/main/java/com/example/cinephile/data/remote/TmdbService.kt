@@ -96,6 +96,7 @@ data class TmdbCast(
     val id: Long,
     val name: String,
     val character: String,
+    @Json(name = "profile_path") val profilePath: String?,
     val order: Int
 )
 
@@ -125,7 +126,8 @@ data class TmdbPersonSearchResponse(
 data class TmdbPerson(
     val id: Long,
     val name: String,
-    @Json(name = "known_for_department") val knownForDepartment: String
+    @Json(name = "known_for_department") val knownForDepartment: String,
+    @Json(name = "profile_path") val profilePath: String?
 )
 
 data class TmdbGenresResponse(

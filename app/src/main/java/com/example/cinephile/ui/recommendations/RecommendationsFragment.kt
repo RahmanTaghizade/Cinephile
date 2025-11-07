@@ -5,10 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.cinephile.R
 import com.example.cinephile.databinding.FragmentRecommendationsBinding
 import com.example.cinephile.ui.search.MovieAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class RecommendationsFragment : Fragment() {
     private var _binding: FragmentRecommendationsBinding? = null
     private val binding get() = _binding!!
@@ -16,6 +22,8 @@ class RecommendationsFragment : Fragment() {
     private lateinit var latestAdapter: MovieAdapter
     private lateinit var upcomingAdapter: MovieAdapter
     private lateinit var continueAdapter: MovieAdapter
+    private lateinit var favoritesAdapter: MovieAdapter
+    private val viewModel: RecommendationsViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,6 +40,7 @@ class RecommendationsFragment : Fragment() {
         setupRecyclerViews()
         setupCategoryChips()
         setupSeeAllClick()
+        observeFavorites()
     }
 
     private fun setupRecyclerViews() {
@@ -77,10 +86,38 @@ class RecommendationsFragment : Fragment() {
             adapter = continueAdapter
         }
 
+        // Favorites - horizontal scrolling
+        favoritesAdapter = MovieAdapter(
+            onItemClick = { movieId ->
+                val action = com.example.cinephile.ui.recommendations.RecommendationsFragmentDirections
+                    .actionRecommendationsFragmentToDetailsFragment(movieId)
+                findNavController().navigate(action)
+            },
+            onLongPress = { movieId ->
+                // TODO: Add to watchlist
+            }
+        )
+        binding.rvFavorites.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = favoritesAdapter
+        }
+
         // Initialize with empty lists for now
         latestAdapter.submitList(emptyList())
         upcomingAdapter.submitList(emptyList())
         continueAdapter.submitList(emptyList())
+        favoritesAdapter.submitList(emptyList())
+    }
+
+    private fun observeFavorites() {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.favorites.collect { favorites ->
+                favoritesAdapter.submitList(favorites)
+                // Show/hide favorites section based on whether there are favorites
+                binding.labelFavorites.visibility = if (favorites.isEmpty()) View.GONE else View.VISIBLE
+                binding.rvFavorites.visibility = if (favorites.isEmpty()) View.GONE else View.VISIBLE
+            }
+        }
     }
 
     private fun setupCategoryChips() {

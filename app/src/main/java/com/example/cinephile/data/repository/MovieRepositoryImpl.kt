@@ -15,6 +15,7 @@ import com.example.cinephile.ui.search.MovieUiModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -261,10 +262,13 @@ class MovieRepositoryImpl @Inject constructor(
                 // Ignore network errors; we'll rely on DB if available
             }
 
-            // Return flow observing DB changes for this movie
-            movieDao.observeByIds(listOf(movieId)).map { list ->
-                val entity = list.firstOrNull() ?: return@map null
-                entityToUiModel(entity)
+            // Return flow observing DB changes for this movie, combining with genres
+            combine(
+                movieDao.observeByIds(listOf(movieId)),
+                genreDao.getAll()
+            ) { movieList, allGenres ->
+                val entity = movieList.firstOrNull() ?: return@combine null
+                entityToUiModel(entity, allGenres)
             }
         }
     }
@@ -292,11 +296,21 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getFavorites(): Flow<List<MovieUiModel>> {
-        return movieDao.observeFavorites().map { list -> list.map { entityToUiModel(it) } }
+        return combine(
+            movieDao.observeFavorites(),
+            genreDao.getAll()
+        ) { movieList, allGenres ->
+            movieList.map { entityToUiModel(it, allGenres) }
+        }
     }
 
     override suspend fun getRatedMovies(): Flow<List<MovieUiModel>> {
-        return movieDao.observeRated().map { list -> list.map { entityToUiModel(it) } }
+        return combine(
+            movieDao.observeRated(),
+            genreDao.getAll()
+        ) { movieList, allGenres ->
+            movieList.map { entityToUiModel(it, allGenres) }
+        }
     }
 
     override suspend fun fetchAndCacheGenres() {
@@ -319,10 +333,15 @@ class MovieRepositoryImpl @Inject constructor(
         return movieDao.observeUserFlags()
     }
     
-    private fun entityToUiModel(entity: MovieEntity): MovieUiModel {
+    private fun entityToUiModel(entity: MovieEntity, allGenres: List<GenreEntity> = emptyList()): MovieUiModel {
         // Build poster URL
         val posterUrl = entity.posterPath?.let { path ->
             "https://image.tmdb.org/t/p/w500$path"
+        }
+        
+        // Get genre names from genre IDs
+        val genreNames = entity.genreIds.mapNotNull { genreId ->
+            allGenres.firstOrNull { it.id == genreId }?.name
         }
         
         return MovieUiModel(
@@ -331,6 +350,8 @@ class MovieRepositoryImpl @Inject constructor(
             posterUrl = posterUrl,
             director = entity.directorName,
             releaseDate = entity.releaseDate,
+            overview = entity.overview,
+            genres = genreNames,
             isFavorite = entity.isFavorite,
             userRating = if (entity.userRating > 0f) entity.userRating else 0f
         )

@@ -32,7 +32,11 @@
         android:id="@+id/recommendationsFragment"
         android:name="com.example.cinephile.ui.recommendations.RecommendationsFragment"
         android:label="Recommendations"
-        tools:layout="@layout/fragment_recommendations" />
+        tools:layout="@layout/fragment_recommendations">
+        <action
+            android:id="@+id/action_recommendationsFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
 
     <!-- Detail Fragments -->
     <fragment

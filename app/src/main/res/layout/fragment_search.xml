@@ -66,87 +66,26 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/text_input_layout_title" />
 
-        <!-- NEW: Actor search and chips -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/text_input_layout_actor"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="12dp"
-            android:hint="@string/search_actor"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_input_layout_title"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <AutoCompleteTextView
-                android:id="@+id/autocomplete_actor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:hint="@string/search_actor" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chip_group_actors"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:singleSelection="false"
-            app:layout_constraintTop_toBottomOf="@id/text_input_layout_actor"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- NEW: Director search and chips -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/text_input_layout_director"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="8dp"
-            android:hint="@string/search_director"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/chip_group_actors"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <AutoCompleteTextView
-                android:id="@+id/autocomplete_director"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:hint="@string/search_director" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chip_group_directors"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:singleSelection="false"
-            app:layout_constraintTop_toBottomOf="@id/text_input_layout_director"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
+        <!-- Filters chip group: All, Movies, Actors, Producers -->
         <HorizontalScrollView
-            android:id="@+id/scroll_view_genres"
+            android:id="@+id/scroll_view_filters"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:layout_marginStart="8dp"
-            app:layout_constraintTop_toBottomOf="@id/chip_group_directors"
+            app:layout_constraintTop_toBottomOf="@id/text_input_layout_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/recycler_view_movies">
+            app:layout_constraintEnd_toEndOf="parent">
             
             <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_genres"
+                android:id="@+id/chip_group_filters"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:singleSelection="false" />
+                app:singleSelection="true" />
         </HorizontalScrollView>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_movies"
+            android:id="@+id/recycler_results"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipToPadding="false"
@@ -154,8 +93,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view_genres"
-            tools:listitem="@layout/item_movie" />
+            app:layout_constraintTop_toBottomOf="@id/scroll_view_filters"
+            tools:listitem="@layout/item_search_movie" />
 
         <!-- Loading indicator -->
         <ProgressBar
@@ -166,7 +105,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view_genres" />
+            app:layout_constraintTop_toBottomOf="@id/scroll_view_filters" />
 
         <!-- Empty state -->
         <TextView
@@ -175,11 +114,12 @@
             android:layout_height="wrap_content"
             android:text="@string/no_results"
             android:textSize="16sp"
+            android:textColor="@color/text_primary"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view_genres" />
+            app:layout_constraintTop_toBottomOf="@id/scroll_view_filters" />
 
         <!-- Error state -->
         <com.google.android.material.card.MaterialCardView
@@ -193,7 +133,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view_genres">
+            app:layout_constraintTop_toBottomOf="@id/scroll_view_filters">
 
             <LinearLayout
                 android:layout_width="match_parent"

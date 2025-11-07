@@ -7,202 +7,193 @@
     android:background="@color/md_theme_dark_background"
     tools:context=".ui.details.DetailsFragment">
 
-    <com.google.android.material.appbar.CollapsingToolbarLayout
-        android:id="@+id/collapsing"
-        android:layout_width="match_parent"
-        android:layout_height="320dp"
-        app:layout_collapseMode="pin">
-
-        <ImageView
-            android:id="@+id/imagePoster"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            tools:src="@mipmap/ic_launcher" />
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:navigationIcon="?attr/homeAsUpIndicator"
-            app:title="@string/app_name" />
-    </com.google.android.material.appbar.CollapsingToolbarLayout>
-
-    <!-- Loading indicator -->
-    <ProgressBar
-        android:id="@+id/progress_loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-    <!-- Error state -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/error_card"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:visibility="gone"
-        app:cardBackgroundColor="@color/md_theme_dark_errorContainer"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/text_error"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/error_loading"
-                android:textColor="@color/md_theme_dark_onErrorContainer"
-                android:textStyle="bold" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_retry"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/retry"
-                style="@style/Widget.Material3.Button.TonalButton" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:fillViewport="true">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:background="@color/md_theme_dark_background">
 
-            <!-- Title and actions below the header image -->
+            <!-- Large poster at top with fade effect -->
+            <ImageView
+                android:id="@+id/imagePoster"
+                android:layout_width="0dp"
+                android:layout_height="400dp"
+                android:scaleType="centerCrop"
+                android:background="@color/md_theme_dark_background"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:src="@mipmap/ic_launcher" />
 
+            <!-- Gradient overlay for fade effect -->
+            <View
+                android:id="@+id/gradientOverlay"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:background="@drawable/gradient_overlay"
+                app:layout_constraintBottom_toBottomOf="@id/imagePoster"
+                app:layout_constraintStart_toStartOf="@id/imagePoster"
+                app:layout_constraintEnd_toEndOf="@id/imagePoster" />
+
+            <!-- Back button/toolbar -->
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@android:color/transparent"
+                app:navigationIcon="?attr/homeAsUpIndicator"
+                app:title=""
+                app:titleTextColor="@color/text_primary"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Title -->
             <TextView
                 android:id="@+id/textTitle"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
                 android:textStyle="bold"
-                android:textSize="22sp"
-                tools:text="Movie Title" />
+                android:textSize="28sp"
+                android:textColor="@color/text_primary"
+                app:layout_constraintTop_toBottomOf="@id/imagePoster"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/textRating"
+                tools:text="Dune" />
 
+            <!-- Rating -->
+            <TextView
+                android:id="@+id/textRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="16sp"
+                android:drawablePadding="4dp"
+                app:layout_constraintTop_toTopOf="@id/textTitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/textTitle"
+                tools:text="8.2" />
+
+            <!-- Metadata: Year, Director -->
+            <TextView
+                android:id="@+id/textMetadata"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="24dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@id/textTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="2021, Denis Villeneuve" />
+
+            <!-- Genre chips -->
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupGenres"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:singleLine="false"
-                app:singleSelection="false" />
-
-            <TextView
-                android:id="@+id/textDirector"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                tools:text="Director: Name" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="12dp"
+                android:layout_marginEnd="24dp"
+                app:singleLine="false"
+                app:singleSelection="false"
+                app:layout_constraintTop_toBottomOf="@id/textMetadata"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Synopsis -->
+            <TextView
+                android:id="@+id/textOverview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="24dp"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:lineSpacingExtra="4dp"
+                android:maxLines="4"
+                android:ellipsize="end"
+                app:layout_constraintTop_toBottomOf="@id/chipGroupGenres"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="Paul Atreides, a brilliant and gifted young man born into a great destiny beyond understanding, must travel to the most dangerous plane..." />
+
+            <!-- More link -->
+            <TextView
+                android:id="@+id/textMore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="4dp"
+                android:text="more"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                app:layout_constraintTop_toBottomOf="@id/textOverview"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:visibility="visible" />
+
+            <!-- Cast section -->
+            <TextView
+                android:id="@+id/textCastLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="24dp"
+                android:text="Cast"
                 android:textStyle="bold"
-                tools:text="Cast" />
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                app:layout_constraintTop_toBottomOf="@id/textMore"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerCast"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
                 android:orientation="horizontal"
+                android:clipToPadding="false"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                app:layout_constraintTop_toBottomOf="@id/textCastLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 tools:listitem="@layout/item_cast" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textReleaseDate"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    tools:text="Release: 2024-01-01" />
-
-                <TextView
-                    android:id="@+id/textRuntime"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAlignment="textEnd"
-                    tools:text="Runtime: 120m" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+            <!-- Watch now button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonWatchlist"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="32dp"
+                android:text="Watch now"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                tools:text="Overview" />
+                android:backgroundTint="@color/button_primary"
+                android:textColor="@color/white"
+                app:cornerRadius="12dp"
+                app:layout_constraintTop_toBottomOf="@id/recyclerCast"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
-            <TextView
-                android:id="@+id/textOverview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                tools:text="Overview text goes here..." />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <RatingBar
-                    android:id="@+id/ratingBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:isIndicator="false"
-                    android:numStars="5"
-                    android:stepSize="0.5"
-                    android:rating="0" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonFavorite"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="Favorite" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonWatchlist"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="Add to Watchlist" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/textMovieId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:textStyle="italic"
-                tools:text="movieId: 123" />
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

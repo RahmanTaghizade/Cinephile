@@ -27,6 +27,7 @@
                 android:layout_height="wrap_content"
                 android:text="Latest"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                android:textColor="@color/text_primary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/actionLatestSeeAll"
@@ -39,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:text="See all"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                android:textColor="@android:color/holo_blue_light"
+                android:textColor="@color/button_primary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="@id/labelLatest"
                 app:layout_constraintTop_toTopOf="@id/labelLatest" />
@@ -63,7 +64,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Upcoming"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textColor="@color/text_primary" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvUpcoming"
@@ -82,7 +84,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Continue watching"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textColor="@color/text_primary" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvContinue"
@@ -92,6 +95,26 @@
             android:overScrollMode="never"
             android:nestedScrollingEnabled="false"
             tools:listitem="@android:layout/simple_list_item_1"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <!-- Favorites Section Header -->
+        <TextView
+            android:id="@+id/labelFavorites"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Favorites"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textColor="@color/text_primary" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvFavorites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:overScrollMode="never"
+            android:nestedScrollingEnabled="false"
+            tools:listitem="@layout/item_movie"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </LinearLayout>
