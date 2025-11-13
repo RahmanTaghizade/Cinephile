@@ -15,6 +15,12 @@ interface MovieDao {
     
     @Query("SELECT * FROM movies WHERE id = :id")
     suspend fun getById(id: Long): MovieEntity?
+
+    @Query("SELECT * FROM movies WHERE isFavorite = 1 ORDER BY lastUpdated DESC")
+    suspend fun getFavoritesOnce(): List<MovieEntity>
+
+    @Query("SELECT * FROM movies WHERE userRating > 0 ORDER BY lastUpdated DESC")
+    suspend fun getRatedMoviesOnce(): List<MovieEntity>
     
     @Query("SELECT * FROM movies WHERE id IN (:ids)")
     suspend fun getByIds(ids: List<Long>): List<MovieEntity>

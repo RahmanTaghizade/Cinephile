@@ -1,5 +1,6 @@
 package com.example.cinephile.domain.repository
 
+import com.example.cinephile.domain.model.MovieContentVector
 import com.example.cinephile.ui.search.MovieUiModel
 import com.example.cinephile.data.local.entities.MovieEntity
 import com.example.cinephile.data.local.dao.MovieUserFlags
@@ -29,6 +30,7 @@ interface MovieRepository {
     suspend fun rateMovie(movieId: Long, rating: Float): MovieEntity?
     suspend fun getFavorites(): Flow<List<MovieUiModel>>
     suspend fun getRatedMovies(): Flow<List<MovieUiModel>>
+    suspend fun computeContentVector(movieId: Long): MovieContentVector?
     suspend fun fetchAndCacheGenres()
     fun getGenresFlow(): Flow<List<com.example.cinephile.data.local.entities.GenreEntity>>
     val tmdbService: com.example.cinephile.data.remote.TmdbService

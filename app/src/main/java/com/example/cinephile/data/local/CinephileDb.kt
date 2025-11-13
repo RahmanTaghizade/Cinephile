@@ -18,7 +18,8 @@ import com.example.cinephile.data.local.entities.*
         QuizQuestionEntity::class,
         QuizResultEntity::class,
         CachedSearchEntity::class,
-        GenreEntity::class
+        GenreEntity::class,
+        RecommendedMovieEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -31,6 +32,7 @@ abstract class CinephileDb : RoomDatabase() {
     abstract fun quizDao(): QuizDao
     abstract fun cachedSearchDao(): CachedSearchDao
     abstract fun genreDao(): GenreDao
+    abstract fun recommendationDao(): RecommendationDao
     
     companion object {
         const val DATABASE_NAME = "cinephile_database"

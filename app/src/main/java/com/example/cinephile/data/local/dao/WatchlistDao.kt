@@ -60,6 +60,9 @@ interface WatchlistDao {
     
     @Query("SELECT movieId FROM watchlist_movies WHERE watchlistId = :watchlistId")
     fun observeMovieIds(watchlistId: Long): Flow<List<Long>>
+
+    @Query("SELECT movieId FROM watchlist_movies")
+    suspend fun getAllMovieIds(): List<Long>
     
     @Query("SELECT COUNT(*) FROM watchlist_movies WHERE watchlistId = :watchlistId")
     suspend fun getMovieCount(watchlistId: Long): Int

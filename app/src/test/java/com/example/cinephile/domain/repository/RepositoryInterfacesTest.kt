@@ -1,8 +1,8 @@
 package com.example.cinephile.domain.repository
 
-import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.Assert.*
+import com.example.cinephile.ui.search.MovieUiModel
 
 /**
  * Test to verify that repository interfaces are properly defined
@@ -19,9 +19,9 @@ class RepositoryInterfacesTest {
         
         // Verify it has the expected methods
         val methods = MovieRepository::class.java.declaredMethods.map { it.name }
-        assertTrue("Should have getHelloMessage method", methods.contains("getHelloMessage"))
         assertTrue("Should have searchMovies method", methods.contains("searchMovies"))
         assertTrue("Should have getMovieDetails method", methods.contains("getMovieDetails"))
+        assertTrue("Should have computeContentVector method", methods.contains("computeContentVector"))
     }
 
     @Test

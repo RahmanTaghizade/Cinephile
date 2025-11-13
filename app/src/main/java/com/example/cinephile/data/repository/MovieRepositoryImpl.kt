@@ -4,10 +4,12 @@ import com.example.cinephile.data.local.dao.MovieDao
 import com.example.cinephile.data.local.dao.MovieUserFlags
 import com.example.cinephile.data.local.dao.GenreDao
 import com.example.cinephile.data.local.dao.CachedSearchDao
+import com.example.cinephile.data.local.dao.RecommendationDao
 import com.example.cinephile.data.local.entities.MovieEntity
 import com.example.cinephile.data.local.entities.GenreEntity
 import com.example.cinephile.data.local.entities.CachedSearchEntity
 import com.example.cinephile.data.remote.TmdbService
+import com.example.cinephile.domain.model.MovieContentVector
 import com.example.cinephile.domain.repository.MovieRepository
 import com.example.cinephile.domain.repository.MovieFilters
 import com.example.cinephile.domain.repository.MovieSearchResult
@@ -28,6 +30,7 @@ class MovieRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
     private val genreDao: GenreDao,
     private val cachedSearchDao: CachedSearchDao,
+    private val recommendationDao: RecommendationDao,
     override val tmdbService: TmdbService
 ) : MovieRepository {
 
@@ -35,6 +38,8 @@ class MovieRepositoryImpl @Inject constructor(
 
     // Cache for director mappings (movieId -> directorId)
     private val directorCache = mutableMapOf<Long, Long?>()
+
+    private val contentVectorBuilder = MovieContentVectorBuilder()
     
     // Generate deterministic hash from filters
     private fun generateQueryHash(filters: MovieFilters): String {
@@ -104,6 +109,7 @@ class MovieRepositoryImpl @Inject constructor(
 
                 // Cache entities
                 entities.forEach { entity ->
+                    contentVectorBuilder.invalidate(entity.id)
                     movieDao.upsert(entity)
                 }
                 
@@ -239,6 +245,7 @@ class MovieRepositoryImpl @Inject constructor(
 
                 val director = credits.crew.firstOrNull { it.job == "Director" }
                 val castSorted = credits.cast.sortedBy { it.order }.take(10)
+                val existing = movieDao.getById(movieId)
 
                 val entity = MovieEntity(
                     id = details.id,
@@ -254,9 +261,10 @@ class MovieRepositoryImpl @Inject constructor(
                     keywordIds = keywords.keywords.map { it.id },
                     runtime = details.runtime,
                     lastUpdated = System.currentTimeMillis(),
-                    isFavorite = movieDao.getById(movieId)?.isFavorite ?: false,
-                    userRating = movieDao.getById(movieId)?.userRating ?: 0f
+                    isFavorite = existing?.isFavorite ?: false,
+                    userRating = existing?.userRating ?: 0f
                 )
+                contentVectorBuilder.invalidate(entity.id)
                 movieDao.upsert(entity)
             } catch (_: Exception) {
                 // Ignore network errors; we'll rely on DB if available
@@ -277,6 +285,7 @@ class MovieRepositoryImpl @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 movieDao.updateFavorite(movieId, isFavorite)
+                recommendationDao.clear()
                 movieDao.getById(movieId)
             } catch (_: Exception) {
                 null
@@ -288,6 +297,7 @@ class MovieRepositoryImpl @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 movieDao.updateRating(movieId, rating)
+                recommendationDao.clear()
                 movieDao.getById(movieId)
             } catch (_: Exception) {
                 null
@@ -310,6 +320,13 @@ class MovieRepositoryImpl @Inject constructor(
             genreDao.getAll()
         ) { movieList, allGenres ->
             movieList.map { entityToUiModel(it, allGenres) }
+        }
+    }
+
+    override suspend fun computeContentVector(movieId: Long): MovieContentVector? {
+        return withContext(Dispatchers.IO) {
+            val entity = movieDao.getById(movieId) ?: return@withContext null
+            contentVectorBuilder.compute(entity)
         }
     }
 

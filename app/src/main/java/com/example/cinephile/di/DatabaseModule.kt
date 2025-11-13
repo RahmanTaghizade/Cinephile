@@ -47,6 +47,11 @@ object DatabaseModule {
     }
 
     @Provides
+    fun provideRecommendationDao(database: CinephileDb): RecommendationDao {
+        return database.recommendationDao()
+    }
+
+    @Provides
     @Singleton
     fun provideListConverters(): ListConverters {
         return ListConverters()
