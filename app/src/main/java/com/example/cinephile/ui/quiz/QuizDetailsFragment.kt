@@ -5,11 +5,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.cinephile.R
 import com.example.cinephile.databinding.FragmentQuizDetailsBinding
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class QuizDetailsFragment : Fragment() {
     private var _binding: FragmentQuizDetailsBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: QuizDetailsViewModel by viewModels()
+
+    private lateinit var resultsAdapter: QuizResultsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -22,11 +35,70 @@ class QuizDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.textQuizDetails.text = "Quiz Details Fragment"
+        setupRecyclerView()
+        setupStartButton()
+        collectQuizData()
+        collectResults()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun setupRecyclerView() {
+        resultsAdapter = QuizResultsAdapter()
+        binding.recyclerResults.apply {
+            adapter = resultsAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+            setHasFixedSize(true)
+        }
+    }
+
+    private fun setupStartButton() {
+        binding.buttonStart.setOnClickListener {
+            val quizId = viewModel.quiz.value?.id ?: return@setOnClickListener
+            val args = Bundle().apply {
+                putLong("quizId", quizId)
+            }
+            findNavController().navigate(R.id.action_quizDetailsFragment_to_quizPlayFragment, args)
+        }
+    }
+
+    private fun collectQuizData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.quiz.collect { quiz ->
+                        if (quiz != null) {
+                            binding.textQuizName.text = quiz.name
+                            binding.textWatchlistName.text = "Watchlist: ${quiz.watchlistName}"
+                            binding.textDifficulty.text = "Difficulty: ${quiz.difficulty.name}"
+                            binding.textMode.text = "Mode: ${quiz.mode.name}"
+                        }
+                    }
+                }
+                launch {
+                    viewModel.questionCount.collect { count ->
+                        binding.textQuestionCount.text = "Questions: $count"
+                    }
+                }
+            }
+        }
+    }
+
+    private fun collectResults() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.results.collect { results ->
+                        resultsAdapter.submitList(results)
+                        val isEmpty = results.isEmpty()
+                        binding.textNoResults.visibility = if (isEmpty) View.VISIBLE else View.GONE
+                        binding.recyclerResults.visibility = if (isEmpty) View.GONE else View.VISIBLE
+                    }
+                }
+            }
+        }
     }
 }

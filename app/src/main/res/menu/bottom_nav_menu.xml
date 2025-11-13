@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
+
+    <item
         android:id="@+id/searchFragment"
         android:icon="@drawable/ic_search"
         android:title="Search" />
@@ -14,9 +19,4 @@
         android:id="@+id/quizListFragment"
         android:icon="@drawable/ic_quiz"
         android:title="Quiz" />
-
-    <item
-        android:id="@+id/recommendationsFragment"
-        android:icon="@drawable/ic_recommendations"
-        android:title="Recommendations" />
 </menu>

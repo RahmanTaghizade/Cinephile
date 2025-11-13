@@ -3,6 +3,7 @@ package com.example.cinephile.di
 import android.content.Context
 import com.example.cinephile.data.local.CinephileDb
 import com.example.cinephile.data.local.dao.*
+import com.example.cinephile.data.local.converters.ListConverters
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,5 +44,11 @@ object DatabaseModule {
     @Provides
     fun provideGenreDao(database: CinephileDb): GenreDao {
         return database.genreDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideListConverters(): ListConverters {
+        return ListConverters()
     }
 }

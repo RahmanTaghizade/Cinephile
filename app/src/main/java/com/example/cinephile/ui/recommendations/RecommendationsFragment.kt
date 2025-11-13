@@ -47,7 +47,9 @@ class RecommendationsFragment : Fragment() {
         // Latest movies - horizontal scrolling
         latestAdapter = MovieAdapter(
             onItemClick = { movieId ->
-                // TODO: Navigate to details
+                val action = com.example.cinephile.ui.recommendations.RecommendationsFragmentDirections
+                    .actionHomeFragmentToDetailsFragment(movieId)
+                findNavController().navigate(action)
             },
             onLongPress = { movieId ->
                 // TODO: Add to watchlist
@@ -61,7 +63,9 @@ class RecommendationsFragment : Fragment() {
         // Upcoming movies - horizontal scrolling
         upcomingAdapter = MovieAdapter(
             onItemClick = { movieId ->
-                // TODO: Navigate to details
+                val action = com.example.cinephile.ui.recommendations.RecommendationsFragmentDirections
+                    .actionHomeFragmentToDetailsFragment(movieId)
+                findNavController().navigate(action)
             },
             onLongPress = { movieId ->
                 // TODO: Add to watchlist
@@ -75,7 +79,9 @@ class RecommendationsFragment : Fragment() {
         // Continue watching - horizontal scrolling
         continueAdapter = MovieAdapter(
             onItemClick = { movieId ->
-                // TODO: Navigate to details
+                val action = com.example.cinephile.ui.recommendations.RecommendationsFragmentDirections
+                    .actionHomeFragmentToDetailsFragment(movieId)
+                findNavController().navigate(action)
             },
             onLongPress = { movieId ->
                 // TODO: Add to watchlist
@@ -90,7 +96,7 @@ class RecommendationsFragment : Fragment() {
         favoritesAdapter = MovieAdapter(
             onItemClick = { movieId ->
                 val action = com.example.cinephile.ui.recommendations.RecommendationsFragmentDirections
-                    .actionRecommendationsFragmentToDetailsFragment(movieId)
+                    .actionHomeFragmentToDetailsFragment(movieId)
                 findNavController().navigate(action)
             },
             onLongPress = { movieId ->

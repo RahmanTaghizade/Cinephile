@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/searchFragment">
+    app:startDestination="@id/homeFragment">
 
     <!-- Bottom Navigation Fragments -->
     <fragment
@@ -33,12 +33,12 @@
     </fragment>
 
     <fragment
-        android:id="@+id/recommendationsFragment"
+        android:id="@+id/homeFragment"
         android:name="com.example.cinephile.ui.recommendations.RecommendationsFragment"
-        android:label="Recommendations"
+        android:label="Home"
         tools:layout="@layout/fragment_recommendations">
         <action
-            android:id="@+id/action_recommendationsFragment_to_detailsFragment"
+            android:id="@+id/action_homeFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />
     </fragment>
 
@@ -71,6 +71,9 @@
         <argument
             android:name="quizId"
             app:argType="long" />
+        <action
+            android:id="@+id/action_quizDetailsFragment_to_quizPlayFragment"
+            app:destination="@id/quizPlayFragment" />
     </fragment>
 
     <fragment

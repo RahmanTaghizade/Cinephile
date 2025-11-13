@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="24dp"
+    android:background="@color/md_theme_dark_surface">
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
@@ -58,6 +59,7 @@
         android:layout_height="wrap_content"
         android:text="Difficulty"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/md_theme_dark_onSurface"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp" />
 
@@ -93,6 +95,7 @@
         android:layout_height="wrap_content"
         android:text="Mode"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/md_theme_dark_onSurface"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp" />
 

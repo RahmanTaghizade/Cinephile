@@ -43,7 +43,7 @@ class CreateQuizDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogCreateQuizBinding.inflate(LayoutInflater.from(requireContext()))
         
-        return MaterialAlertDialogBuilder(requireContext())
+        return MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Cinephile)
             .setTitle("Create Quiz")
             .setView(binding.root)
             .setPositiveButton("Create") { _, _ ->
