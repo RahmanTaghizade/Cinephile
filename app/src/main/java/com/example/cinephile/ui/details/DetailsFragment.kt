@@ -1,6 +1,7 @@
 package com.example.cinephile.ui.details
 
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,10 +12,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.cinephile.R
 import com.example.cinephile.databinding.FragmentDetailsBinding
+import com.example.cinephile.ui.details.DetailsEvent.ShowWatchlistPicker
+import com.example.cinephile.domain.repository.WatchlistUiModel
 import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class DetailsFragment : Fragment() {
@@ -73,6 +81,12 @@ class DetailsFragment : Fragment() {
                 } else {
                     ""
                 }
+
+                binding.buttonWatchlist.text = if (state.isInWatchlist) {
+                    getString(R.string.watchlist_remove_button)
+                } else {
+                    getString(R.string.watchlist_add_button)
+                }
                 
                 // Update overview
                 updateOverviewText()
@@ -107,6 +121,8 @@ class DetailsFragment : Fragment() {
         }
 
         binding.buttonWatchlist.setOnClickListener { viewModel.toggleWatchlist() }
+
+        observeEvents()
     }
     
     private fun updateOverviewText() {
@@ -127,6 +143,73 @@ class DetailsFragment : Fragment() {
             binding.textOverview.maxLines = 4
             binding.textMore.visibility = View.VISIBLE
         }
+    }
+
+    private fun observeEvents() {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.events.collectLatest { event ->
+                when (event) {
+                    is ShowWatchlistPicker -> showWatchlistPicker(event.watchlists)
+                }
+            }
+        }
+    }
+
+    private fun showWatchlistPicker(watchlists: List<WatchlistUiModel>) {
+        val options = watchlists.map { it.name as CharSequence } +
+            getString(R.string.watchlist_picker_create) as CharSequence
+        val items: Array<CharSequence> = options.toTypedArray()
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.watchlist_picker_title)
+            .setItems(items) { _, which ->
+                if (which == watchlists.size) {
+                    showCreateWatchlistDialog()
+                } else {
+                    watchlists.getOrNull(which)?.let { selected ->
+                        viewModel.confirmAddToWatchlist(selected.id)
+                    }
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(R.drawable.bg_watchlist_dialog)
+        dialog.show()
+    }
+
+    private fun showCreateWatchlistDialog() {
+        val context = requireContext()
+        val inputLayout = TextInputLayout(context).apply {
+            boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
+            setPadding(
+                resources.getDimensionPixelSize(R.dimen.dialog_padding_horizontal),
+                resources.getDimensionPixelSize(R.dimen.dialog_padding_vertical),
+                resources.getDimensionPixelSize(R.dimen.dialog_padding_horizontal),
+                0
+            )
+            hint = getString(R.string.watchlist_create_hint)
+        }
+        val editText = TextInputEditText(context).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+        }
+        inputLayout.addView(
+            editText,
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        val dialog = MaterialAlertDialogBuilder(context)
+            .setTitle(R.string.watchlist_create_title)
+            .setView(inputLayout)
+            .setPositiveButton(R.string.watchlist_create_confirm) { _, _ ->
+                val name = editText.text?.toString().orEmpty()
+                viewModel.createWatchlistAndAdd(name)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(R.drawable.bg_watchlist_dialog)
+        dialog.show()
     }
     
     private fun updateGenres(genres: List<String>) {

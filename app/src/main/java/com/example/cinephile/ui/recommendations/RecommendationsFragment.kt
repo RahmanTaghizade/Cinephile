@@ -4,26 +4,34 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.cinephile.R
+import androidx.recyclerview.widget.RecyclerView
 import com.example.cinephile.databinding.FragmentRecommendationsBinding
 import com.example.cinephile.ui.search.MovieAdapter
+import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RecommendationsFragment : Fragment() {
     private var _binding: FragmentRecommendationsBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var latestAdapter: MovieAdapter
-    private lateinit var upcomingAdapter: MovieAdapter
-    private lateinit var continueAdapter: MovieAdapter
-    private lateinit var favoritesAdapter: MovieAdapter
     private val viewModel: RecommendationsViewModel by viewModels()
+
+    private lateinit var recommendationsAdapter: MovieAdapter
+    private lateinit var latestAdapter: HomeMovieCarouselAdapter
+    private lateinit var upcomingAdapter: HomeMovieCarouselAdapter
+
+    private var renderedGenres: List<RecommendationsViewModel.GenreChipUiModel> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,109 +44,119 @@ class RecommendationsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
         setupRecyclerViews()
-        setupCategoryChips()
-        setupSeeAllClick()
-        observeFavorites()
+        setupListeners()
+        observeUiState()
     }
 
     private fun setupRecyclerViews() {
-        // Latest movies - horizontal scrolling
-        latestAdapter = MovieAdapter(
-            onItemClick = { movieId ->
-                val action = com.example.cinephile.ui.recommendations.RecommendationsFragmentDirections
-                    .actionHomeFragmentToDetailsFragment(movieId)
-                findNavController().navigate(action)
-            },
-            onLongPress = { movieId ->
-                // TODO: Add to watchlist
-            }
-        )
-        binding.rvLatest.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        latestAdapter = HomeMovieCarouselAdapter(::navigateToDetails)
+        binding.recyclerLatest.apply {
+            layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             adapter = latestAdapter
+            setHasFixedSize(true)
         }
 
-        // Upcoming movies - horizontal scrolling
-        upcomingAdapter = MovieAdapter(
-            onItemClick = { movieId ->
-                val action = com.example.cinephile.ui.recommendations.RecommendationsFragmentDirections
-                    .actionHomeFragmentToDetailsFragment(movieId)
-                findNavController().navigate(action)
-            },
-            onLongPress = { movieId ->
-                // TODO: Add to watchlist
-            }
-        )
-        binding.rvUpcoming.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        upcomingAdapter = HomeMovieCarouselAdapter(::navigateToDetails)
+        binding.recyclerUpcoming.apply {
+            layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             adapter = upcomingAdapter
+            setHasFixedSize(true)
         }
 
-        // Continue watching - horizontal scrolling
-        continueAdapter = MovieAdapter(
-            onItemClick = { movieId ->
-                val action = com.example.cinephile.ui.recommendations.RecommendationsFragmentDirections
-                    .actionHomeFragmentToDetailsFragment(movieId)
-                findNavController().navigate(action)
-            },
-            onLongPress = { movieId ->
-                // TODO: Add to watchlist
-            }
-        )
-        binding.rvContinue.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = continueAdapter
+        recommendationsAdapter = MovieAdapter(onItemClick = ::navigateToDetails)
+        binding.recyclerRecommendations.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = recommendationsAdapter
+            setHasFixedSize(false)
         }
-
-        // Favorites - horizontal scrolling
-        favoritesAdapter = MovieAdapter(
-            onItemClick = { movieId ->
-                val action = com.example.cinephile.ui.recommendations.RecommendationsFragmentDirections
-                    .actionHomeFragmentToDetailsFragment(movieId)
-                findNavController().navigate(action)
-            },
-            onLongPress = { movieId ->
-                // TODO: Add to watchlist
-            }
-        )
-        binding.rvFavorites.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = favoritesAdapter
-        }
-
-        // Initialize with empty lists for now
-        latestAdapter.submitList(emptyList())
-        upcomingAdapter.submitList(emptyList())
-        continueAdapter.submitList(emptyList())
-        favoritesAdapter.submitList(emptyList())
     }
 
-    private fun observeFavorites() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.favorites.collect { favorites ->
-                favoritesAdapter.submitList(favorites)
-                // Show/hide favorites section based on whether there are favorites
-                binding.labelFavorites.visibility = if (favorites.isEmpty()) View.GONE else View.VISIBLE
-                binding.rvFavorites.visibility = if (favorites.isEmpty()) View.GONE else View.VISIBLE
+    private fun setupListeners() {
+        binding.buttonRefresh.setOnClickListener { viewModel.refreshRecommendations() }
+        binding.cardSearchShortcut.setOnClickListener { navigateToSearch() }
+    }
+
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collectLatest { state ->
+                    val hasAnyContent = state.recommendations.isNotEmpty() ||
+                        state.latestMovies.isNotEmpty() ||
+                        state.upcomingMovies.isNotEmpty()
+
+                    binding.progressBar.isVisible = state.isLoading && !hasAnyContent
+                    binding.homeScroll.isVisible = hasAnyContent || state.isLoading
+                    binding.chipCached.isVisible = state.isCached
+
+                    binding.textEmpty.isVisible = !state.isLoading && !hasAnyContent && state.errorMessage.isNullOrEmpty()
+                    binding.textError.isVisible = !state.isLoading && state.errorMessage != null && !hasAnyContent
+                    binding.textError.text = state.errorMessage
+
+                    binding.textLatestHeader.isVisible = state.latestMovies.isNotEmpty()
+                    binding.recyclerLatest.isVisible = state.latestMovies.isNotEmpty()
+                    latestAdapter.submitList(state.latestMovies)
+
+                    binding.textUpcomingHeader.isVisible = state.upcomingMovies.isNotEmpty()
+                    binding.recyclerUpcoming.isVisible = state.upcomingMovies.isNotEmpty()
+                    upcomingAdapter.submitList(state.upcomingMovies)
+
+                    binding.textRecommendationsHeader.isVisible = state.recommendations.isNotEmpty()
+                    binding.recyclerRecommendations.isVisible = state.recommendations.isNotEmpty()
+                    recommendationsAdapter.submitList(state.recommendations)
+
+                    renderGenreChips(state.genres)
+                }
             }
         }
     }
 
-    private fun setupCategoryChips() {
-        // Category chips are already in XML, but we can add click listeners if needed
-        // The chips will be managed by the fragment/ViewModel when data is available
+    private fun renderGenreChips(genres: List<RecommendationsViewModel.GenreChipUiModel>) {
+        if (genres == renderedGenres) return
+        renderedGenres = genres
+
+        val chipGroup = binding.chipGroupGenres
+        chipGroup.removeAllViews()
+
+        if (genres.isEmpty()) {
+            chipGroup.isVisible = false
+            return
+        }
+
+        chipGroup.isVisible = true
+        genres.forEach { genre ->
+            val chip = Chip(requireContext()).apply {
+                text = genre.name
+                isCheckable = false
+                isClickable = true
+                setOnClickListener { navigateToSearch(genre.id, genre.name) }
+            }
+            chipGroup.addView(chip)
+        }
     }
 
-    private fun setupSeeAllClick() {
-        binding.actionLatestSeeAll.setOnClickListener {
-            // TODO: Navigate to full list of latest movies
-        }
+    private fun navigateToDetails(movieId: Long) {
+        val action = RecommendationsFragmentDirections.actionHomeFragmentToDetailsFragment(movieId)
+        findNavController().navigate(action)
+    }
+
+    private fun navigateToSearch(
+        initialGenreId: Int? = null,
+        initialGenreName: String? = null,
+        initialQuery: String? = null
+    ) {
+        val genreIdArg = initialGenreId ?: NO_GENRE_SENTINEL
+        val action = RecommendationsFragmentDirections
+            .actionHomeFragmentToSearchFragment(genreIdArg, initialGenreName, initialQuery)
+        findNavController().navigate(action)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val NO_GENRE_SENTINEL = -1
     }
 }

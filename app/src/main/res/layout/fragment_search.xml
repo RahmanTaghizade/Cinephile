@@ -84,6 +84,23 @@
                 app:singleSelection="true" />
         </HorizontalScrollView>
 
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_active_genre"
+            style="@style/Widget.Material3.Chip.Assist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            android:textColor="@color/md_theme_dark_onSecondaryContainer"
+            android:visibility="gone"
+            app:chipBackgroundColor="@color/md_theme_dark_secondaryContainer"
+            app:closeIconVisible="true"
+            app:closeIconTint="@color/md_theme_dark_onSecondaryContainer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scroll_view_filters"
+            tools:text="Action" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_results"
             android:layout_width="0dp"
@@ -93,7 +110,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view_filters"
+            app:layout_constraintTop_toBottomOf="@id/chip_active_genre"
             tools:listitem="@layout/item_search_movie" />
 
         <!-- Loading indicator -->
@@ -105,7 +122,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view_filters" />
+            app:layout_constraintTop_toBottomOf="@id/chip_active_genre" />
 
         <!-- Empty state -->
         <TextView
@@ -119,7 +136,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view_filters" />
+            app:layout_constraintTop_toBottomOf="@id/chip_active_genre" />
 
         <!-- Error state -->
         <com.google.android.material.card.MaterialCardView
@@ -133,7 +150,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view_filters">
+            app:layout_constraintTop_toBottomOf="@id/chip_active_genre">
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -11,7 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-        android:textColor="@android:color/black"
+        android:textColor="?attr/colorOnSurface"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@id/button_overflow"
@@ -22,7 +22,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="?attr/colorOnSurfaceVariant"
         app:layout_constraintStart_toStartOf="@id/text_title"
         app:layout_constraintTop_toBottomOf="@id/text_title"
         app:layout_constraintEnd_toStartOf="@id/button_overflow"
@@ -34,8 +34,9 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="@android:color/transparent"
-        android:contentDescription="More"
+        android:contentDescription="@string/menu_watchlist_more"
         android:src="@android:drawable/ic_menu_more"
+        android:tint="?attr/colorOnSurfaceVariant"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

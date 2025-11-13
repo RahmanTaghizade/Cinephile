@@ -56,6 +56,8 @@ class WatchlistsFragment : Fragment() {
             onSetCurrent = { item -> viewModel.setCurrent(item.id) },
             onDelete = { item -> showDeleteConfirm(item.id) }
         )
+        binding.recyclerWatchlists.layoutManager =
+            androidx.recyclerview.widget.LinearLayoutManager(requireContext())
         binding.recyclerWatchlists.adapter = adapter
     }
 
@@ -79,7 +81,7 @@ class WatchlistsFragment : Fragment() {
             setText(currentName)
             hint = getString(R.string.dialog_rename_hint)
         }
-        MaterialAlertDialogBuilder(context)
+        MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_Cinephile_AlertDialog)
             .setTitle(R.string.dialog_rename_title)
             .setView(input)
             .setPositiveButton(R.string.rename) { _, _ ->
@@ -91,7 +93,7 @@ class WatchlistsFragment : Fragment() {
     }
 
     private fun showDeleteConfirm(id: Long) {
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Cinephile_AlertDialog)
             .setTitle(R.string.dialog_delete_title)
             .setMessage(R.string.dialog_delete_message)
             .setPositiveButton(R.string.delete) { _, _ -> viewModel.delete(id) }

@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.navigation.fragment.findNavController
 import com.example.cinephile.databinding.FragmentWatchlistDetailsBinding
 import com.example.cinephile.R
@@ -68,6 +69,7 @@ class WatchlistDetailsFragment : Fragment() {
         )
         binding.recyclerMovies.apply {
             adapter = this@WatchlistDetailsFragment.adapter
+            layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
         }
     }

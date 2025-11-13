@@ -96,6 +96,21 @@ class SearchViewModel @Inject constructor(
         performSearch()
     }
 
+    fun applyGenreFromHome(genreId: Int, genreName: String?) {
+        val currentGenres = _selectedGenreIds.value
+        if (currentGenres.size == 1 && currentGenres.contains(genreId) &&
+            _searchUiState.value.activeGenreName == genreName
+        ) {
+            onSearchClick()
+            return
+        }
+
+        _selectedGenreIds.value = setOf(genreId)
+        savedStateHandle["selectedGenreIds"] = _selectedGenreIds.value
+        _searchUiState.value = _searchUiState.value.copy(activeGenreName = genreName)
+        onSearchClick()
+    }
+
     fun loadNextPage() {
         if (currentPage < totalPages && !isLoadingPage) {
             Log.d(TAG, "Loading next page: current=$currentPage total=$totalPages")
@@ -209,6 +224,29 @@ class SearchViewModel @Inject constructor(
     
     fun clearError() {
         _searchUiState.value = _searchUiState.value.copy(error = null)
+    }
+
+    fun clearActiveGenre() {
+        if (_selectedGenreIds.value.isEmpty() && _searchUiState.value.activeGenreName == null) return
+
+        _selectedGenreIds.value = emptySet()
+        savedStateHandle["selectedGenreIds"] = _selectedGenreIds.value
+        _searchUiState.value = _searchUiState.value.copy(activeGenreName = null)
+
+        if (_searchUiState.value.query.isNotBlank()) {
+            onSearchClick()
+        } else {
+            currentPage = 1
+            totalPages = 1
+            _searchUiState.value = _searchUiState.value.copy(
+                movies = emptyList(),
+                results = emptyList(),
+                isLoading = false,
+                error = null,
+                isOffline = false,
+                cacheTimestamp = null
+            )
+        }
     }
 
     fun onActorSearchQueryChanged(query: String) {
@@ -363,6 +401,7 @@ data class SearchUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val selectedYear: Int? = null,
+    val activeGenreName: String? = null,
     val isOffline: Boolean = false,
     val cacheTimestamp: Long? = null,
     val activeFilter: SearchFilter = SearchFilter.ALL

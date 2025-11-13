@@ -11,6 +11,20 @@
         android:name="com.example.cinephile.ui.search.SearchFragment"
         android:label="Search"
         tools:layout="@layout/fragment_search">
+        <argument
+            android:name="initialGenreId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="initialGenreName"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
+        <argument
+            android:name="initialQuery"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
         <action
             android:id="@+id/action_searchFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />
@@ -37,6 +51,9 @@
         android:name="com.example.cinephile.ui.recommendations.RecommendationsFragment"
         android:label="Home"
         tools:layout="@layout/fragment_recommendations">
+        <action
+            android:id="@+id/action_homeFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
         <action
             android:id="@+id/action_homeFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />

@@ -1,28 +1,25 @@
 package com.example.cinephile.ui.search
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cinephile.R
 import com.example.cinephile.databinding.FragmentSearchBinding
-import androidx.navigation.fragment.findNavController
 import com.example.cinephile.ui.search.SearchFragmentDirections
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import com.google.android.material.chip.Chip
-import android.widget.AutoCompleteTextView
-import com.example.cinephile.data.remote.TmdbPerson
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import com.example.cinephile.util.ConnectivityMonitor
 
 @AndroidEntryPoint
@@ -30,6 +27,7 @@ class SearchFragment : Fragment() {
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
     
+    private val args: SearchFragmentArgs by navArgs()
     private val viewModel: SearchViewModel by viewModels()
     @Inject lateinit var connectivityMonitor: ConnectivityMonitor
     private lateinit var resultsAdapter: SearchResultsAdapter
@@ -52,6 +50,8 @@ class SearchFragment : Fragment() {
         setupFilterChips()
         setupSearchInput()
         observeUiEvents()
+        setupGenreChip()
+        handleInitialArguments(savedInstanceState)
     }
     
     private fun setupSearchInput() {
@@ -67,6 +67,36 @@ class SearchFragment : Fragment() {
         
         // Handle search button click
         binding.buttonSearch.setOnClickListener {
+            viewModel.onSearchClick()
+        }
+    }
+
+    private fun setupGenreChip() {
+        binding.chipActiveGenre.setOnCloseIconClickListener {
+            viewModel.clearActiveGenre()
+        }
+        binding.chipActiveGenre.setOnClickListener {
+            viewModel.clearActiveGenre()
+        }
+    }
+
+    private fun handleInitialArguments(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null) return
+
+        var shouldTriggerSearch = false
+        args.initialQuery?.takeIf { it.isNotBlank() }?.let { query ->
+            binding.editTextTitle.setText(query)
+            binding.editTextTitle.setSelection(query.length)
+            viewModel.onQueryChanged(query)
+            shouldTriggerSearch = true
+        }
+
+        if (args.initialGenreId != NO_GENRE_SENTINEL) {
+            viewModel.applyGenreFromHome(args.initialGenreId, args.initialGenreName)
+            shouldTriggerSearch = false
+        }
+
+        if (shouldTriggerSearch) {
             viewModel.onSearchClick()
         }
     }
@@ -121,7 +151,12 @@ class SearchFragment : Fragment() {
                     ).format(java.util.Date(state.cacheTimestamp))
                     binding.offlineText.text = getString(R.string.results_from_cache_with_timestamp, timestamp)
                     binding.offlineBanner.visibility = View.VISIBLE
+                } else if (!state.isOffline) {
+                    binding.offlineBanner.visibility = View.GONE
                 }
+
+                binding.chipActiveGenre.isVisible = state.activeGenreName != null
+                binding.chipActiveGenre.text = state.activeGenreName ?: ""
             }
         }
         
@@ -189,5 +224,9 @@ class SearchFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val NO_GENRE_SENTINEL = -1
     }
 }
