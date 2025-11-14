@@ -30,6 +30,7 @@ class RecommendationsFragment : Fragment() {
     private lateinit var recommendationsAdapter: MovieAdapter
     private lateinit var latestAdapter: HomeMovieCarouselAdapter
     private lateinit var upcomingAdapter: HomeMovieCarouselAdapter
+    private lateinit var popularAdapter: HomeMovieCarouselAdapter
 
     private var renderedGenres: List<RecommendationsViewModel.GenreChipUiModel> = emptyList()
 
@@ -47,9 +48,22 @@ class RecommendationsFragment : Fragment() {
         setupRecyclerViews()
         setupListeners()
         observeUiState()
+        setupProfile()
+    }
+
+    private fun setupProfile() {
+        // Set placeholder user name
+        binding.textUserName.text = "William Krisna"
     }
 
     private fun setupRecyclerViews() {
+        popularAdapter = HomeMovieCarouselAdapter(::navigateToDetails)
+        binding.recyclerPopular.apply {
+            layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+            adapter = popularAdapter
+            setHasFixedSize(true)
+        }
+
         latestAdapter = HomeMovieCarouselAdapter(::navigateToDetails)
         binding.recyclerLatest.apply {
             layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
@@ -73,7 +87,6 @@ class RecommendationsFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        binding.buttonRefresh.setOnClickListener { viewModel.refreshRecommendations() }
         binding.cardSearchShortcut.setOnClickListener { navigateToSearch() }
     }
 
@@ -83,7 +96,8 @@ class RecommendationsFragment : Fragment() {
                 viewModel.uiState.collectLatest { state ->
                     val hasAnyContent = state.recommendations.isNotEmpty() ||
                         state.latestMovies.isNotEmpty() ||
-                        state.upcomingMovies.isNotEmpty()
+                        state.upcomingMovies.isNotEmpty() ||
+                        state.popularMovies.isNotEmpty()
 
                     binding.progressBar.isVisible = state.isLoading && !hasAnyContent
                     binding.homeScroll.isVisible = hasAnyContent || state.isLoading
@@ -92,6 +106,10 @@ class RecommendationsFragment : Fragment() {
                     binding.textEmpty.isVisible = !state.isLoading && !hasAnyContent && state.errorMessage.isNullOrEmpty()
                     binding.textError.isVisible = !state.isLoading && state.errorMessage != null && !hasAnyContent
                     binding.textError.text = state.errorMessage
+
+                    binding.textPopularHeader.isVisible = state.popularMovies.isNotEmpty()
+                    binding.recyclerPopular.isVisible = state.popularMovies.isNotEmpty()
+                    popularAdapter.submitList(state.popularMovies)
 
                     binding.textLatestHeader.isVisible = state.latestMovies.isNotEmpty()
                     binding.recyclerLatest.isVisible = state.latestMovies.isNotEmpty()
@@ -124,12 +142,72 @@ class RecommendationsFragment : Fragment() {
         }
 
         chipGroup.isVisible = true
+        
+        // Add "All" chip first (selected by default)
+        val allChip = Chip(requireContext(), null, com.google.android.material.R.style.Widget_Material3_Chip_Assist).apply {
+            text = "All"
+            isCheckable = true
+            isChecked = true
+            isClickable = true
+            chipBackgroundColor = android.content.res.ColorStateList(
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf()
+                ),
+                intArrayOf(
+                    requireContext().getColor(com.example.cinephile.R.color.md_theme_dark_primary),
+                    requireContext().getColor(com.example.cinephile.R.color.md_theme_dark_surfaceVariant)
+                )
+            )
+            setTextColor(android.content.res.ColorStateList(
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf()
+                ),
+                intArrayOf(
+                    requireContext().getColor(com.example.cinephile.R.color.md_theme_dark_onPrimary),
+                    requireContext().getColor(com.example.cinephile.R.color.text_primary)
+                )
+            ))
+            setOnClickListener { 
+                // Clear selection and navigate to search without genre filter
+                chipGroup.clearCheck()
+                isChecked = true
+                navigateToSearch()
+            }
+        }
+        chipGroup.addView(allChip)
+        
         genres.forEach { genre ->
-            val chip = Chip(requireContext()).apply {
+            val chip = Chip(requireContext(), null, com.google.android.material.R.style.Widget_Material3_Chip_Assist).apply {
                 text = genre.name
-                isCheckable = false
+                isCheckable = true
                 isClickable = true
-                setOnClickListener { navigateToSearch(genre.id, genre.name) }
+                chipBackgroundColor = android.content.res.ColorStateList(
+                    arrayOf(
+                        intArrayOf(android.R.attr.state_checked),
+                        intArrayOf()
+                    ),
+                    intArrayOf(
+                        requireContext().getColor(com.example.cinephile.R.color.md_theme_dark_primary),
+                        requireContext().getColor(com.example.cinephile.R.color.md_theme_dark_surfaceVariant)
+                    )
+                )
+                setTextColor(android.content.res.ColorStateList(
+                    arrayOf(
+                        intArrayOf(android.R.attr.state_checked),
+                        intArrayOf()
+                    ),
+                    intArrayOf(
+                        requireContext().getColor(com.example.cinephile.R.color.md_theme_dark_onPrimary),
+                        requireContext().getColor(com.example.cinephile.R.color.text_primary)
+                    )
+                ))
+                setOnClickListener { 
+                    chipGroup.clearCheck()
+                    isChecked = true
+                    navigateToSearch(genre.id, genre.name) 
+                }
             }
             chipGroup.addView(chip)
         }

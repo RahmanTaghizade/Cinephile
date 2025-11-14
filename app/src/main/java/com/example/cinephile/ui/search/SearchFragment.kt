@@ -51,7 +51,19 @@ class SearchFragment : Fragment() {
         setupSearchInput()
         observeUiEvents()
         setupGenreChip()
+        setupFilterButton()
         handleInitialArguments(savedInstanceState)
+    }
+    
+    private fun setupFilterButton() {
+        binding.buttonFilter.setOnClickListener {
+            showFilterBottomSheet()
+        }
+    }
+    
+    private fun showFilterBottomSheet() {
+        val filterBottomSheet = FilterBottomSheetDialogFragment()
+        filterBottomSheet.show(childFragmentManager, FilterBottomSheetDialogFragment.TAG)
     }
     
     private fun setupSearchInput() {
@@ -113,6 +125,9 @@ class SearchFragment : Fragment() {
                     actorName = person.name
                 )
                 findNavController().navigate(action)
+            },
+            onSeriesClick = {
+                Snackbar.make(requireView(), getString(R.string.series_details_not_available), Snackbar.LENGTH_SHORT).show()
             }
         )
 
@@ -212,6 +227,7 @@ class SearchFragment : Fragment() {
         val items = listOf(
             "All" to SearchFilter.ALL,
             "Movies" to SearchFilter.MOVIES,
+            "Series" to SearchFilter.SERIES,
             "Actors" to SearchFilter.ACTORS,
             "Producers" to SearchFilter.PRODUCERS
         )

@@ -4,12 +4,14 @@ import com.example.cinephile.data.remote.TmdbPerson
 
 sealed class SearchResult {
     data class MovieItem(val movie: MovieUiModel) : SearchResult()
+    data class SeriesItem(val series: TvSeriesUiModel) : SearchResult()
     data class PersonItem(val person: TmdbPerson) : SearchResult()
 }
 
 enum class SearchFilter {
     ALL, CARTOONS, SERIES, MOVIES, ACTORS, PRODUCERS
 }
+
 
 
 

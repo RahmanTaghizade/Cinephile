@@ -57,6 +57,7 @@
     <string name="actor_death_date">Death date</string>
     <string name="actor_also_known">Also known as</string>
     <string name="actor_role_character">as %1$s</string>
+    <string name="series_details_not_available">Series details coming soon</string>
     <plurals name="actor_age_years">
         <item quantity="one">%d year</item>
         <item quantity="other">%d years</item>

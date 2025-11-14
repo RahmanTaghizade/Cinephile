@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/transparent"
+        android:paddingTop="@dimen/status_bar_height"
         app:navigationIcon="?attr/homeAsUpIndicator"
         app:titleTextColor="@color/text_primary" />
 
@@ -31,6 +32,7 @@
                 android:layout_height="280dp"
                 android:scaleType="centerCrop"
                 android:contentDescription="@null"
+                android:layout_marginTop="@dimen/status_bar_height"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

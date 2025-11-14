@@ -13,6 +13,12 @@ interface TmdbService {
         @Query("page") page: Int = 1
     ): TmdbSearchResponse
 
+    @GET("search/tv")
+    suspend fun searchTvSeries(
+        @Query("query") query: String,
+        @Query("page") page: Int = 1
+    ): TmdbTvSearchResponse
+
     @GET("discover/movie")
     suspend fun discoverMovies(
         @Query("primary_release_year") year: Int? = null,
@@ -94,6 +100,23 @@ data class TmdbMovieDetails(
     val runtime: Int?,
     @Json(name = "vote_average") val voteAverage: Double,
     val genres: List<TmdbGenre>
+)
+
+data class TmdbTvSearchResponse(
+    val page: Int,
+    val results: List<TmdbTvSeries>,
+    @Json(name = "total_pages") val totalPages: Int,
+    @Json(name = "total_results") val totalResults: Int
+)
+
+data class TmdbTvSeries(
+    val id: Long,
+    @Json(name = "name") val name: String,
+    @Json(name = "poster_path") val posterPath: String?,
+    val overview: String?,
+    @Json(name = "first_air_date") val firstAirDate: String?,
+    @Json(name = "vote_average") val voteAverage: Double,
+    @Json(name = "genre_ids") val genreIds: List<Int>
 )
 
 data class TmdbCredits(

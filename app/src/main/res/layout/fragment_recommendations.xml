@@ -14,7 +14,7 @@
         android:clipToPadding="false"
         android:fillViewport="true"
         android:paddingHorizontal="16dp"
-        android:paddingTop="16dp"
+        android:paddingTop="@dimen/status_bar_height"
         android:paddingBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,121 +26,157 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardHero"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                app:cardBackgroundColor="@color/md_theme_dark_secondaryContainer"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:id="@+id/textGreeting"
-                        style="@style/TextAppearance.Material3.BodyLarge"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/recommendations_greeting"
-                        android:textColor="@color/md_theme_dark_onSecondaryContainer"
-                        tools:text="Welcome back, William Krishna" />
-
-                    <TextView
-                        android:id="@+id/textHeadline"
-                        style="@style/TextAppearance.Material3.HeadlineMedium"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/recommendations_headline"
-                        android:textColor="@color/md_theme_dark_onSecondaryContainer"
-                        tools:text="Discover Your Next Favorite Movie." />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipCached"
-                        style="@style/Widget.Material3.Chip.Assist"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/recommendations_cached_badge"
-                        android:visibility="gone" />
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardSearchShortcut"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="0dp"
-                        app:cardBackgroundColor="@color/md_theme_dark_onSecondaryContainer">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:padding="16dp">
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@drawable/ic_search"
-                                android:tint="@color/md_theme_dark_secondaryContainer"
-                                tools:ignore="ContentDescription" />
-
-                            <TextView
-                                android:id="@+id/textSearchShortcut"
-                                style="@style/TextAppearance.Material3.BodyLarge"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="@string/recommendations_search_placeholder"
-                                android:textColor="@color/md_theme_dark_secondaryContainer" />
-
-                            <ImageView
-                                android:layout_width="32dp"
-                                android:layout_height="32dp"
-                                android:src="@drawable/ic_mic"
-                                android:tint="@color/md_theme_dark_secondaryContainer"
-                                tools:ignore="ContentDescription" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
+            <!-- Header with profile, welcome text, search bar, and notification -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_marginBottom="24dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-                <TextView
+                <!-- Profile picture and welcome text -->
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/recommendations_categories"
-                    android:textColor="@color/text_primary"
-                    android:textStyle="bold"
-                    android:textSize="18sp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonRefresh"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/recommendations_refresh" />
+                    <ImageView
+                        android:id="@+id/imageProfile"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/circle_background"
+                        android:background="@drawable/circle_background"
+                        android:contentDescription="@string/app_name"
+                        tools:ignore="ContentDescription" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/textGreeting"
+                            style="@style/TextAppearance.Material3.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/recommendations_greeting"
+                            android:textColor="@color/text_secondary"
+                            tools:text="Welcome back," />
+
+                        <TextView
+                            android:id="@+id/textUserName"
+                            style="@style/TextAppearance.Material3.TitleMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_primary"
+                            tools:text="William Krisna" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Small unified search bar -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSearchShortcut"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1.2"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/md_theme_dark_surfaceVariant">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_search"
+                            android:tint="@color/text_secondary"
+                            tools:ignore="ContentDescription" />
+
+                        <TextView
+                            android:id="@+id/textSearchShortcut"
+                            style="@style/TextAppearance.Material3.BodyMedium"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/recommendations_search_placeholder"
+                            android:textColor="@color/text_secondary" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Notification icon -->
+                <ImageView
+                    android:id="@+id/imageNotification"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_notification"
+                    android:tint="@color/text_secondary"
+                    android:contentDescription="Notifications"
+                    tools:ignore="ContentDescription" />
             </LinearLayout>
 
+            <!-- Headline -->
+            <TextView
+                android:id="@+id/textHeadline"
+                style="@style/TextAppearance.Material3.HeadlineMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:text="@string/recommendations_headline"
+                android:textColor="@color/text_primary"
+                tools:text="Discover Your Next Favorite Movie." />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCached"
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="@string/recommendations_cached_badge"
+                android:visibility="gone" />
+
+            <!-- Popular Movies Section -->
+            <TextView
+                android:id="@+id/textPopularHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Popular movies"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerPopular"
+                android:layout_width="match_parent"
+                android:layout_height="236dp"
+                android:layout_marginBottom="24dp"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingBottom="8dp"
+                android:visibility="gone"
+                tools:listitem="@layout/item_movie_carousel" />
+
+            <!-- Genre Chips -->
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:overScrollMode="never">
 
                 <com.google.android.material.chip.ChipGroup
@@ -148,7 +184,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="4dp"
-                    app:singleSelection="false" />
+                    app:singleSelection="true" />
             </HorizontalScrollView>
 
             <LinearLayout

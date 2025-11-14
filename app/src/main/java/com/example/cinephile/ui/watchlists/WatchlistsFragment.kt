@@ -76,13 +76,34 @@ class WatchlistsFragment : Fragment() {
 
     private fun showRenameDialog(id: Long, currentName: String) {
         val context = requireContext()
+        val container = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            layoutParams = android.view.ViewGroup.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            // MaterialAlertDialogBuilder handles padding internally, but we need minimal padding for the EditText
+            setPadding(
+                resources.getDimensionPixelSize(R.dimen.dialog_padding_horizontal),
+                0,
+                resources.getDimensionPixelSize(R.dimen.dialog_padding_horizontal),
+                0
+            )
+        }
         val input = android.widget.EditText(context).apply {
+            layoutParams = android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            )
             setText(currentName)
             hint = getString(R.string.dialog_rename_hint)
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.md_theme_dark_onSurface))
+            setHintTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.md_theme_dark_onSurfaceVariant))
         }
+        container.addView(input)
         MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_Cinephile_AlertDialog)
             .setTitle(R.string.dialog_rename_title)
-            .setView(input)
+            .setView(container)
             .setPositiveButton(R.string.rename) { _, _ ->
                 val name = input.text?.toString() ?: return@setPositiveButton
                 viewModel.rename(id, name)

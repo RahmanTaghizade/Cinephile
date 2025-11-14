@@ -59,7 +59,41 @@ class RecommendationsViewModel @Inject constructor(
                     .sortedBy { it.name.lowercase() }
                     .take(MAX_GENRE_CHIPS)
                     .map { GenreChipUiModel(it.id, it.name) }
-                _uiState.update { it.copy(genres = chips) }
+                _uiState.update { 
+                    val updated = it.copy(genres = chips)
+                    // Reload popular movies when genres are available
+                    if (chips.isNotEmpty() && updated.popularMovies.isEmpty()) {
+                        loadPopularMoviesWithGenres(chips.associate { it.id to it.name })
+                    }
+                    updated
+                }
+            }
+        }
+    }
+
+    private fun loadPopularMoviesWithGenres(genreLookup: Map<Int, String>) {
+        viewModelScope.launch {
+            try {
+                val response = movieRepository.tmdbService.getPopularMovies(page = 1)
+                val popularMovies = response.results.take(MAX_SECTION_ITEMS).map { tmdbMovie ->
+                    val posterUrl = tmdbMovie.posterPath?.let { 
+                        "https://image.tmdb.org/t/p/w500$it" 
+                    }
+                    val genreNames = tmdbMovie.genreIds.mapNotNull { genreLookup[it] }
+                    MovieUiModel(
+                        id = tmdbMovie.id,
+                        title = tmdbMovie.title,
+                        posterUrl = posterUrl,
+                        director = null,
+                        releaseDate = tmdbMovie.releaseDate,
+                        overview = tmdbMovie.overview,
+                        genres = genreNames,
+                        voteAverage = tmdbMovie.voteAverage
+                    )
+                }
+                _uiState.update { it.copy(popularMovies = popularMovies) }
+            } catch (e: Exception) {
+                // Silently fail for popular movies - not critical
             }
         }
     }
@@ -91,10 +125,12 @@ class RecommendationsViewModel @Inject constructor(
         }
     }
 
+
     data class RecommendationsUiState(
         val isLoading: Boolean = false,
         val latestMovies: List<MovieUiModel> = emptyList(),
         val upcomingMovies: List<MovieUiModel> = emptyList(),
+        val popularMovies: List<MovieUiModel> = emptyList(),
         val recommendations: List<MovieUiModel> = emptyList(),
         val genres: List<GenreChipUiModel> = emptyList(),
         val isCached: Boolean = false,

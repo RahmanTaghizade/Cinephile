@@ -6,7 +6,7 @@
 
     <style name="Theme.Cinephile.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splash_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/appicon</item>
         <item name="windowSplashScreenIconBackgroundColor">@color/splash_background</item>
         <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="postSplashScreenTheme">@style/Theme.Cinephile</item>

@@ -1,5 +1,6 @@
 package com.example.cinephile.ui.watchlists
 
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.MenuInflater
 import android.view.View
@@ -45,8 +46,40 @@ class WatchlistsAdapter(
             itemView.setOnClickListener { onItemClick(item) }
 
             overflow.setOnClickListener { v ->
-                val popup = PopupMenu(v.context, v)
-                MenuInflater(v.context).inflate(R.menu.menu_watchlist_item, popup.menu)
+                // Create a themed context for the popup menu
+                val themedContext = ContextThemeWrapper(v.context, R.style.Theme_Cinephile)
+                val popup = PopupMenu(themedContext, v)
+                MenuInflater(themedContext).inflate(R.menu.menu_watchlist_item, popup.menu)
+                
+                // Set text color for menu items to white
+                for (i in 0 until popup.menu.size()) {
+                    val menuItem = popup.menu.getItem(i)
+                    val title = menuItem.title
+                    if (title != null) {
+                        val spannableTitle = android.text.SpannableString(title)
+                        spannableTitle.setSpan(
+                            android.text.style.ForegroundColorSpan(
+                                ContextCompat.getColor(v.context, R.color.white)
+                            ),
+                            0,
+                            title.length,
+                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        menuItem.title = spannableTitle
+                    }
+                }
+                
+                // Style the popup menu background using reflection
+                try {
+                    val popupMenuHelper = PopupMenu::class.java.getDeclaredField("mPopup")
+                    popupMenuHelper.isAccessible = true
+                    val menuPopupHelper = popupMenuHelper.get(popup)
+                    val listView = menuPopupHelper?.javaClass?.getDeclaredMethod("getListView")?.invoke(menuPopupHelper) as? android.widget.ListView
+                    listView?.setBackgroundColor(ContextCompat.getColor(v.context, R.color.md_theme_dark_surface))
+                } catch (e: Exception) {
+                    // Ignore if reflection fails
+                }
+                
                 popup.setOnMenuItemClickListener { menuItem ->
                     when (menuItem.itemId) {
                         R.id.action_rename -> onRename(item)

@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingTop="8dp"
+        android:paddingTop="@dimen/status_bar_height"
         android:paddingBottom="16dp"
         tools:listitem="@layout/item_quiz" />
 

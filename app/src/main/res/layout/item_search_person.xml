@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="72dp"
+    android:layout_height="wrap_content"
     android:padding="12dp">
 
     <ImageView
         android:id="@+id/image_avatar"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:scaleType="centerCrop"
         android:clipToOutline="true"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,18 +27,20 @@
         app:layout_constraintTop_toTopOf="@id/image_avatar"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="12dp"
-        tools:text="Эмма Стоун" />
+        android:layout_marginTop="4dp"
+        tools:text="Зендея" />
 
     <TextView
         android:id="@+id/text_role"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@color/text_secondary"
-        android:textSize="13sp"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="@id/text_name"
         app:layout_constraintTop_toBottomOf="@id/text_name"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text="Актриса, продюсер" />
+        android:layout_marginTop="4dp"
+        tools:text="Актриса, продюсер, сценарист" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

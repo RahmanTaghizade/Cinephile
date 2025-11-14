@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.async
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import com.example.cinephile.data.local.entities.GenreEntity
 import kotlinx.coroutines.flow.collect
@@ -24,6 +24,7 @@ import com.example.cinephile.data.remote.TmdbPerson
 import com.example.cinephile.domain.repository.WatchlistRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlin.math.max
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -158,22 +159,39 @@ class SearchViewModel @Inject constructor(
                 val filters = buildFilters()
                 Log.d(TAG, "performSearch start | page=$currentPage isLoadMore=$isLoadMore | filters=$filters")
 
-                // Run movies and people search concurrently
+                // Fetch movies, series, and people results
                 val movieResult = movieRepository.searchMovies(filters, currentPage)
+                val genreLookup = _genres.value.associate { it.id to it.name }
+                val seriesResponse = filters.query?.let { query ->
+                    withContext(Dispatchers.IO) {
+                        try {
+                            movieRepository.tmdbService.searchTvSeries(query, currentPage)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "searchTvSeries failed", e)
+                            null
+                        }
+                    }
+                }
+                val series = seriesResponse?.results?.map { tmdb ->
+                    tmdb.toUiModel { id -> genreLookup[id] }
+                } ?: emptyList()
                 val people = if (_searchUiState.value.query.isNotBlank()) {
                     kotlin.runCatching { movieRepository.tmdbService.searchPerson(_searchUiState.value.query).results }
                         .getOrDefault(emptyList())
                 } else emptyList()
                 _lastPeopleResults = people
+                _lastSeriesResults = series
 
                 currentPage = movieResult.currentPage
-                totalPages = movieResult.totalPages
+                val combinedTotalPages = max(movieResult.totalPages, seriesResponse?.totalPages ?: 0).coerceAtLeast(1)
+                totalPages = combinedTotalPages
                 isLoadingPage = false
 
-                val combined = buildCombinedResults(movieResult.movies, people)
+                val combined = buildCombinedResults(movieResult.movies, series, people)
 
                 _searchUiState.value = _searchUiState.value.copy(
                     movies = movieResult.movies,
+                    series = series,
                     results = applyFilter(combined, _searchUiState.value.activeFilter),
                     isLoading = false,
                     isOffline = movieResult.isFromCache,
@@ -193,32 +211,35 @@ class SearchViewModel @Inject constructor(
 
     private fun buildCombinedResults(
         movies: List<MovieUiModel>,
+        series: List<TvSeriesUiModel>,
         people: List<TmdbPerson>
     ): List<SearchResult> {
         val movieItems = movies.map { SearchResult.MovieItem(it) }
+        val seriesItems = series.map { SearchResult.SeriesItem(it) }
         val personItems = people.map { SearchResult.PersonItem(it) }
-        return movieItems + personItems
+        return movieItems + seriesItems + personItems
     }
 
     fun onFilterSelected(filter: SearchFilter) {
         _searchUiState.value = _searchUiState.value.copy(activeFilter = filter)
-        val combined = buildCombinedResults(_searchUiState.value.movies, _lastPeopleResults)
+        val combined = buildCombinedResults(_searchUiState.value.movies, _lastSeriesResults, _lastPeopleResults)
         _searchUiState.value = _searchUiState.value.copy(results = applyFilter(combined, filter))
     }
 
     private var _lastPeopleResults: List<TmdbPerson> = emptyList()
+    private var _lastSeriesResults: List<TvSeriesUiModel> = emptyList()
 
     private fun applyFilter(all: List<SearchResult>, filter: SearchFilter): List<SearchResult> {
         return when (filter) {
             SearchFilter.ALL -> all
             SearchFilter.MOVIES -> all.filterIsInstance<SearchResult.MovieItem>()
+            SearchFilter.SERIES -> all.filterIsInstance<SearchResult.SeriesItem>()
             SearchFilter.ACTORS -> all.filterIsInstance<SearchResult.PersonItem>()
                 .filter { it.person.knownForDepartment.equals("Acting", true) }
             SearchFilter.PRODUCERS -> all.filterIsInstance<SearchResult.PersonItem>()
                 .filter { it.person.knownForDepartment.contains("Production", true) || it.person.knownForDepartment.contains("Producer", true) }
             SearchFilter.CARTOONS -> all.filterIsInstance<SearchResult.MovieItem>()
                 .filter { item -> item.movie.genres.any { it.contains("Animation", true) } }
-            SearchFilter.SERIES -> emptyList() // Not implemented in data layer yet
         }
     }
     
@@ -240,12 +261,15 @@ class SearchViewModel @Inject constructor(
             totalPages = 1
             _searchUiState.value = _searchUiState.value.copy(
                 movies = emptyList(),
+                series = emptyList(),
                 results = emptyList(),
                 isLoading = false,
                 error = null,
                 isOffline = false,
                 cacheTimestamp = null
             )
+            _lastPeopleResults = emptyList()
+            _lastSeriesResults = emptyList()
         }
     }
 
@@ -392,11 +416,38 @@ class SearchViewModel @Inject constructor(
         _searchUiState.value = _searchUiState.value.copy(selectedYear = year)
         savedStateHandle["selectedYear"] = year
     }
+
+    fun applyFilters(filterState: FilterState) {
+        // Update category filter
+        val searchFilter = when (filterState.category) {
+            Category.ALL -> SearchFilter.ALL
+            Category.MOVIES -> SearchFilter.MOVIES
+            Category.SERIES -> SearchFilter.SERIES
+        }
+        _searchUiState.value = _searchUiState.value.copy(
+            activeFilter = searchFilter,
+            selectedYear = filterState.year,
+            selectedRatingMax = filterState.ratingMax,
+            selectedAgeRestriction = filterState.ageRestriction,
+            selectedSortBy = filterState.sortBy
+        )
+        savedStateHandle["selectedYear"] = filterState.year
+        
+        // Apply filter to current results
+        val combined = buildCombinedResults(_searchUiState.value.movies, _lastSeriesResults, _lastPeopleResults)
+        _searchUiState.value = _searchUiState.value.copy(results = applyFilter(combined, searchFilter))
+        
+        // Trigger search if needed
+        if (_searchUiState.value.query.isNotBlank() || hasActiveFilters()) {
+            onSearchClick()
+        }
+    }
 }
 
 data class SearchUiState(
     val query: String = "",
     val movies: List<MovieUiModel> = emptyList(),
+    val series: List<TvSeriesUiModel> = emptyList(),
     val results: List<SearchResult> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
@@ -404,7 +455,10 @@ data class SearchUiState(
     val activeGenreName: String? = null,
     val isOffline: Boolean = false,
     val cacheTimestamp: Long? = null,
-    val activeFilter: SearchFilter = SearchFilter.ALL
+    val activeFilter: SearchFilter = SearchFilter.ALL,
+    val selectedRatingMax: Float = 10f,
+    val selectedAgeRestriction: Int? = null,
+    val selectedSortBy: SortBy = SortBy.RATING
 )
 
 sealed class SearchUiEvent {

@@ -15,27 +15,31 @@
     <color name="md_theme_dark_onSecondaryContainer">#DAE2FF</color>
 
     <color name="md_theme_dark_background">#0B1117</color>
-    <color name="md_theme_dark_onBackground">#FFFFFF</color>
+    <color name="md_theme_dark_onBackground">#DCE1E6</color>
     <color name="md_theme_dark_surface">#0E141B</color>
-    <color name="md_theme_dark_onSurface">#FFFFFF</color>
+    <color name="md_theme_dark_onSurface">#C9CED3</color>
     <color name="md_theme_dark_surfaceVariant">#1A2430</color>
-    <color name="md_theme_dark_onSurfaceVariant">#E0E0E0</color>
-    
-    <!-- Additional colors for better visibility -->
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#B0B0B0</color>
-    <color name="text_tertiary">#808080</color>
-    <color name="chip_background_unselected">#1A2430</color>
-    <color name="chip_background_selected">#4DA3FF</color>
-    <color name="button_primary">#BB86FC</color>
-    <color name="button_secondary">#FFFFFF</color>
+    <color name="md_theme_dark_onSurfaceVariant">#AAB2BA</color>
     <color name="md_theme_dark_outline">#45505B</color>
-    <color name="genre_chip_background">#6200EE</color>
-    <color name="background_dark_purple">#1A1A2E</color>
 
     <color name="md_theme_dark_error">#FFB4A9</color>
     <color name="md_theme_dark_onError">#680003</color>
     <color name="md_theme_dark_errorContainer">#930006</color>
     <color name="md_theme_dark_onErrorContainer">#FFDAD4</color>
-    <color name="splash_background">#D3022A</color>
+
+    <!-- Splash screen background -->
+    <color name="splash_background">#0B1117</color>
+
+    <!-- Text colors -->
+    <color name="text_primary">#DCE1E6</color>
+    <color name="text_secondary">#AAB2BA</color>
+
+    <!-- Chip filter background -->
+    <color name="chip_filter_background">#1A2430</color>
+
+    <!-- Genre chip background -->
+    <color name="genre_chip_background">#1A2430</color>
+
+    <!-- Button colors -->
+    <color name="button_primary">@color/md_theme_dark_primary</color>
 </resources>
