@@ -17,7 +17,6 @@ import com.example.cinephile.domain.repository.WatchlistUiModel
 class WatchlistsAdapter(
     private val onItemClick: (WatchlistUiModel) -> Unit,
     private val onRename: (WatchlistUiModel) -> Unit,
-    private val onSetCurrent: (WatchlistUiModel) -> Unit,
     private val onDelete: (WatchlistUiModel) -> Unit
 ) : ListAdapter<WatchlistUiModel, WatchlistsAdapter.VH>(DIFF) {
 
@@ -51,13 +50,10 @@ class WatchlistsAdapter(
                 popup.setOnMenuItemClickListener { menuItem ->
                     when (menuItem.itemId) {
                         R.id.action_rename -> onRename(item)
-                        R.id.action_set_current -> onSetCurrent(item)
                         R.id.action_delete -> onDelete(item)
                     }
                     true
                 }
-                // Disable Set current if already current
-                popup.menu.findItem(R.id.action_set_current)?.isVisible = !item.isCurrent
                 popup.show()
             }
         }

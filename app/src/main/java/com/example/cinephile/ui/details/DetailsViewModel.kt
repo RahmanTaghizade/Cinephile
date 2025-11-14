@@ -21,6 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.withContext
+import com.example.cinephile.data.remote.TmdbMovie
+import com.example.cinephile.data.remote.TmdbMovieDetails
 import com.example.cinephile.data.remote.TmdbService
 
 @HiltViewModel
@@ -50,6 +52,7 @@ class DetailsViewModel @Inject constructor(
                 // Fetch cast and rating from API
                 val details = kotlin.runCatching { tmdbService.getMovie(movieId) }.getOrNull()
                 val credits = kotlin.runCatching { tmdbService.getCredits(movieId) }.getOrNull()
+                val similarMovies = fetchSimilarMovies(details)
                 
                 val voteAverage = details?.voteAverage ?: 0.0
                 val cast = credits?.cast?.sortedBy { it.order }?.take(10)?.map { castMember ->
@@ -85,13 +88,50 @@ class DetailsViewModel @Inject constructor(
                         director = movie?.director,
                         isFavorite = movie?.isFavorite ?: false,
                         userRating = movie?.userRating ?: 0f,
-                        isInWatchlist = isInWatchlist
+                        isInWatchlist = isInWatchlist,
+                        similarMovies = similarMovies
                     )
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
         }
+    }
+
+    private suspend fun fetchSimilarMovies(details: TmdbMovieDetails?): List<MovieUiModel> {
+        if (details == null || details.genres.isEmpty()) return emptyList()
+        val genreIds = details.genres.map { it.id }.take(3)
+        if (genreIds.isEmpty()) return emptyList()
+
+        val response = kotlin.runCatching {
+            tmdbService.discoverMovies(
+                genreIds = genreIds.joinToString(","),
+                page = 1
+            )
+        }.getOrNull()
+
+        return response?.results
+            ?.asSequence()
+            ?.filter { it.id != movieId }
+            ?.map { it.toUiModel() }
+            ?.distinctBy { it.id }
+            ?.take(12)
+            ?.toList()
+            ?: emptyList()
+    }
+
+    private fun TmdbMovie.toUiModel(): MovieUiModel {
+        val posterUrl = posterPath?.let { "https://image.tmdb.org/t/p/w342$it" }
+        return MovieUiModel(
+            id = id,
+            title = title,
+            posterUrl = posterUrl,
+            director = null,
+            releaseDate = releaseDate,
+            overview = overview,
+            genres = emptyList(),
+            voteAverage = voteAverage
+        )
     }
 
     fun toggleFavorite() {
@@ -275,6 +315,7 @@ data class DetailsUiState(
     val isFavorite: Boolean = false,
     val userRating: Float = 0f,
     val isInWatchlist: Boolean = false,
+    val similarMovies: List<MovieUiModel> = emptyList(),
     val snackbarMessage: String? = null
 )
 

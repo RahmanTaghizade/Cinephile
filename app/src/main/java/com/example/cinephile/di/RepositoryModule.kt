@@ -8,6 +8,8 @@ import com.example.cinephile.domain.repository.MovieRepository
 import com.example.cinephile.domain.repository.WatchlistRepository
 import com.example.cinephile.domain.repository.QuizRepository
 import com.example.cinephile.domain.repository.RecommendationRepository
+import com.example.cinephile.data.repository.PersonRepositoryImpl
+import com.example.cinephile.domain.repository.PersonRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -41,4 +43,10 @@ abstract class RepositoryModule {
     abstract fun bindRecommendationRepository(
         recommendationRepositoryImpl: RecommendationRepositoryImpl
     ): RecommendationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPersonRepository(
+        personRepositoryImpl: PersonRepositoryImpl
+    ): PersonRepository
 }

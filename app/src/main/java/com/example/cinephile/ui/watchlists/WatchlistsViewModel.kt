@@ -64,12 +64,6 @@ class WatchlistsViewModel @Inject constructor(
         }
     }
 
-    fun setCurrent(watchlistId: Long) {
-        viewModelScope.launch {
-            watchlistRepository.setCurrentWatchlist(watchlistId)
-        }
-    }
-
     companion object {
         private val DEFAULT_NAME_REGEX = Regex("^Watchlist\\s+(\\d+)$")
     }

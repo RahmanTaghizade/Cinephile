@@ -48,4 +48,17 @@
     <string name="watchlist_create_title">Create watchlist</string>
     <string name="watchlist_create_hint">Watchlist name</string>
     <string name="watchlist_create_confirm">Create</string>
+    <string name="details_similar_label">More like this</string>
+    <string name="actor_biography">About</string>
+    <string name="actor_filmography">Filmography</string>
+    <string name="actor_movies_empty">No credited movies found.</string>
+    <string name="actor_birth_date">Birth date</string>
+    <string name="actor_birth_place">Birth place</string>
+    <string name="actor_death_date">Death date</string>
+    <string name="actor_also_known">Also known as</string>
+    <string name="actor_role_character">as %1$s</string>
+    <plurals name="actor_age_years">
+        <item quantity="one">%d year</item>
+        <item quantity="other">%d years</item>
+    </plurals>
 </resources>

@@ -37,4 +37,5 @@
     <color name="md_theme_dark_onError">#680003</color>
     <color name="md_theme_dark_errorContainer">#930006</color>
     <color name="md_theme_dark_onErrorContainer">#FFDAD4</color>
+    <color name="splash_background">#D3022A</color>
 </resources>

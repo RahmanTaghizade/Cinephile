@@ -2,5 +2,6 @@
 <resources>
     <dimen name="dialog_padding_horizontal">24dp</dimen>
     <dimen name="dialog_padding_vertical">16dp</dimen>
+    <dimen name="bottom_nav_max_inset_padding">16dp</dimen>
 </resources>
 

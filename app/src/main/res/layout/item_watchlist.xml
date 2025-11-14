@@ -35,7 +35,7 @@
         android:layout_height="40dp"
         android:background="@android:color/transparent"
         android:contentDescription="@string/menu_watchlist_more"
-        android:src="@android:drawable/ic_menu_more"
+        android:src="@drawable/ic_overflow_vertical"
         android:tint="?attr/colorOnSurfaceVariant"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

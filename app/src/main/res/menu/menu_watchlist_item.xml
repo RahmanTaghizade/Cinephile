@@ -4,9 +4,6 @@
         android:id="@+id/action_rename"
         android:title="Rename"/>
     <item
-        android:id="@+id/action_set_current"
-        android:title="Set current"/>
-    <item
         android:id="@+id/action_delete"
         android:title="Delete"/>
     

@@ -54,6 +54,9 @@ interface WatchlistDao {
     
     @Query("DELETE FROM watchlist_movies WHERE watchlistId = :watchlistId AND movieId = :movieId")
     suspend fun removeMovieFromWatchlist(watchlistId: Long, movieId: Long)
+
+    @Query("DELETE FROM watchlist_movies WHERE watchlistId = :watchlistId")
+    suspend fun clearWatchlistMovies(watchlistId: Long)
     
     @Query("SELECT movieId FROM watchlist_movies WHERE watchlistId = :watchlistId")
     suspend fun getMovieIds(watchlistId: Long): List<Long>

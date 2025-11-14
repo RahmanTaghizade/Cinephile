@@ -5,6 +5,11 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +28,9 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import androidx.navigation.navOptions
+import com.example.cinephile.ui.search.CastMember
+import com.example.cinephile.ui.details.DetailsFragmentDirections
 
 @AndroidEntryPoint
 class DetailsFragment : Fragment() {
@@ -30,7 +38,8 @@ class DetailsFragment : Fragment() {
     private val binding get() = _binding!!
     private val args: DetailsFragmentArgs by navArgs()
     private val viewModel: DetailsViewModel by viewModels()
-    private val castAdapter = CastAdapter()
+    private val castAdapter = CastAdapter(::onCastClicked)
+    private val similarAdapter = SimilarMoviesAdapter(::onSimilarMovieClicked)
     private var isOverviewExpanded = false
 
     override fun onCreateView(
@@ -44,10 +53,19 @@ class DetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar) { toolbar, insets ->
+            val statusBarInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            toolbar.updatePadding(top = statusBarInset)
+            insets
+        }
         
         // Setup cast RecyclerView
         binding.recyclerCast.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerCast.adapter = castAdapter
+
+        binding.recyclerSimilar.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclerSimilar.adapter = similarAdapter
         
         // Setup "more" link click listener
         binding.textMore.setOnClickListener {
@@ -97,13 +115,16 @@ class DetailsFragment : Fragment() {
                 // Update cast
                 castAdapter.submitList(movie?.cast ?: emptyList())
                 
+                // Update similar movies
+                similarAdapter.submitList(state.similarMovies)
+                val hasSimilar = state.similarMovies.isNotEmpty()
+                binding.textSimilarLabel.isVisible = hasSimilar
+                binding.recyclerSimilar.isVisible = hasSimilar
+
                 // Update poster
                 binding.imagePoster.load(state.posterUrl) {
                     crossfade(true)
                 }
-                
-                // Update watchlist button
-                binding.buttonWatchlist.text = "Watch now"
                 
                 // Show Snackbar if there's a message
                 state.snackbarMessage?.let { message ->
@@ -123,6 +144,21 @@ class DetailsFragment : Fragment() {
         binding.buttonWatchlist.setOnClickListener { viewModel.toggleWatchlist() }
 
         observeEvents()
+    }
+
+    private fun onCastClicked(castMember: CastMember) {
+        val action = DetailsFragmentDirections.actionDetailsFragmentToActorProfileFragment(
+            actorId = castMember.id,
+            actorName = castMember.name
+        )
+        findNavController().navigate(action)
+    }
+
+    private fun onSimilarMovieClicked(movieId: Long) {
+        if (movieId == args.movieId) return
+        val bundle = bundleOf("movieId" to movieId)
+        val options = navOptions { launchSingleTop = true }
+        findNavController().navigate(R.id.detailsFragment, bundle, options)
     }
     
     private fun updateOverviewText() {

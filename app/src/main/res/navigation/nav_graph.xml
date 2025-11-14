@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_searchFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />
+        <action
+            android:id="@+id/action_searchFragment_to_actorProfileFragment"
+            app:destination="@id/actorProfileFragment" />
     </fragment>
 
     <fragment
@@ -68,6 +71,27 @@
         <argument
             android:name="movieId"
             app:argType="long" />
+        <action
+            android:id="@+id/action_detailsFragment_to_actorProfileFragment"
+            app:destination="@id/actorProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/actorProfileFragment"
+        android:name="com.example.cinephile.ui.actor.ActorProfileFragment"
+        android:label="Actor"
+        tools:layout="@layout/fragment_actor_profile">
+        <argument
+            android:name="actorId"
+            app:argType="long" />
+        <argument
+            android:name="actorName"
+            app:argType="string"
+            android:defaultValue="@null"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_actorProfileFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
     </fragment>
 
     <fragment

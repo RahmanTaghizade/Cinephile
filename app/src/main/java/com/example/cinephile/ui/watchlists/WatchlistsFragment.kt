@@ -53,7 +53,6 @@ class WatchlistsFragment : Fragment() {
                 findNavController().navigate(R.id.watchlistDetailsFragment, args)
             },
             onRename = { item -> showRenameDialog(item.id, item.name) },
-            onSetCurrent = { item -> viewModel.setCurrent(item.id) },
             onDelete = { item -> showDeleteConfirm(item.id) }
         )
         binding.recyclerWatchlists.layoutManager =

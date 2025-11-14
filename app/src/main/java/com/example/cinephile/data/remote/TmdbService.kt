@@ -37,6 +37,16 @@ interface TmdbService {
         @Path("movie_id") movieId: Long
     ): TmdbKeywords
 
+    @GET("person/{person_id}")
+    suspend fun getPersonDetails(
+        @Path("person_id") personId: Long
+    ): TmdbPersonDetails
+
+    @GET("person/{person_id}/movie_credits")
+    suspend fun getPersonMovieCredits(
+        @Path("person_id") personId: Long
+    ): TmdbPersonCredits
+
     @GET("search/person")
     suspend fun searchPerson(
         @Query("query") query: String,
@@ -90,6 +100,44 @@ data class TmdbCredits(
     val id: Long,
     val cast: List<TmdbCast>,
     val crew: List<TmdbCrew>
+)
+
+data class TmdbPersonDetails(
+    val id: Long,
+    val name: String,
+    @Json(name = "known_for_department") val knownForDepartment: String?,
+    val biography: String?,
+    val birthday: String?,
+    val deathday: String?,
+    @Json(name = "place_of_birth") val placeOfBirth: String?,
+    @Json(name = "profile_path") val profilePath: String?,
+    @Json(name = "also_known_as") val alsoKnownAs: List<String>?,
+    val gender: Int?,
+    val popularity: Double?
+)
+
+data class TmdbPersonCredits(
+    val id: Long,
+    val cast: List<TmdbMovieCastCredit>,
+    val crew: List<TmdbMovieCrewCredit>
+)
+
+data class TmdbMovieCastCredit(
+    val id: Long,
+    val title: String,
+    @Json(name = "poster_path") val posterPath: String?,
+    @Json(name = "release_date") val releaseDate: String?,
+    val character: String?,
+    @Json(name = "vote_average") val voteAverage: Double
+)
+
+data class TmdbMovieCrewCredit(
+    val id: Long,
+    val title: String,
+    @Json(name = "poster_path") val posterPath: String?,
+    @Json(name = "release_date") val releaseDate: String?,
+    val job: String?,
+    @Json(name = "vote_average") val voteAverage: Double
 )
 
 data class TmdbCast(

@@ -71,6 +71,11 @@ class WatchlistRepositoryImpl @Inject constructor(
     override suspend fun deleteWatchlist(watchlistId: Long) {
         val toDelete = watchlistDao.getById(watchlistId)
         if (toDelete != null) {
+            watchlistDao.clearWatchlistMovies(toDelete.id)
+        } else {
+            watchlistDao.clearWatchlistMovies(watchlistId)
+        }
+        if (toDelete != null) {
             watchlistDao.delete(toDelete)
         } else {
             // Fallback delete when not found by id

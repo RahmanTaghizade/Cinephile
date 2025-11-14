@@ -8,10 +8,11 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.cinephile.databinding.ItemSearchMovieBinding
 import com.example.cinephile.databinding.ItemSearchPersonBinding
+import com.example.cinephile.data.remote.TmdbPerson
 
 class SearchResultsAdapter(
     private val onMovieClick: (Long) -> Unit,
-    private val onPersonClick: (Long) -> Unit
+    private val onPersonClick: (TmdbPerson) -> Unit
 ) : ListAdapter<SearchResult, RecyclerView.ViewHolder>(Diff) {
 
     override fun getItemViewType(position: Int): Int = when (getItem(position)) {
@@ -62,7 +63,7 @@ class SearchResultsAdapter(
 
     class PersonVH(
         private val binding: ItemSearchPersonBinding,
-        private val onClick: (Long) -> Unit
+        private val onClick: (TmdbPerson) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(person: com.example.cinephile.data.remote.TmdbPerson) {
             binding.textName.text = person.name
@@ -87,7 +88,7 @@ class SearchResultsAdapter(
                 binding.imageAvatar.clipToOutline = true
             }
             
-            binding.root.setOnClickListener { onClick(person.id) }
+            binding.root.setOnClickListener { onClick(person) }
         }
     }
 

@@ -107,7 +107,13 @@ class SearchFragment : Fragment() {
                 val action = SearchFragmentDirections.actionSearchFragmentToDetailsFragment(movieId)
                 findNavController().navigate(action)
             },
-            onPersonClick = { /* TODO: navigate to person details when available */ }
+            onPersonClick = { person ->
+                val action = SearchFragmentDirections.actionSearchFragmentToActorProfileFragment(
+                    actorId = person.id,
+                    actorName = person.name
+                )
+                findNavController().navigate(action)
+            }
         )
 
         binding.recyclerResults.apply {

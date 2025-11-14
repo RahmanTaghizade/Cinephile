@@ -9,7 +9,9 @@ import coil.load
 import com.example.cinephile.databinding.ItemCastBinding
 import com.example.cinephile.ui.search.CastMember
 
-class CastAdapter : ListAdapter<CastMember, CastAdapter.CastViewHolder>(CastDiffCallback()) {
+class CastAdapter(
+    private val onCastClick: (CastMember) -> Unit
+) : ListAdapter<CastMember, CastAdapter.CastViewHolder>(CastDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CastViewHolder {
         val binding = ItemCastBinding.inflate(
@@ -24,7 +26,7 @@ class CastAdapter : ListAdapter<CastMember, CastAdapter.CastViewHolder>(CastDiff
         holder.bind(getItem(position))
     }
 
-    class CastViewHolder(
+    inner class CastViewHolder(
         private val binding: ItemCastBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -43,6 +45,7 @@ class CastAdapter : ListAdapter<CastMember, CastAdapter.CastViewHolder>(CastDiff
                 }
                 binding.imageProfile.clipToOutline = true
             }
+            binding.root.setOnClickListener { onCastClick(castMember) }
         }
     }
 
