@@ -79,14 +79,18 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Notification icon -->
-                <ImageView
-                    android:id="@+id/imageNotification"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_notification"
-                    app:tint="@color/text_secondary"
-                    android:contentDescription="Notifications"
+                <!-- Language selector flag emoji -->
+                <TextView
+                    android:id="@+id/textLanguageFlag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="24sp"
+                    android:padding="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/language_select"
+                    tools:text="🇬🇧"
                     tools:ignore="ContentDescription" />
             </LinearLayout>
 
@@ -111,16 +115,16 @@
                 android:visibility="gone" />
 
             <!-- Popular Movies Section -->
-            <TextView
-                android:id="@+id/textPopularHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Popular movies"
-                android:textColor="@color/text_primary"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:visibility="gone" />
+                <TextView
+                    android:id="@+id/textPopularHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/recommendations_popular"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerPopular"

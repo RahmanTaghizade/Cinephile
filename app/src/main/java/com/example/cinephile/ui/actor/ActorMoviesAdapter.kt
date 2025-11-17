@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.cinephile.R
-import com.example.cinephile.databinding.ItemSearchMovieBinding
+import com.example.cinephile.databinding.ItemFilmographyCardBinding
 import com.example.cinephile.domain.repository.PersonCreditType
 
 data class ActorMovieUiModel(
@@ -26,7 +26,7 @@ class ActorMoviesAdapter(
 ) : ListAdapter<ActorMovieUiModel, ActorMoviesAdapter.ActorMovieViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActorMovieViewHolder {
-        val binding = ItemSearchMovieBinding.inflate(
+        val binding = ItemFilmographyCardBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -39,7 +39,7 @@ class ActorMoviesAdapter(
     }
 
     class ActorMovieViewHolder(
-        private val binding: ItemSearchMovieBinding,
+        private val binding: ItemFilmographyCardBinding,
         private val onMovieClick: (Long) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -63,8 +63,6 @@ class ActorMoviesAdapter(
                 crossfade(true)
                 placeholder(android.R.drawable.ic_menu_gallery)
             }
-            binding.imagePoster.clipToOutline = false
-            binding.imagePoster.outlineProvider = null
 
             binding.root.setOnClickListener { onMovieClick(item.id) }
         }

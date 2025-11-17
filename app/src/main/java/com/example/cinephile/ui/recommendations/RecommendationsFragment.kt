@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.cinephile.R
 import com.example.cinephile.databinding.FragmentRecommendationsBinding
 import com.example.cinephile.ui.search.MovieAdapter
+import com.example.cinephile.util.LocaleHelper
 import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -48,6 +50,7 @@ class RecommendationsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerViews()
         setupListeners()
+        setupLanguageSelector()
         observeUiState()
     }
 
@@ -90,6 +93,55 @@ class RecommendationsFragment : Fragment() {
 
     private fun setupListeners() {
         binding.cardSearchShortcut.setOnClickListener { navigateToSearch() }
+    }
+    
+    private fun setupLanguageSelector() {
+        // Update flag emoji based on current language
+        val currentLanguage = LocaleHelper.getSavedLanguage(requireContext())
+        binding.textLanguageFlag.text = LocaleHelper.getFlagEmoji(currentLanguage)
+        
+        binding.textLanguageFlag.setOnClickListener {
+            showLanguageMenu(it)
+        }
+    }
+    
+    private fun showLanguageMenu(anchor: View) {
+        val popup = PopupMenu(requireContext(), anchor)
+        popup.menuInflater.inflate(R.menu.language_menu, popup.menu)
+        
+        val currentLanguage = LocaleHelper.getSavedLanguage(requireContext())
+        when (currentLanguage) {
+            "en" -> popup.menu.findItem(R.id.menu_language_en).isChecked = true
+            "fr" -> popup.menu.findItem(R.id.menu_language_fr).isChecked = true
+            "ru" -> popup.menu.findItem(R.id.menu_language_ru).isChecked = true
+        }
+        
+        popup.menu.setGroupCheckable(R.id.language_group, true, true)
+        
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.menu_language_en -> {
+                    changeLanguage("en")
+                    true
+                }
+                R.id.menu_language_fr -> {
+                    changeLanguage("fr")
+                    true
+                }
+                R.id.menu_language_ru -> {
+                    changeLanguage("ru")
+                    true
+                }
+                else -> false
+            }
+        }
+        
+        popup.show()
+    }
+    
+    private fun changeLanguage(language: String) {
+        LocaleHelper.saveLanguage(requireContext(), language)
+        requireActivity().recreate()
     }
 
     private fun observeUiState() {
@@ -147,7 +199,7 @@ class RecommendationsFragment : Fragment() {
         
         // Add "All" chip first (selected by default)
         val allChip = Chip(requireContext(), null, com.google.android.material.R.style.Widget_Material3_Chip_Assist).apply {
-            text = "All"
+            text = getString(R.string.filter_all)
             isCheckable = true
             isChecked = true
             isClickable = true

@@ -40,7 +40,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="Filters"
+                    android:text="@string/filter_filters"
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -51,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:padding="12dp"
-                    android:text="Reset"
+                    android:text="@string/filter_reset"
                     android:textColor="@color/text_secondary"
                     android:textSize="16sp" />
 
@@ -64,7 +64,7 @@
                 android:paddingStart="16dp"
                 android:paddingTop="8dp"
                 android:paddingEnd="16dp"
-                android:text="Categories"
+                android:text="@string/filter_categories"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
@@ -84,7 +84,7 @@
                     style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="All"
+                    android:text="@string/filter_all"
                     app:chipBackgroundColor="@color/chip_filter_background"
                     app:chipStrokeColor="@android:color/white"
                     app:chipStrokeWidth="1dp" />
@@ -94,7 +94,7 @@
                     style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Movies"
+                    android:text="@string/filter_movies"
                     app:chipBackgroundColor="@color/chip_filter_background"
                     app:chipStrokeColor="@android:color/white"
                     app:chipStrokeWidth="1dp" />
@@ -104,7 +104,7 @@
                     style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Series"
+                    android:text="@string/filter_series"
                     app:chipBackgroundColor="@color/chip_filter_background"
                     app:chipStrokeColor="@android:color/white"
                     app:chipStrokeWidth="1dp" />
@@ -130,7 +130,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Countries"
+                    android:text="@string/filter_countries"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
 
@@ -138,7 +138,7 @@
                     android:id="@+id/text_countries_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Any"
+                    android:text="@string/filter_any"
                     android:textColor="@color/text_secondary"
                     android:textSize="16sp" />
 
@@ -171,7 +171,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Year"
+                    android:text="@string/filter_year"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
 
@@ -179,7 +179,7 @@
                     android:id="@+id/text_year_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Any"
+                    android:text="@string/filter_any"
                     android:textColor="@color/text_secondary"
                     android:textSize="16sp" />
 
@@ -200,7 +200,7 @@
                 android:paddingStart="16dp"
                 android:paddingTop="8dp"
                 android:paddingEnd="16dp"
-                android:text="Rating"
+                android:text="@string/filter_rating"
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
 
@@ -231,7 +231,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:text="from 0 to 10"
+                    android:text="@string/filter_rating_from_to"
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:minWidth="90dp"
@@ -246,7 +246,7 @@
                 android:paddingStart="16dp"
                 android:paddingTop="8dp"
                 android:paddingEnd="16dp"
-                android:text="Age Restriction"
+                android:text="@string/filter_age_restriction"
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
 
@@ -319,7 +319,7 @@
                 android:paddingStart="16dp"
                 android:paddingTop="8dp"
                 android:paddingEnd="16dp"
-                android:text="Sort by"
+                android:text="@string/filter_sort_by"
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
 
@@ -338,7 +338,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="12dp"
                     android:paddingBottom="12dp"
-                    android:text="Rating"
+                    android:text="@string/filter_sort_rating"
                     android:textColor="@android:color/white"
                     android:buttonTint="@android:color/white"
                     android:checked="true" />
@@ -349,7 +349,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="12dp"
                     android:paddingBottom="12dp"
-                    android:text="Popularity"
+                    android:text="@string/filter_sort_popularity"
                     android:textColor="@android:color/white"
                     android:buttonTint="@android:color/white" />
 
@@ -359,7 +359,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="12dp"
                     android:paddingBottom="12dp"
-                    android:text="Newness"
+                    android:text="@string/filter_sort_newness"
                     android:textColor="@android:color/white"
                     android:buttonTint="@android:color/white" />
 
@@ -383,7 +383,7 @@
             android:layout_height="56dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:text="Show"
+            android:text="@string/filter_show"
             android:textColor="@android:color/black"
             style="@style/Widget.Material3.Button"
             app:backgroundTint="@android:color/white" />

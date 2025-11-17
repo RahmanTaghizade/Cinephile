@@ -240,35 +240,12 @@ class DetailsFragment : Fragment() {
     }
 
     private fun showCreateWatchlistDialog() {
-        val context = requireContext()
-        val inputLayout = TextInputLayout(context).apply {
-            boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
-            setPadding(
-                resources.getDimensionPixelSize(R.dimen.dialog_padding_horizontal),
-                resources.getDimensionPixelSize(R.dimen.dialog_padding_vertical),
-                resources.getDimensionPixelSize(R.dimen.dialog_padding_horizontal),
-                0
-            )
-            hint = getString(R.string.watchlist_create_hint)
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-        val editText = TextInputEditText(context).apply {
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
-        }
-        inputLayout.addView(
-            editText,
-            ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        )
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_create_watchlist, null)
+        val editText = dialogView.findViewById<TextInputEditText>(R.id.edit_text_name)
 
-        val dialog = MaterialAlertDialogBuilder(context)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.watchlist_create_title)
-            .setView(inputLayout)
+            .setView(dialogView)
             .setPositiveButton(R.string.watchlist_create_confirm) { _, _ ->
                 val name = editText.text?.toString().orEmpty()
                 viewModel.createWatchlistAndAdd(name)

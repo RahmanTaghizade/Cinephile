@@ -58,7 +58,7 @@ class ActorProfileFragment : Fragment() {
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 
         binding.recyclerMovies.apply {
-            layoutManager = LinearLayoutManager(requireContext())
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             adapter = moviesAdapter
         }
 
@@ -119,6 +119,19 @@ class ActorProfileFragment : Fragment() {
             }
             if (profile.alsoKnownAs.isNotEmpty()) {
                 infoRows.add(getString(R.string.actor_also_known) to profile.alsoKnownAs.joinToString(", "))
+            }
+
+            // Add all projects summary (count and year range) if available
+            val years = state.movies.mapNotNull { it.releaseYear?.toIntOrNull() }
+            if (state.movies.isNotEmpty()) {
+                val count = state.movies.size
+                val range = if (years.isNotEmpty()) {
+                    val min = years.minOrNull()
+                    val max = years.maxOrNull()
+                    if (min != null && max != null) "$min–$max" else null
+                } else null
+                val value = listOfNotNull(count.toString(), range).joinToString(", ")
+                infoRows.add(getString(R.string.actor_all_projects) to value)
             }
 
             infoRows.forEach { (label, value) -> addInfoRow(label, value) }

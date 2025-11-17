@@ -67,10 +67,10 @@ class FilterBottomSheetDialogFragment : BottomSheetDialogFragment() {
         binding.chipSeries.isChecked = state.category == Category.SERIES
 
         // Year
-        binding.textYearValue.text = state.year?.toString() ?: "Any"
+        binding.textYearValue.text = state.year?.toString() ?: getString(R.string.filter_any)
 
         // Countries (placeholder - will show "Any" for now)
-        binding.textCountriesValue.text = "Any"
+        binding.textCountriesValue.text = getString(R.string.filter_any)
 
         // Rating slider
         binding.sliderRating.value = state.ratingMax
@@ -93,7 +93,7 @@ class FilterBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     private fun updateRatingText(min: Float, max: Float) {
-        binding.textRatingValue.text = "from ${min.toInt()} to ${max.toInt()}"
+        binding.textRatingValue.text = getString(R.string.filter_rating_from_to, min.toInt(), max.toInt())
     }
 
     private fun setupListeners() {
@@ -139,7 +139,7 @@ class FilterBottomSheetDialogFragment : BottomSheetDialogFragment() {
             else -> Category.ALL
         }
 
-        val year = binding.textYearValue.text.toString().takeIf { it != "Any" }?.toIntOrNull()
+        val year = binding.textYearValue.text.toString().takeIf { it != getString(R.string.filter_any) }?.toIntOrNull()
 
         val ratingMax = binding.sliderRating.value
 

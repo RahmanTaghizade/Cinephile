@@ -11,7 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.cinephile.R
 import com.example.cinephile.databinding.FragmentSearchBinding
 import com.example.cinephile.ui.search.SearchFragmentDirections
@@ -132,7 +132,16 @@ class SearchFragment : Fragment() {
         )
 
         binding.recyclerResults.apply {
-            layoutManager = LinearLayoutManager(context)
+            val gridLayoutManager = GridLayoutManager(context, 2)
+            gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return when (resultsAdapter.getItemViewType(position)) {
+                        1 -> 2 // Person items span full width (2 columns)
+                        else -> 1 // Movie and Series items span 1 column each
+                    }
+                }
+            }
+            layoutManager = gridLayoutManager
             adapter = resultsAdapter
         }
     }
@@ -225,9 +234,9 @@ class SearchFragment : Fragment() {
         val chipGroup = binding.chipGroupFilters
         chipGroup.removeAllViews()
         val items = listOf(
-            "All" to SearchFilter.ALL,
-            "Movies" to SearchFilter.MOVIES,
-            "Series" to SearchFilter.SERIES,
+            getString(R.string.filter_all) to SearchFilter.ALL,
+            getString(R.string.filter_movies) to SearchFilter.MOVIES,
+            getString(R.string.filter_series) to SearchFilter.SERIES,
             "Actors" to SearchFilter.ACTORS,
             "Producers" to SearchFilter.PRODUCERS
         )

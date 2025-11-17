@@ -17,7 +17,7 @@
             android:clipToPadding="false"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:paddingTop="@dimen/status_bar_height"
+            android:paddingTop="64dp"
             android:paddingBottom="88dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

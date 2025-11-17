@@ -95,6 +95,18 @@ class WatchlistsViewModel @Inject constructor(
         }
     }
 
+    fun create(name: String) {
+        viewModelScope.launch {
+            try {
+                val finalName = name.trim()
+                if (finalName.isBlank()) return@launch
+                watchlistRepository.createWatchlist(finalName)
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Error creating watchlist"
+            }
+        }
+    }
+
     private fun nextDefaultIndex(existingNames: List<String>): Int {
         var max = 0
         for (n in existingNames) {

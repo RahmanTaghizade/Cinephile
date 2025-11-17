@@ -10,9 +10,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.navigation.fragment.findNavController
 import com.example.cinephile.databinding.FragmentWatchlistDetailsBinding
 import com.example.cinephile.R
+import com.example.cinephile.ui.details.SimilarMoviesAdapter
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -26,8 +28,7 @@ class WatchlistDetailsFragment : Fragment() {
     private val viewModel: WatchlistDetailsViewModel by viewModels()
     @Inject lateinit var connectivityMonitor: ConnectivityMonitor
 
-    private lateinit var adapter: WatchlistMoviesAdapter
-    private var lastDeleted: Long? = null
+    private lateinit var adapter: SimilarMoviesAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,26 +52,16 @@ class WatchlistDetailsFragment : Fragment() {
     }
 
     private fun setupList() {
-        adapter = WatchlistMoviesAdapter(
-            onClick = { item ->
-                val args = Bundle().apply { putLong("movieId", item.id) }
+        adapter = SimilarMoviesAdapter(
+            onMovieClick = { movieId ->
+                val args = Bundle().apply { putLong("movieId", movieId) }
                 findNavController().navigate(R.id.detailsFragment, args)
-            },
-            onDelete = { item ->
-                lastDeleted = item.id
-                viewModel.remove(item.id)
-                Snackbar.make(requireView(), R.string.removed_from_watchlist, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.undo) {
-                        lastDeleted?.let { id -> viewModel.add(id) }
-                        lastDeleted = null
-                    }
-                    .show()
             }
         )
         binding.recyclerMovies.apply {
             adapter = this@WatchlistDetailsFragment.adapter
-            layoutManager = LinearLayoutManager(requireContext())
-            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            setHasFixedSize(false)
         }
     }
 

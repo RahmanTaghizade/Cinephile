@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.example.cinephile.R
 import com.example.cinephile.databinding.ItemSearchMovieBinding
 import com.example.cinephile.databinding.ItemSearchPersonBinding
 import com.example.cinephile.data.remote.TmdbPerson
@@ -48,19 +49,41 @@ class SearchResultsAdapter(
                 crossfade(true)
                 placeholder(android.R.drawable.ic_menu_gallery)
             }
+            // Set rounded corners for poster
+            binding.imagePoster.post {
+                val radius = 12 * binding.root.context.resources.displayMetrics.density
+                binding.imagePoster.outlineProvider = object : android.view.ViewOutlineProvider() {
+                    override fun getOutline(view: android.view.View, outline: android.graphics.Outline) {
+                        outline.setRoundRect(0, 0, view.width, view.height, radius)
+                    }
+                }
+                binding.imagePoster.clipToOutline = true
+            }
             binding.textTitle.text = movie.title
-            // Show only genres, no year
-            val subtitle = movie.genres.takeIf { it.isNotEmpty() }?.joinToString(", ") ?: ""
+            // Show only first 2 genres, centered
+            val genres = movie.genres.take(2)
+            val subtitle = if (genres.isNotEmpty()) {
+                genres.joinToString(", ")
+            } else {
+                ""
+            }
             binding.textSubtitle.text = subtitle
+            
             val rating = movie.voteAverage
             if (rating > 0) {
                 binding.textBadge.text = String.format("%.1f", rating)
                 binding.textBadge.visibility = android.view.View.VISIBLE
-            } else binding.textBadge.visibility = android.view.View.GONE
-            
-            // Ensure movie images are square (not circular)
-            binding.imagePoster.clipToOutline = false
-            binding.imagePoster.outlineProvider = null
+                // Apply color based on rating
+                // 0-4: red, 4.01-7.00: yellow, 7.01+: green
+                val badgeDrawable = when {
+                    rating <= 4.0 -> R.drawable.rating_badge_red
+                    rating > 4.0 && rating <= 7.0 -> R.drawable.rating_badge_yellow
+                    else -> R.drawable.rating_badge_bg // green (7.01+)
+                }
+                binding.textBadge.setBackgroundResource(badgeDrawable)
+            } else {
+                binding.textBadge.visibility = android.view.View.GONE
+            }
             
             binding.root.setOnClickListener { onClick(movie.id) }
         }
@@ -75,18 +98,41 @@ class SearchResultsAdapter(
                 crossfade(true)
                 placeholder(android.R.drawable.ic_menu_gallery)
             }
+            // Set rounded corners for poster
+            binding.imagePoster.post {
+                val radius = 12 * binding.root.context.resources.displayMetrics.density
+                binding.imagePoster.outlineProvider = object : android.view.ViewOutlineProvider() {
+                    override fun getOutline(view: android.view.View, outline: android.graphics.Outline) {
+                        outline.setRoundRect(0, 0, view.width, view.height, radius)
+                    }
+                }
+                binding.imagePoster.clipToOutline = true
+            }
             binding.textTitle.text = series.name
-            // Show only genres, no year
-            val subtitle = series.genres.takeIf { it.isNotEmpty() }?.joinToString(", ") ?: ""
+            // Show only first 2 genres, centered
+            val genres = series.genres.take(2)
+            val subtitle = if (genres.isNotEmpty()) {
+                genres.joinToString(", ")
+            } else {
+                ""
+            }
             binding.textSubtitle.text = subtitle
+            
             val rating = series.voteAverage
             if (rating > 0) {
                 binding.textBadge.text = String.format("%.1f", rating)
                 binding.textBadge.visibility = android.view.View.VISIBLE
-            } else binding.textBadge.visibility = android.view.View.GONE
-
-            binding.imagePoster.clipToOutline = false
-            binding.imagePoster.outlineProvider = null
+                // Apply color based on rating
+                // 0-4: red, 4.01-7.00: yellow, 7.01+: green
+                val badgeDrawable = when {
+                    rating <= 4.0 -> R.drawable.rating_badge_red
+                    rating > 4.0 && rating <= 7.0 -> R.drawable.rating_badge_yellow
+                    else -> R.drawable.rating_badge_bg // green (7.01+)
+                }
+                binding.textBadge.setBackgroundResource(badgeDrawable)
+            } else {
+                binding.textBadge.visibility = android.view.View.GONE
+            }
 
             binding.root.setOnClickListener { onClick?.invoke(series.id) }
         }

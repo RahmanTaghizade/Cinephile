@@ -42,6 +42,7 @@
     <string name="recommendations_latest">Latest movies</string>
     <string name="recommendations_upcoming">Upcoming</string>
     <string name="recommendations_for_you">Recommended for you</string>
+    <string name="recommendations_popular">Popular movies</string>
     <string name="watchlist_add_button">Add to watchlist</string>
     <string name="watchlist_remove_button">Remove from watchlist</string>
     <string name="watchlist_picker_title">Select a watchlist</string>
@@ -67,9 +68,7 @@
     <string name="movie_poster">Movie poster</string>
     <string name="person_avatar">Person avatar</string>
     <string name="actor_profile_image">Actor profile image</string>
-    <string name="actor_all_projects">All projects</string>
     <string name="add_to_favorites">Add to favorites</string>
-    <string name="recommendations_popular">Popular movies</string>
     <string name="filter_all">All</string>
     <string name="filter_movies">Movies</string>
     <string name="filter_series">Series</string>
@@ -97,3 +96,4 @@
     <string name="language_select">Select language</string>
     <string name="notifications">Notifications</string>
 </resources>
+

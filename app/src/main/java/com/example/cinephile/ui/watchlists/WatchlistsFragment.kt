@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,17 +16,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.cinephile.databinding.FragmentWatchlistsBinding
 import com.example.cinephile.R
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.example.cinephile.domain.repository.WatchlistRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class WatchlistsFragment : Fragment() {
     private var _binding: FragmentWatchlistsBinding? = null
     private val binding get() = _binding!!
     private val viewModel: WatchlistsViewModel by viewModels()
+    @Inject lateinit var watchlistRepository: WatchlistRepository
 
     private lateinit var adapter: WatchlistsAdapter
 
@@ -43,6 +44,9 @@ class WatchlistsFragment : Fragment() {
         setupList()
         setupFab()
         setupRetryButton()
+        setupCreateResultListener()
+        setupRenameResultListener()
+        setupDeleteResultListener()
         collectFlows()
     }
     
@@ -52,6 +56,31 @@ class WatchlistsFragment : Fragment() {
         }
     }
 
+    private fun setupRenameResultListener() {
+        childFragmentManager.setFragmentResultListener(
+            RenameWatchlistBottomSheet.RESULT_KEY,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val name = bundle.getString(RenameWatchlistBottomSheet.ARG_NAME) ?: return@setFragmentResultListener
+            val id = bundle.getLong("id", -1L)
+            if (id > 0L) {
+                viewModel.rename(id, name)
+            }
+        }
+    }
+
+    private fun setupDeleteResultListener() {
+        childFragmentManager.setFragmentResultListener(
+            DeleteWatchlistBottomSheet.RESULT_KEY,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val id = bundle.getLong(DeleteWatchlistBottomSheet.ARG_ID, -1L)
+            if (id > 0L) {
+                viewModel.delete(id)
+            }
+        }
+    }
+    
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -59,12 +88,15 @@ class WatchlistsFragment : Fragment() {
 
     private fun setupList() {
         adapter = WatchlistsAdapter(
-            onItemClick = { item ->
+            watchlistRepository = watchlistRepository,
+            onWatchlistClick = { item ->
                 val args = Bundle().apply { putLong("watchlistId", item.id) }
                 findNavController().navigate(R.id.watchlistDetailsFragment, args)
             },
-            onRename = { item -> showRenameDialog(item.id, item.name) },
-            onDelete = { item -> showDeleteConfirm(item.id) }
+            onMovieClick = { movieId ->
+                val args = Bundle().apply { putLong("movieId", movieId) }
+                findNavController().navigate(R.id.detailsFragment, args)
+            }
         )
         binding.recyclerWatchlists.layoutManager =
             androidx.recyclerview.widget.LinearLayoutManager(requireContext())
@@ -73,7 +105,18 @@ class WatchlistsFragment : Fragment() {
 
     private fun setupFab() {
         binding.fabNewWatchlist.setOnClickListener {
-            viewModel.createNewWatchlist()
+            CreateWatchlistBottomSheet.newInstance()
+                .show(childFragmentManager, "CreateWatchlistBottomSheet")
+        }
+    }
+
+    private fun setupCreateResultListener() {
+        childFragmentManager.setFragmentResultListener(
+            CreateWatchlistBottomSheet.RESULT_KEY,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val name = bundle.getString(CreateWatchlistBottomSheet.ARG_NAME) ?: return@setFragmentResultListener
+            viewModel.create(name)
         }
     }
 
@@ -120,51 +163,13 @@ class WatchlistsFragment : Fragment() {
     }
 
     private fun showRenameDialog(id: Long, currentName: String) {
-        val context = requireContext()
-        val inputLayout = TextInputLayout(context).apply {
-            boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
-            setPadding(
-                resources.getDimensionPixelSize(R.dimen.dialog_padding_horizontal),
-                resources.getDimensionPixelSize(R.dimen.dialog_padding_vertical),
-                resources.getDimensionPixelSize(R.dimen.dialog_padding_horizontal),
-                0
-            )
-            hint = getString(R.string.dialog_rename_hint)
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-        val editText = TextInputEditText(context).apply {
-            inputType = android.text.InputType.TYPE_CLASS_TEXT
-            setText(currentName)
-        }
-        inputLayout.addView(
-            editText,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        )
-        
-        MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_Cinephile_AlertDialog)
-            .setTitle(R.string.dialog_rename_title)
-            .setView(inputLayout)
-            .setPositiveButton(R.string.rename) { _, _ ->
-                val name = editText.text?.toString() ?: return@setPositiveButton
-                viewModel.rename(id, name)
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+        RenameWatchlistBottomSheet.newInstance(id, currentName)
+            .show(childFragmentManager, "RenameWatchlistBottomSheet")
     }
 
     private fun showDeleteConfirm(id: Long) {
-        MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Cinephile_AlertDialog)
-            .setTitle(R.string.dialog_delete_title)
-            .setMessage(R.string.dialog_delete_message)
-            .setPositiveButton(R.string.delete) { _, _ -> viewModel.delete(id) }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+        DeleteWatchlistBottomSheet.newInstance(id)
+            .show(childFragmentManager, "DeleteWatchlistBottomSheet")
     }
 }
 
