@@ -9,12 +9,10 @@ import com.example.cinephile.domain.repository.WatchlistRepository
 import com.example.cinephile.domain.repository.WatchlistUiModel
 import com.example.cinephile.ui.search.MovieUiModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,32 +22,39 @@ class WatchlistRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao
 ) : WatchlistRepository {
 
-    override suspend fun getCurrentWatchlist(): Flow<WatchlistUiModel?> =
-        flow {
-            // Ensure there is a current watchlist; create a default one if none exists
-            val existing = watchlistDao.getCurrent()
-            if (existing == null) {
+    override suspend fun getCurrentWatchlist(): Flow<WatchlistUiModel?> {
+        // Ensure there is a current watchlist; create a default one if none exists
+        val existing = watchlistDao.getCurrent()
+        if (existing == null) {
+            val count = watchlistDao.getWatchlistCount()
+            if (count == 0) {
                 val id = watchlistDao.insert(WatchlistEntity(name = "My Watchlist", isCurrent = true))
                 if (id > 0) {
                     watchlistDao.setCurrentWatchlist(id)
                 }
-            }
-            emitAllSafe()
-        }
-        .map { entity ->
-            entity?.let {
-                WatchlistUiModel(
-                    id = it.id,
-                    name = it.name,
-                    isCurrent = it.isCurrent,
-                    movieCount = 0 // Could be populated with a count observer if needed
-                )
+            } else {
+                // There are watchlists but none is current, set the first one as current
+                val all = watchlistDao.getAllOnce()
+                if (all.isNotEmpty()) {
+                    watchlistDao.setCurrentWatchlist(all.first().id)
+                }
             }
         }
-
-    private suspend fun FlowCollector<WatchlistEntity?>.emitAllSafe() {
-        // Delegate to DAO observable after ensuring existence
-        watchlistDao.observeCurrent().collect { value -> emit(value) }
+        
+        return watchlistDao.observeCurrent().flatMapLatest { entity ->
+            if (entity == null) {
+                flowOf(null)
+            } else {
+                watchlistDao.observeMovieCount(entity.id).map { count ->
+                    WatchlistUiModel(
+                        id = entity.id,
+                        name = entity.name,
+                        isCurrent = entity.isCurrent,
+                        movieCount = count
+                    )
+                }
+            }
+        }
     }
 
     override suspend fun createWatchlist(name: String): Long {
@@ -58,41 +63,35 @@ class WatchlistRepositoryImpl @Inject constructor(
     }
 
     override suspend fun renameWatchlist(watchlistId: Long, newName: String) {
-        val current = watchlistDao.getCurrent()
-        if (current != null && current.id == watchlistId) {
-            watchlistDao.update(current.copy(name = newName))
-        } else {
-            // Fallback: update by id if different current
-            val entity = WatchlistEntity(id = watchlistId, name = newName, isCurrent = false)
-            watchlistDao.update(entity)
+        val entity = watchlistDao.getById(watchlistId)
+        if (entity != null) {
+            watchlistDao.update(entity.copy(name = newName))
         }
     }
 
     override suspend fun deleteWatchlist(watchlistId: Long) {
-        val toDelete = watchlistDao.getById(watchlistId)
-        if (toDelete != null) {
-            watchlistDao.clearWatchlistMovies(toDelete.id)
-        } else {
-            watchlistDao.clearWatchlistMovies(watchlistId)
-        }
-        if (toDelete != null) {
-            watchlistDao.delete(toDelete)
-        } else {
-            // Fallback delete when not found by id
-            watchlistDao.delete(WatchlistEntity(id = watchlistId, name = "", isCurrent = false))
-        }
+        val toDelete = watchlistDao.getById(watchlistId) ?: return
+        
+        val wasCurrent = toDelete.isCurrent
+        
+        // Clear all movies from this watchlist
+        watchlistDao.clearWatchlistMovies(watchlistId)
+        
+        // Delete the watchlist
+        watchlistDao.delete(toDelete)
 
         // Ensure at least one watchlist exists
         val count = watchlistDao.getWatchlistCount()
         if (count == 0) {
-            val newId = watchlistDao.insert(WatchlistEntity(name = "Watchlist 1", isCurrent = true))
-            if (newId > 0) watchlistDao.setCurrentWatchlist(newId)
+            val newId = watchlistDao.insert(WatchlistEntity(name = "My Watchlist", isCurrent = true))
+            if (newId > 0) {
+                watchlistDao.setCurrentWatchlist(newId)
+            }
             return
         }
 
         // If we deleted the current one, promote another to be current
-        val current = watchlistDao.getCurrent()
-        if (current == null) {
+        if (wasCurrent) {
             val all = watchlistDao.getAllOnce()
             if (all.isNotEmpty()) {
                 watchlistDao.setCurrentWatchlist(all.first().id)
@@ -104,15 +103,29 @@ class WatchlistRepositoryImpl @Inject constructor(
         watchlistDao.setCurrentWatchlist(watchlistId)
     }
 
-    override suspend fun getAllWatchlists(): Flow<List<WatchlistUiModel>> {
-        return watchlistDao.listAll().map { list ->
-            list.map {
+    override suspend fun getAllWatchlists(): Flow<List<WatchlistUiModel>> = flow {
+        // Ensure at least one watchlist exists
+        val count = watchlistDao.getWatchlistCount()
+        if (count == 0) {
+            val id = watchlistDao.insert(WatchlistEntity(name = "My Watchlist", isCurrent = true))
+            if (id > 0) {
+                watchlistDao.setCurrentWatchlist(id)
+            }
+        }
+        
+        // Collect from the observable flow and map each list
+        watchlistDao.listAll().collect { list ->
+            val uiModels = list.map { entity ->
+                // Get movie count for each watchlist (suspend call is OK here in flow builder)
+                val movieCount = watchlistDao.getMovieCount(entity.id)
                 WatchlistUiModel(
-                    id = it.id,
-                    name = it.name,
-                    isCurrent = it.isCurrent
+                    id = entity.id,
+                    name = entity.name,
+                    isCurrent = entity.isCurrent,
+                    movieCount = movieCount
                 )
             }
+            emit(uiModels)
         }
     }
 

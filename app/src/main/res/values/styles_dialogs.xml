@@ -6,8 +6,6 @@
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="materialAlertDialogTitleTextStyle">@style/Widget.Cinephile.Dialog.Title</item>
         <item name="materialAlertDialogBodyTextStyle">@style/Widget.Cinephile.Dialog.Body</item>
-        <item name="android:buttonBarPositiveButtonStyle">@style/Widget.Cinephile.Dialog.Button</item>
-        <item name="android:buttonBarNegativeButtonStyle">@style/Widget.Cinephile.Dialog.Button</item>
     </style>
 
     <style name="Widget.Cinephile.Dialog.Title" parent="TextAppearance.Material3.TitleMedium">

@@ -5,6 +5,7 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -73,9 +74,35 @@ class DetailsFragment : Fragment() {
             updateOverviewText()
         }
         
+        // Setup retry button
+        binding.buttonRetry.setOnClickListener {
+            viewModel.load()
+        }
+        
         // Observe UI state
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.uiState.collect { state ->
+                // Handle loading state
+                binding.progressLoading.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+                
+                // Handle error state
+                val hasError = state.error != null && !state.isLoading
+                binding.errorCard.visibility = if (hasError) View.VISIBLE else View.GONE
+                binding.scrollContent.visibility = if (hasError) View.GONE else View.VISIBLE
+                if (hasError) {
+                    binding.textError.text = state.error
+                }
+                
+                // Handle empty state (when no movie data)
+                val isEmpty = state.movie == null && !state.isLoading && state.error == null
+                binding.textEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
+                binding.scrollContent.visibility = if (isEmpty) View.GONE else View.VISIBLE
+                
+                // Only update content if we have data
+                if (state.movie == null && !state.isLoading) {
+                    return@collect
+                }
+                
                 val movie = state.movie
                 
                 binding.toolbar.title = ""
@@ -223,6 +250,10 @@ class DetailsFragment : Fragment() {
                 0
             )
             hint = getString(R.string.watchlist_create_hint)
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            )
         }
         val editText = TextInputEditText(context).apply {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS

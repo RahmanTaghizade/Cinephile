@@ -37,8 +37,16 @@ class QuizDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         setupStartButton()
+        setupRetryButton()
         collectQuizData()
         collectResults()
+    }
+    
+    private fun setupRetryButton() {
+        binding.buttonRetry.setOnClickListener {
+            // Retry loading quiz data
+            viewModel.retry()
+        }
     }
 
     override fun onDestroyView() {
@@ -70,6 +78,17 @@ class QuizDetailsFragment : Fragment() {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.quiz.collect { quiz ->
+                        val isLoading = quiz == null && viewModel.isLoading.value
+                        val hasError = viewModel.error.value != null && !isLoading
+                        
+                        binding.progressLoading.visibility = if (isLoading) View.VISIBLE else View.GONE
+                        binding.errorCard.visibility = if (hasError) View.VISIBLE else View.GONE
+                        binding.scrollContent.visibility = if (isLoading || hasError) View.GONE else View.VISIBLE
+                        
+                        if (hasError) {
+                            binding.textError.text = viewModel.error.value
+                        }
+                        
                         if (quiz != null) {
                             binding.textQuizName.text = quiz.name
                             binding.textWatchlistName.text = "Watchlist: ${quiz.watchlistName}"
@@ -83,7 +102,27 @@ class QuizDetailsFragment : Fragment() {
                         binding.textQuestionCount.text = "Questions: $count"
                     }
                 }
+                launch {
+                    viewModel.isLoading.collect { updateUI() }
+                }
+                launch {
+                    viewModel.error.collect { updateUI() }
+                }
             }
+        }
+    }
+    
+    private fun updateUI() {
+        val quiz = viewModel.quiz.value
+        val isLoading = viewModel.isLoading.value
+        val error = viewModel.error.value
+        
+        binding.progressLoading.visibility = if (isLoading && quiz == null) View.VISIBLE else View.GONE
+        binding.errorCard.visibility = if (error != null && !isLoading) View.VISIBLE else View.GONE
+        binding.scrollContent.visibility = if (isLoading || (error != null && quiz == null)) View.GONE else View.VISIBLE
+        
+        if (error != null) {
+            binding.textError.text = error
         }
     }
 

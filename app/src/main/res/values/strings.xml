@@ -62,4 +62,8 @@
         <item quantity="one">%d year</item>
         <item quantity="other">%d years</item>
     </plurals>
+    <string name="movie_poster">Movie poster</string>
+    <string name="person_avatar">Person avatar</string>
+    <string name="actor_profile_image">Actor profile image</string>
+    <string name="add_to_favorites">Add to favorites</string>
 </resources>

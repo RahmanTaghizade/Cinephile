@@ -12,6 +12,7 @@
         android:layout_height="80dp"
         android:scaleType="centerCrop"
         android:clipToOutline="false"
+        android:contentDescription="@string/movie_poster"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -31,7 +31,7 @@
                 android:layout_width="0dp"
                 android:layout_height="280dp"
                 android:scaleType="centerCrop"
-                android:contentDescription="@null"
+                android:contentDescription="@string/actor_profile_image"
                 android:layout_marginTop="@dimen/status_bar_height"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

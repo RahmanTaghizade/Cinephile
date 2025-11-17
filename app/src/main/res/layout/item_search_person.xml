@@ -12,6 +12,7 @@
         android:layout_height="80dp"
         android:scaleType="centerCrop"
         android:clipToOutline="true"
+        android:contentDescription="@string/person_avatar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="movie_grid_span_portrait">3</integer>
-    <integer name="movie_grid_span_landscape">5</integer>
+    <!-- Phone: 2 columns in portrait, 3 in landscape -->
+    <integer name="movie_grid_span_portrait">2</integer>
+    <integer name="movie_grid_span_landscape">3</integer>
+    <integer name="recommendations_grid_span">2</integer>
 </resources>

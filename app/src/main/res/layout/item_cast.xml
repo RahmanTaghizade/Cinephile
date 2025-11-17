@@ -14,6 +14,7 @@
         android:clipToOutline="true"
         android:background="@drawable/circle_background"
         android:padding="2dp"
+        android:contentDescription="@string/actor_profile_image"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

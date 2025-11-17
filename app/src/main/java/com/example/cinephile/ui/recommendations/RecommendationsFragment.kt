@@ -13,6 +13,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.cinephile.R
 import com.example.cinephile.databinding.FragmentRecommendationsBinding
 import com.example.cinephile.ui.search.MovieAdapter
 import com.google.android.material.chip.Chip
@@ -48,12 +49,6 @@ class RecommendationsFragment : Fragment() {
         setupRecyclerViews()
         setupListeners()
         observeUiState()
-        setupProfile()
-    }
-
-    private fun setupProfile() {
-        // Set placeholder user name
-        binding.textUserName.text = "William Krisna"
     }
 
     private fun setupRecyclerViews() {
@@ -80,7 +75,14 @@ class RecommendationsFragment : Fragment() {
 
         recommendationsAdapter = MovieAdapter(onItemClick = ::navigateToDetails)
         binding.recyclerRecommendations.apply {
-            layoutManager = LinearLayoutManager(requireContext())
+            // Use GridLayoutManager for tablets, LinearLayoutManager for phones
+            val isTablet = resources.configuration.smallestScreenWidthDp >= 600
+            layoutManager = if (isTablet) {
+                val spanCount = resources.getInteger(R.integer.recommendations_grid_span)
+                androidx.recyclerview.widget.GridLayoutManager(requireContext(), spanCount)
+            } else {
+                LinearLayoutManager(requireContext())
+            }
             adapter = recommendationsAdapter
             setHasFixedSize(false)
         }

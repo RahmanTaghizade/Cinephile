@@ -28,7 +28,7 @@
     <color name="md_theme_dark_onErrorContainer">#FFDAD4</color>
 
     <!-- Splash screen background -->
-    <color name="splash_background">#0B1117</color>
+    <color name="splash_background">#DA002C</color>
 
     <!-- Text colors -->
     <color name="text_primary">#DCE1E6</color>

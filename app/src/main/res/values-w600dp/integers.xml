@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tablet (7"): 3 columns in portrait, 5 in landscape -->
+    <integer name="movie_grid_span_portrait">3</integer>
+    <integer name="movie_grid_span_landscape">5</integer>
+    <integer name="recommendations_grid_span">3</integer>
+</resources>
+

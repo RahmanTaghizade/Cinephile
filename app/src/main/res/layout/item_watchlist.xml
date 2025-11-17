@@ -31,10 +31,11 @@
 
     <ImageButton
         android:id="@+id/button_overflow"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="@android:color/transparent"
         android:contentDescription="@string/menu_watchlist_more"
+        android:padding="8dp"
         android:src="@drawable/ic_overflow_vertical"
         android:tint="?attr/colorOnSurfaceVariant"
         app:layout_constraintEnd_toEndOf="parent"

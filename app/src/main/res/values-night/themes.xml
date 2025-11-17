@@ -5,9 +5,9 @@
     </style>
 
     <style name="Theme.Cinephile.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/splash_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/appicon</item>
-        <item name="windowSplashScreenIconBackgroundColor">@color/splash_background</item>
+        <item name="windowSplashScreenBackground">#DA002C</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/appicon_splash</item>
+        <item name="windowSplashScreenIconBackgroundColor">#DA002C</item>
         <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="postSplashScreenTheme">@style/Theme.Cinephile</item>
     </style>
