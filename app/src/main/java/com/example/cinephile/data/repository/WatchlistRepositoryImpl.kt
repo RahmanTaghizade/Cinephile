@@ -161,6 +161,23 @@ class WatchlistRepositoryImpl @Inject constructor(
         val current = watchlistDao.getCurrent() ?: return false
         return watchlistDao.isMovieInWatchlist(current.id, movieId)
     }
+
+    override fun getWatchlistById(watchlistId: Long): Flow<WatchlistUiModel?> {
+        return watchlistDao.observeById(watchlistId).flatMapLatest { entity ->
+            if (entity == null) {
+                flowOf(null)
+            } else {
+                watchlistDao.observeMovieCount(entity.id).map { count ->
+                    WatchlistUiModel(
+                        id = entity.id,
+                        name = entity.name,
+                        isCurrent = entity.isCurrent,
+                        movieCount = count
+                    )
+                }
+            }
+        }
+    }
 }
 
 private fun entityToUiModel(entity: MovieEntity): MovieUiModel {

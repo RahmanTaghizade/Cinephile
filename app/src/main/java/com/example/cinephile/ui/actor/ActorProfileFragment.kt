@@ -84,9 +84,12 @@ class ActorProfileFragment : Fragment() {
         binding.toolbar.title = state.profile?.name ?: state.toolbarTitle ?: ""
 
         state.profile?.let { profile ->
-            binding.imageBackdrop.load(profile.profileImageUrl) {
+            val profileImageUrl = profile.profileImageUrl?.takeIf { it.isNotBlank() }
+            binding.imageBackdrop.load(profileImageUrl) {
                 crossfade(true)
-                placeholder(android.R.drawable.ic_menu_gallery)
+                placeholder(R.drawable.ic_placeholder_person)
+                error(R.drawable.ic_placeholder_person)
+                fallback(R.drawable.ic_placeholder_person)
             }
 
             binding.textName.text = profile.name

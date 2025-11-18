@@ -35,9 +35,11 @@ class MovieAdapter(
         fun bind(movie: MovieUiModel) {
             with(binding) {
                 // Load poster image with Coil
-                imageMoviePoster.load(movie.posterUrl) {
-                    placeholder(R.drawable.ic_launcher_foreground)
-                    error(R.drawable.ic_launcher_foreground)
+                val posterUrl = movie.posterUrl?.takeIf { it.isNotBlank() }
+                imageMoviePoster.load(posterUrl) {
+                    placeholder(R.drawable.ic_placeholder_movie)
+                    error(R.drawable.ic_placeholder_movie)
+                    fallback(R.drawable.ic_placeholder_movie)
                     crossfade(true)
                 }
 

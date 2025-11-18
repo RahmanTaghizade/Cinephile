@@ -96,4 +96,6 @@
     <string name="language_russian">Русский</string>
     <string name="language_select">Select language</string>
     <string name="notifications">Notifications</string>
+    <string name="settings">Settings</string>
+    <string name="nav_back">Back</string>
 </resources>

@@ -45,9 +45,12 @@ class SearchResultsAdapter(
         private val onClick: (Long) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(movie: MovieUiModel) {
-            binding.imagePoster.load(movie.posterUrl) {
+            val posterUrl = movie.posterUrl?.takeIf { it.isNotBlank() }
+            binding.imagePoster.load(posterUrl) {
                 crossfade(true)
-                placeholder(android.R.drawable.ic_menu_gallery)
+                placeholder(R.drawable.ic_placeholder_movie)
+                error(R.drawable.ic_placeholder_movie)
+                fallback(R.drawable.ic_placeholder_movie)
             }
             // Set rounded corners for poster
             binding.imagePoster.post {
@@ -94,9 +97,12 @@ class SearchResultsAdapter(
         private val onClick: ((Long) -> Unit)?
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(series: TvSeriesUiModel) {
-            binding.imagePoster.load(series.posterUrl) {
+            val posterUrl = series.posterUrl?.takeIf { it.isNotBlank() }
+            binding.imagePoster.load(posterUrl) {
                 crossfade(true)
-                placeholder(android.R.drawable.ic_menu_gallery)
+                placeholder(R.drawable.ic_placeholder_movie)
+                error(R.drawable.ic_placeholder_movie)
+                fallback(R.drawable.ic_placeholder_movie)
             }
             // Set rounded corners for poster
             binding.imagePoster.post {
@@ -151,12 +157,14 @@ class SearchResultsAdapter(
             binding.textRole.text = department
             
             // Load profile image
-            val profileImageUrl = person.profilePath?.let { 
+            val profileImageUrl = person.profilePath?.takeIf { it.isNotBlank() }?.let { 
                 "https://image.tmdb.org/t/p/w185$it" 
             }
             binding.imageAvatar.load(profileImageUrl) {
                 crossfade(true)
-                placeholder(android.R.drawable.ic_menu_gallery)
+                placeholder(R.drawable.ic_placeholder_person)
+                error(R.drawable.ic_placeholder_person)
+                fallback(R.drawable.ic_placeholder_person)
             }
             
             // Make image circular

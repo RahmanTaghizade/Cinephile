@@ -61,6 +61,21 @@ class WatchlistsAdapter(
                     false
                 )
                 adapter = moviesAdapter
+                // Add spacing for first item to align with header
+                addItemDecoration(object : RecyclerView.ItemDecoration() {
+                    override fun getItemOffsets(
+                        outRect: android.graphics.Rect,
+                        view: android.view.View,
+                        parent: RecyclerView,
+                        state: RecyclerView.State
+                    ) {
+                        val position = parent.getChildLayoutPosition(view)
+                        if (position == 0) {
+                            // Convert 16dp to pixels for alignment with header
+                            outRect.left = (16 * binding.root.context.resources.displayMetrics.density).toInt()
+                        }
+                    }
+                })
             }
         }
 

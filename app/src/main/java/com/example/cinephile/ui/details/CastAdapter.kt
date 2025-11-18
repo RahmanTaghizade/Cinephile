@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.example.cinephile.R
 import com.example.cinephile.databinding.ItemCastBinding
 import com.example.cinephile.ui.search.CastMember
 
@@ -32,9 +33,12 @@ class CastAdapter(
 
         fun bind(castMember: CastMember) {
             binding.textName.text = castMember.name
-            binding.imageProfile.load(castMember.profileImageUrl) {
+            val profileImageUrl = castMember.profileImageUrl?.takeIf { it.isNotBlank() }
+            binding.imageProfile.load(profileImageUrl) {
                 crossfade(true)
-                placeholder(android.R.drawable.ic_menu_gallery)
+                placeholder(R.drawable.ic_placeholder_person)
+                error(R.drawable.ic_placeholder_person)
+                fallback(R.drawable.ic_placeholder_person)
             }
             // Make image circular - set outline provider after view is measured
             binding.imageProfile.post {

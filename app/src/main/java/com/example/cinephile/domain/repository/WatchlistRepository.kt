@@ -16,6 +16,7 @@ interface WatchlistRepository {
     suspend fun addToCurrent(movieId: Long)
     suspend fun isMovieInWatchlist(watchlistId: Long, movieId: Long): Boolean
     suspend fun isMovieInCurrentWatchlist(movieId: Long): Boolean
+    fun getWatchlistById(watchlistId: Long): Flow<WatchlistUiModel?>
 }
 
 data class WatchlistUiModel(

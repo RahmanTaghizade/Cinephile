@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cinephile.domain.repository.WatchlistRepository
+import com.example.cinephile.domain.repository.WatchlistUiModel
 import com.example.cinephile.ui.search.MovieUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,6 +24,10 @@ class WatchlistDetailsViewModel @Inject constructor(
 
     private val watchlistId: Long = savedStateHandle.get<Long>("watchlistId") ?: 0L
 
+    val watchlist: StateFlow<WatchlistUiModel?> =
+        watchlistRepository.getWatchlistById(watchlistId)
+            .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
     val movies: StateFlow<List<MovieUiModel>> =
         flow {
             val source = watchlistRepository.getWatchlistMovies(watchlistId)
@@ -38,6 +43,18 @@ class WatchlistDetailsViewModel @Inject constructor(
     fun add(movieId: Long) {
         viewModelScope.launch {
             watchlistRepository.addToWatchlist(watchlistId, movieId)
+        }
+    }
+
+    fun rename(newName: String) {
+        viewModelScope.launch {
+            watchlistRepository.renameWatchlist(watchlistId, newName)
+        }
+    }
+
+    fun delete() {
+        viewModelScope.launch {
+            watchlistRepository.deleteWatchlist(watchlistId)
         }
     }
 }

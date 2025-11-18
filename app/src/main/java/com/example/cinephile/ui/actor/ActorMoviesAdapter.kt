@@ -59,9 +59,12 @@ class ActorMoviesAdapter(
                 binding.textBadge.text = String.format("%.1f", item.voteAverage)
             }
 
-            binding.imagePoster.load(item.posterUrl) {
+            val posterUrl = item.posterUrl?.takeIf { it.isNotBlank() }
+            binding.imagePoster.load(posterUrl) {
                 crossfade(true)
-                placeholder(android.R.drawable.ic_menu_gallery)
+                placeholder(R.drawable.ic_placeholder_movie)
+                error(R.drawable.ic_placeholder_movie)
+                fallback(R.drawable.ic_placeholder_movie)
             }
 
             binding.root.setOnClickListener { onMovieClick(item.id) }

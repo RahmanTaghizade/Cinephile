@@ -32,9 +32,11 @@ class HomeMovieCarouselAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(movie: MovieUiModel) {
-            binding.imagePoster.load(movie.posterUrl) {
-                placeholder(R.drawable.ic_launcher_foreground)
-                error(R.drawable.ic_launcher_foreground)
+            val posterUrl = movie.posterUrl?.takeIf { it.isNotBlank() }
+            binding.imagePoster.load(posterUrl) {
+                placeholder(R.drawable.ic_placeholder_movie)
+                error(R.drawable.ic_placeholder_movie)
+                fallback(R.drawable.ic_placeholder_movie)
                 crossfade(true)
             }
             binding.textTitle.text = movie.title

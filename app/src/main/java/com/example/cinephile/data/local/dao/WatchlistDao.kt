@@ -46,6 +46,9 @@ interface WatchlistDao {
     @Query("SELECT * FROM watchlists WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): WatchlistEntity?
     
+    @Query("SELECT * FROM watchlists WHERE id = :id LIMIT 1")
+    fun observeById(id: Long): Flow<WatchlistEntity?>
+    
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addMovieToWatchlist(crossRef: WatchlistMovieCrossRef)
     

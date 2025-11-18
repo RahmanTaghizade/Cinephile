@@ -149,8 +149,12 @@ class DetailsFragment : Fragment() {
                 binding.recyclerSimilar.isVisible = hasSimilar
 
                 // Update poster
-                binding.imagePoster.load(state.posterUrl) {
+                val posterUrl = state.posterUrl?.takeIf { it.isNotBlank() }
+                binding.imagePoster.load(posterUrl) {
                     crossfade(true)
+                    placeholder(R.drawable.ic_placeholder_movie)
+                    error(R.drawable.ic_placeholder_movie)
+                    fallback(R.drawable.ic_placeholder_movie)
                 }
                 
                 // Show Snackbar if there's a message
