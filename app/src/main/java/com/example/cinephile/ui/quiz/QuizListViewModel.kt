@@ -3,8 +3,6 @@ package com.example.cinephile.ui.quiz
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cinephile.domain.repository.QuizRepository
-import com.example.cinephile.domain.repository.QuizDifficulty
-import com.example.cinephile.domain.repository.QuizMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -23,8 +21,6 @@ class QuizListViewModel @Inject constructor(
                 name = quiz.name,
                 watchlistName = quiz.watchlistName,
                 createdAt = quiz.createdAt,
-                difficulty = quiz.difficulty,
-                mode = quiz.mode,
                 questionCount = quiz.questionCount
             )
         }
@@ -34,10 +30,13 @@ class QuizListViewModel @Inject constructor(
         name: String,
         watchlistId: Long,
         questionCount: Int,
-        difficulty: QuizDifficulty,
-        mode: QuizMode
+        difficulty: com.example.cinephile.domain.repository.QuizDifficulty = com.example.cinephile.domain.repository.QuizDifficulty.EASY,
+        mode: com.example.cinephile.domain.repository.QuizMode = com.example.cinephile.domain.repository.QuizMode.TIMED
     ): Long {
-        return quizRepository.createQuiz(name, watchlistId, questionCount, difficulty, mode)
+        val quizId = quizRepository.createQuiz(name, watchlistId, questionCount, difficulty, mode)
+        
+        quizRepository.generateQuestions(quizId)
+        return quizId
     }
 }
 
@@ -46,8 +45,6 @@ data class QuizListItem(
     val name: String,
     val watchlistName: String,
     val createdAt: Long,
-    val difficulty: QuizDifficulty,
-    val mode: QuizMode,
     val questionCount: Int
 )
 

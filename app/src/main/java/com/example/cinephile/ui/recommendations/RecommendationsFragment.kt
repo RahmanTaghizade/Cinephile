@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.cinephile.R
 import com.example.cinephile.databinding.FragmentRecommendationsBinding
 import com.example.cinephile.ui.search.MovieAdapter
+import com.example.cinephile.ui.search.MovieUiModel
 import com.example.cinephile.util.LocaleHelper
 import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
@@ -78,7 +79,7 @@ class RecommendationsFragment : Fragment() {
 
         recommendationsAdapter = MovieAdapter(onItemClick = ::navigateToDetails)
         binding.recyclerRecommendations.apply {
-            // Use GridLayoutManager for tablets, LinearLayoutManager for phones
+            
             val isTablet = resources.configuration.smallestScreenWidthDp >= 600
             layoutManager = if (isTablet) {
                 val spanCount = resources.getInteger(R.integer.recommendations_grid_span)
@@ -96,7 +97,7 @@ class RecommendationsFragment : Fragment() {
     }
     
     private fun setupLanguageSelector() {
-        // Update flag emoji based on current language
+        
         val currentLanguage = LocaleHelper.getSavedLanguage(requireContext())
         binding.textLanguageFlag.text = LocaleHelper.getFlagEmoji(currentLanguage)
         
@@ -197,7 +198,7 @@ class RecommendationsFragment : Fragment() {
 
         chipGroup.isVisible = true
         
-        // Add "All" chip first (selected by default)
+        
         val allChip = Chip(requireContext(), null, com.google.android.material.R.style.Widget_Material3_Chip_Assist).apply {
             text = getString(R.string.filter_all)
             isCheckable = true
@@ -224,7 +225,7 @@ class RecommendationsFragment : Fragment() {
                 )
             ))
             setOnClickListener { 
-                // Clear selection and navigate to search without genre filter
+                
                 chipGroup.clearCheck()
                 isChecked = true
                 navigateToSearch()
@@ -267,7 +268,8 @@ class RecommendationsFragment : Fragment() {
         }
     }
 
-    private fun navigateToDetails(movieId: Long) {
+    private fun navigateToDetails(movie: MovieUiModel) {
+        val movieId = movie.id
         val action = RecommendationsFragmentDirections.actionHomeFragmentToDetailsFragment(movieId)
         findNavController().navigate(action)
     }
@@ -278,9 +280,19 @@ class RecommendationsFragment : Fragment() {
         initialQuery: String? = null
     ) {
         val genreIdArg = initialGenreId ?: NO_GENRE_SENTINEL
+        val navController = findNavController()
+        
+        val navOptions = androidx.navigation.navOptions {
+            popUpTo(navController.graph.startDestinationId) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+        
         val action = RecommendationsFragmentDirections
             .actionHomeFragmentToSearchFragment(genreIdArg, initialGenreName, initialQuery)
-        findNavController().navigate(action)
+        navController.navigate(action, navOptions)
     }
 
     override fun onDestroyView() {

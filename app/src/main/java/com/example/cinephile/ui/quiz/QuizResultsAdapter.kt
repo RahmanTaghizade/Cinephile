@@ -34,24 +34,29 @@ class QuizResultsAdapter : ListAdapter<QuizResultUiModel, QuizResultsAdapter.Res
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(result: QuizResultUiModel) {
-            // Display actual score
-            binding.textScore.text = "Score: ${result.score}"
+            
+            binding.textScore.text = "${result.xpEarned} XP"
 
-            // Format date
+            
             val date = Date(result.playedAt)
             val dateString = dateFormat.format(date)
             val timeString = timeFormat.format(date)
             
-            // Format duration
+            
             val minutes = result.durationSec / 60
             val seconds = result.durationSec % 60
             val durationString = String.format("%d:%02d", minutes, seconds)
             
-            // Display date, duration, and stats
+            
             binding.textDetails.text = "$dateString at $timeString • $durationString"
             
             val totalQuestions = result.correctCount + result.wrongCount
-            binding.textStats.text = "${result.correctCount}/$totalQuestions correct"
+            val percentage = if (totalQuestions > 0) {
+                (result.correctCount * 100) / totalQuestions
+            } else {
+                0
+            }
+            binding.textStats.text = "${result.correctCount}/$totalQuestions correct ($percentage%)"
         }
     }
 

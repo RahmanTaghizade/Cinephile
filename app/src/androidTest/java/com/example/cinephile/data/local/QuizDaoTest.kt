@@ -39,13 +39,13 @@ class QuizDaoTest {
     
     @Test
     fun insertQuizAndListQuizzes() = runBlocking {
-        // Given - create a watchlist first
+        
         val watchlistId = watchlistDao.insert(WatchlistEntity(name = "Test Watchlist"))
         
         val quiz1 = QuizEntity(
             name = "Quiz 1",
             watchlistId = watchlistId,
-            createdAt = System.currentTimeMillis() - 1000, // Older
+            createdAt = System.currentTimeMillis() - 1000, 
             difficulty = "Easy",
             mode = "Timed",
             questionCount = 10
@@ -54,20 +54,20 @@ class QuizDaoTest {
         val quiz2 = QuizEntity(
             name = "Quiz 2",
             watchlistId = watchlistId,
-            createdAt = System.currentTimeMillis(), // Newer
+            createdAt = System.currentTimeMillis(), 
             difficulty = "Medium",
             mode = "Survival",
             questionCount = 15
         )
         
-        // When
+        
         val id1 = quizDao.insertQuiz(quiz1)
         val id2 = quizDao.insertQuiz(quiz2)
         val quizzes = quizDao.listQuizzes().first()
         
-        // Then
+        
         assertEquals(2, quizzes.size)
-        // Should be ordered by createdAt DESC, so quiz2 (newer) should be first
+        
         assertEquals(id2, quizzes[0].id)
         assertEquals("Quiz 2", quizzes[0].name)
         assertEquals(id1, quizzes[1].id)
@@ -76,7 +76,7 @@ class QuizDaoTest {
     
     @Test
     fun getQuiz() = runBlocking {
-        // Given
+        
         val watchlistId = watchlistDao.insert(WatchlistEntity(name = "Test Watchlist"))
         val quiz = QuizEntity(
             name = "Test Quiz",
@@ -87,11 +87,11 @@ class QuizDaoTest {
             questionCount = 20
         )
         
-        // When
+        
         val insertedId = quizDao.insertQuiz(quiz)
         val retrievedQuiz = quizDao.getQuiz(insertedId)
         
-        // Then
+        
         assertNotNull(retrievedQuiz)
         assertEquals(insertedId, retrievedQuiz?.id)
         assertEquals("Test Quiz", retrievedQuiz?.name)
@@ -102,16 +102,16 @@ class QuizDaoTest {
     
     @Test
     fun getQuizNotFound() = runBlocking {
-        // When
+        
         val retrievedQuiz = quizDao.getQuiz(999L)
         
-        // Then
+        
         assertNull(retrievedQuiz)
     }
     
     @Test
     fun insertQuestionsAndListQuestions() = runBlocking {
-        // Given - create watchlist and movie first
+        
         val watchlistId = watchlistDao.insert(WatchlistEntity(name = "Test Watchlist"))
         val quizId = quizDao.insertQuiz(QuizEntity(
             name = "Test Quiz",
@@ -157,11 +157,11 @@ class QuizDaoTest {
             difficulty = "Easy"
         )
         
-        // When
+        
         quizDao.insertQuestions(listOf(question1, question2))
         val questions = quizDao.listQuestions(quizId)
         
-        // Then
+        
         assertEquals(2, questions.size)
         assertEquals("release_year", questions[0].type)
         assertEquals("2020", questions[0].correctAnswer)
@@ -171,7 +171,7 @@ class QuizDaoTest {
     
     @Test
     fun insertResultAndListResults() = runBlocking {
-        // Given
+        
         val watchlistId = watchlistDao.insert(WatchlistEntity(name = "Test Watchlist"))
         val quizId = quizDao.insertQuiz(QuizEntity(
             name = "Test Quiz",
@@ -184,7 +184,7 @@ class QuizDaoTest {
         
         val result1 = QuizResultEntity(
             quizId = quizId,
-            playedAt = System.currentTimeMillis() - 2000, // Older
+            playedAt = System.currentTimeMillis() - 2000, 
             score = 80,
             durationSec = 300,
             correctCount = 8,
@@ -194,7 +194,7 @@ class QuizDaoTest {
         
         val result2 = QuizResultEntity(
             quizId = quizId,
-            playedAt = System.currentTimeMillis(), // Newer
+            playedAt = System.currentTimeMillis(), 
             score = 90,
             durationSec = 250,
             correctCount = 9,
@@ -202,14 +202,14 @@ class QuizDaoTest {
             mode = "Timed"
         )
         
-        // When
+        
         val id1 = quizDao.insertResult(result1)
         val id2 = quizDao.insertResult(result2)
         val results = quizDao.listResults(quizId).first()
         
-        // Then
+        
         assertEquals(2, results.size)
-        // Should be ordered by playedAt DESC, so result2 (newer) should be first
+        
         assertEquals(id2, results[0].id)
         assertEquals(90, results[0].score)
         assertEquals(id1, results[1].id)
@@ -218,19 +218,19 @@ class QuizDaoTest {
     
     @Test
     fun listResultsForNonExistentQuiz() = runBlocking {
-        // When
+        
         val results = quizDao.listResults(999L).first()
         
-        // Then
+        
         assertTrue(results.isEmpty())
     }
     
     @Test
     fun listQuestionsForNonExistentQuiz() = runBlocking {
-        // When
+        
         val questions = quizDao.listQuestions(999L)
         
-        // Then
+        
         assertTrue(questions.isEmpty())
     }
 }

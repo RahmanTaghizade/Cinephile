@@ -72,24 +72,10 @@
             android:maxLines="1"
             android:textAppearance="?attr/textAppearanceBodySmall"
             android:textColor="@color/text_secondary"
-            app:layout_constraintEnd_toStartOf="@id/image_heart"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/text_movie_director"
             tools:text="Release: 1999" />
-
-        <ImageButton
-            android:id="@+id/image_heart"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/add_to_favorites"
-            android:padding="12dp"
-            android:tint="@color/md_theme_dark_onSurfaceVariant"
-            android:src="@android:drawable/btn_star_big_off"
-            app:layout_constraintBottom_toBottomOf="@id/text_movie_date"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/text_movie_date" />
 
         <TextView
             android:id="@+id/text_rating_badge"

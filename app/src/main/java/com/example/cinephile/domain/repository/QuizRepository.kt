@@ -4,12 +4,13 @@ import kotlinx.coroutines.flow.Flow
 
 interface QuizRepository {
     fun getAllQuizzes(): Flow<List<QuizUiModel>>
-    suspend fun createQuiz(name: String, watchlistId: Long, questionCount: Int, difficulty: QuizDifficulty, mode: QuizMode): Long
+    suspend fun createQuiz(name: String, watchlistId: Long, questionCount: Int, difficulty: QuizDifficulty = QuizDifficulty.EASY, mode: QuizMode = QuizMode.TIMED): Long
     fun getQuiz(quizId: Long): Flow<QuizUiModel?>
     suspend fun generateQuestions(quizId: Long): QuizGenerationResult
     fun getQuizQuestions(quizId: Long): Flow<List<QuizQuestionUiModel>>
-    suspend fun saveQuizResult(quizId: Long, score: Int, durationSec: Int, correctCount: Int, wrongCount: Int, mode: QuizMode)
+    suspend fun saveQuizResult(quizId: Long, xpEarned: Int, durationSec: Int, correctCount: Int, wrongCount: Int)
     fun getQuizResults(quizId: Long): Flow<List<QuizResultUiModel>>
+    suspend fun getWatchlistMovieCount(watchlistId: Long): Int
 }
 
 enum class QuizDifficulty {
@@ -25,9 +26,9 @@ data class QuizUiModel(
     val name: String,
     val watchlistName: String,
     val createdAt: Long,
-    val difficulty: QuizDifficulty,
-    val mode: QuizMode,
-    val questionCount: Int
+    val questionCount: Int,
+    val difficulty: String? = null,
+    val mode: String? = null
 )
 
 data class QuizQuestionUiModel(
@@ -37,22 +38,26 @@ data class QuizQuestionUiModel(
     val type: QuestionType,
     val correctAnswer: String,
     val options: List<String>,
-    val difficulty: QuizDifficulty
+    val difficulty: QuizDifficulty,
+    val moviePosterUrl: String? = null, 
+    val movieDescription: String? = null 
 )
 
 enum class QuestionType {
-    RELEASE_YEAR, DIRECTOR, MAIN_ACTOR, RUNTIME, GENRE
+    MOVIE_FROM_DESCRIPTION, 
+    ACTOR_IN_MOVIE, 
+    RELEASE_YEAR, 
+    MOVIE_FROM_IMAGE 
 }
 
 data class QuizResultUiModel(
     val id: Long,
     val quizId: Long,
     val playedAt: Long,
-    val score: Int,
+    val xpEarned: Int,
     val durationSec: Int,
     val correctCount: Int,
-    val wrongCount: Int,
-    val mode: QuizMode
+    val wrongCount: Int
 )
 
 data class QuizGenerationResult(

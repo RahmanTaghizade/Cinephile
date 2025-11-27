@@ -36,7 +36,7 @@ class WatchlistMoviesAdapter(
         fun bind(item: MovieUiModel) {
             title.text = item.title
             subtitle.text = item.releaseDate ?: ""
-            // For now, use a placeholder; image loading lib not wired here
+            
             poster.setImageResource(android.R.drawable.ic_menu_report_image)
             itemView.setOnClickListener { onClick(item) }
             delete.setOnClickListener { onDelete(item) }

@@ -29,7 +29,7 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(@ApplicationContext context: Context, connectivityMonitor: ConnectivityMonitor): OkHttpClient {
-        val cacheSize = 20 * 1024 * 1024L // 20MB
+        val cacheSize = 20 * 1024 * 1024L 
         val cacheDir = File(context.cacheDir, "http_cache")
         val cache = Cache(cacheDir, cacheSize)
 
@@ -56,7 +56,7 @@ object NetworkModule {
             }
         }
 
-        // Response cache policy for online GET responses
+        
         val networkCacheInterceptor = Interceptor { chain ->
             val request = chain.request()
             val response = chain.proceed(request)
@@ -70,7 +70,7 @@ object NetworkModule {
             }
         }
 
-        // Request policy when offline: serve only-if-cached and allow stale
+        
         val offlineInterceptor = Interceptor { chain ->
             var request = chain.request()
             if (!connectivityMonitor.isOnline() && request.method.equals("GET", ignoreCase = true)) {

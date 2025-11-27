@@ -40,7 +40,7 @@ class CastAdapter(
                 error(R.drawable.ic_placeholder_person)
                 fallback(R.drawable.ic_placeholder_person)
             }
-            // Make image circular - set outline provider after view is measured
+            
             binding.imageProfile.post {
                 binding.imageProfile.outlineProvider = object : android.view.ViewOutlineProvider() {
                     override fun getOutline(view: android.view.View, outline: android.graphics.Outline) {

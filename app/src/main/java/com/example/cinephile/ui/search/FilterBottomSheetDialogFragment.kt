@@ -61,32 +61,32 @@ class FilterBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     private fun setupUI(state: FilterState) {
-        // Category chips
+        
         binding.chipAll.isChecked = state.category == Category.ALL
         binding.chipMovies.isChecked = state.category == Category.MOVIES
         binding.chipSeries.isChecked = state.category == Category.SERIES
 
-        // Year
+        
         binding.textYearValue.text = state.year?.toString() ?: getString(R.string.filter_any)
 
-        // Countries (placeholder - will show "Any" for now)
+        
         binding.textCountriesValue.text = getString(R.string.filter_any)
 
-        // Rating slider
+        
         binding.sliderRating.value = state.ratingMax
         updateRatingText(state.ratingMin, state.ratingMax)
         binding.sliderRating.addOnChangeListener { _, value, _ ->
             updateRatingText(0f, value)
         }
 
-        // Age restriction chips
+        
         binding.chipAge0.isChecked = state.ageRestriction == 0
         binding.chipAge6.isChecked = state.ageRestriction == 6
         binding.chipAge12.isChecked = state.ageRestriction == 12
         binding.chipAge16.isChecked = state.ageRestriction == 16
         binding.chipAge18.isChecked = state.ageRestriction == 18
 
-        // Sort radio buttons
+        
         binding.radioRating.isChecked = state.sortBy == SortBy.RATING
         binding.radioPopularity.isChecked = state.sortBy == SortBy.POPULARITY
         binding.radioNewness.isChecked = state.sortBy == SortBy.NEWNESS
@@ -106,11 +106,11 @@ class FilterBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
 
         binding.layoutYear.setOnClickListener {
-            // TODO: Implement year picker
+            
         }
 
         binding.layoutCountries.setOnClickListener {
-            // TODO: Implement country picker
+            
         }
 
         binding.buttonShow.setOnClickListener {
@@ -170,7 +170,7 @@ class FilterBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         onFiltersApplied?.invoke(filterState)
 
-        // Update ViewModel
+        
         searchViewModel.applyFilters(filterState)
     }
 

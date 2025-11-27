@@ -111,9 +111,11 @@ class RecommendationRepositoryImpl @Inject constructor(
 
         val favoritesRaw = movieDao.getFavoritesOnce()
         val ratedRaw = movieDao.getRatedMoviesOnce()
+        val watchlistIds = watchlistDao.getAllMovieIds().toSet()
 
         val favoriteEntities = favoritesRaw.mapNotNull { ensureDetailedEntity(it.id, it) }
         val ratedEntities = ratedRaw.mapNotNull { ensureDetailedEntity(it.id, it) }
+        val watchlistEntities = watchlistIds.mapNotNull { ensureDetailedEntity(it) }
 
         favoriteEntities.forEach { entity ->
             val vector = builder.compute(entity)
@@ -130,19 +132,14 @@ class RecommendationRepositoryImpl @Inject constructor(
 
             val vector = builder.compute(entity)
             val features = activeFeatures(vector)
-            val existing = seeds[entity.id]
-            if (existing != null) {
-                seeds[entity.id] = existing.copy(
-                    weight = existing.weight + ratingWeight,
-                    features = features
-                )
-            } else {
-                seeds[entity.id] = SeedMovie(
-                    entity = entity,
-                    weight = ratingWeight,
-                    features = features
-                )
-            }
+            insertOrUpdateSeed(seeds, entity, features, ratingWeight)
+        }
+
+        watchlistEntities.forEach { entity ->
+            val vector = builder.compute(entity)
+            val features = activeFeatures(vector)
+            if (features.isEmpty()) return@forEach
+            insertOrUpdateSeed(seeds, entity, features, WATCHLIST_WEIGHT)
         }
 
         val seedList = seeds.values
@@ -151,7 +148,8 @@ class RecommendationRepositoryImpl @Inject constructor(
         return UserProfile(
             seeds = seedList,
             favoriteIds = favoritesRaw.map { it.id }.toSet(),
-            ratedIds = ratedRaw.map { it.id }.toSet()
+            ratedIds = ratedRaw.map { it.id }.toSet(),
+            watchlistIds = watchlistIds
         )
     }
 
@@ -159,8 +157,30 @@ class RecommendationRepositoryImpl @Inject constructor(
         val excluded = mutableSetOf<Long>()
         excluded.addAll(profile.favoriteIds)
         excluded.addAll(profile.ratedIds)
-        excluded.addAll(watchlistDao.getAllMovieIds())
+        excluded.addAll(profile.watchlistIds)
         return excluded
+    }
+
+    private fun insertOrUpdateSeed(
+        seeds: LinkedHashMap<Long, SeedMovie>,
+        entity: MovieEntity,
+        features: Set<String>,
+        additionalWeight: Double
+    ) {
+        if (features.isEmpty()) return
+        val existing = seeds[entity.id]
+        if (existing != null) {
+            seeds[entity.id] = existing.copy(
+                weight = existing.weight + additionalWeight,
+                features = features
+            )
+        } else {
+            seeds[entity.id] = SeedMovie(
+                entity = entity,
+                weight = additionalWeight,
+                features = features
+            )
+        }
     }
 
     private suspend fun fetchCandidateSummaries(
@@ -236,7 +256,8 @@ class RecommendationRepositoryImpl @Inject constructor(
                 runtime = details.runtime,
                 lastUpdated = System.currentTimeMillis(),
                 isFavorite = existing?.isFavorite ?: false,
-                userRating = existing?.userRating ?: 0f
+                userRating = existing?.userRating ?: 0f,
+                voteAverage = details.voteAverage
             )
             movieDao.upsert(merged)
             merged
@@ -314,7 +335,8 @@ class RecommendationRepositoryImpl @Inject constructor(
             voteAverage = 0.0,
             cast = emptyList(),
             isFavorite = entity.isFavorite,
-            userRating = if (entity.userRating > 0f) entity.userRating else 0f
+            userRating = if (entity.userRating > 0f) entity.userRating else 0f,
+            isSeries = false
         )
     }
 
@@ -393,11 +415,13 @@ class RecommendationRepositoryImpl @Inject constructor(
     private data class UserProfile(
         val seeds: List<SeedMovie>,
         val favoriteIds: Set<Long>,
-        val ratedIds: Set<Long>
+        val ratedIds: Set<Long>,
+        val watchlistIds: Set<Long>
     )
 
     companion object {
         private const val FAVORITE_WEIGHT = 1.0
+        private const val WATCHLIST_WEIGHT = 0.8
         private const val MAX_DISCOVER_GENRES = 3
 
         private const val GENRE_PREFIX = "genre:"

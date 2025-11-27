@@ -62,25 +62,25 @@ class SearchViewModel @Inject constructor(
     private var actorSearchJob: Job? = null
     private var directorSearchJob: Job? = null
 
-    // UI event for showing snackbars/actions (single-use)
+    
     private val _uiEvent = MutableSharedFlow<SearchUiEvent>()
     val uiEvent: SharedFlow<SearchUiEvent> = _uiEvent
 
-    private var lastAdded: Pair<Long, Long>? = null // watchlistId to movieId
+    private var lastAdded: Pair<Long, Long>? = null 
 
     fun onQueryChanged(query: String) {
         savedStateHandle["query"] = query
         _searchUiState.value = _searchUiState.value.copy(query = query)
-        // Save filter state
+        
         savedStateHandle["selectedYear"] = _searchUiState.value.selectedYear
         savedStateHandle["selectedGenreIds"] = _selectedGenreIds.value
         savedStateHandle["selectedActorIds"] = _selectedActors.value.map { it.id }
         savedStateHandle["selectedDirectorIds"] = _selectedDirectors.value.map { it.id }
         
-        // Cancel previous search
+        
         searchJob?.cancel()
         
-        // Debounce search with 400ms delay
+        
         searchJob = viewModelScope.launch {
             delay(400)
             if (query.trim().isNotEmpty() || hasActiveFilters()) {
@@ -159,7 +159,7 @@ class SearchViewModel @Inject constructor(
                 val filters = buildFilters()
                 Log.d(TAG, "performSearch start | page=$currentPage isLoadMore=$isLoadMore | filters=$filters")
 
-                // Fetch movies, series, and people results
+                
                 val movieResult = movieRepository.searchMovies(filters, currentPage)
                 val genreLookup = _genres.value.associate { it.id to it.name }
                 val seriesResponse = filters.query?.let { query ->
@@ -333,7 +333,24 @@ class SearchViewModel @Inject constructor(
                     lastAdded = current.id to movieId
                     _uiEvent.emit(SearchUiEvent.ShowAddedToWatchlist(movieId))
                 } else {
-                    // No current watchlist set; optionally emit a different event/message
+                    
+                    _uiEvent.emit(SearchUiEvent.ShowUndoFailed)
+                }
+            } catch (_: Exception) {
+                _uiEvent.emit(SearchUiEvent.ShowUndoFailed)
+            }
+        }
+    }
+
+    fun addSeriesToCurrentWatchlist(seriesId: Long) {
+        viewModelScope.launch {
+            try {
+                val current = watchlistRepository.getCurrentWatchlist().first()
+                if (current != null) {
+                    watchlistRepository.addSeriesToWatchlist(current.id, seriesId)
+                    lastAdded = current.id to seriesId
+                    _uiEvent.emit(SearchUiEvent.ShowAddedToWatchlist(seriesId))
+                } else {
                     _uiEvent.emit(SearchUiEvent.ShowUndoFailed)
                 }
             } catch (_: Exception) {
@@ -355,27 +372,27 @@ class SearchViewModel @Inject constructor(
     }
 
     init {
-        // Restore saved query
+        
         savedStateHandle.get<String>("query")?.let { query ->
             _searchUiState.value = _searchUiState.value.copy(query = query)
         }
-        // Restore selected year
+        
         savedStateHandle.get<Int>("selectedYear")?.let { year ->
             _searchUiState.value = _searchUiState.value.copy(selectedYear = year)
         }
-        // Restore selected genre IDs
+        
         savedStateHandle.get<Set<Int>>("selectedGenreIds")?.let { ids ->
             _selectedGenreIds.value = ids
         }
-        // Restore selected actors (serialized as List<Long> IDs)
+        
         savedStateHandle.get<List<Long>>("selectedActorIds")?.let { actorIds ->
-            // Will be restored when genres are loaded
+            
         }
-        // Restore selected directors (serialized as List<Long> IDs)
+        
         savedStateHandle.get<List<Long>>("selectedDirectorIds")?.let { directorIds ->
-            // Will be restored when genres are loaded
+            
         }
-        // Fetch & observe genres
+        
         viewModelScope.launch {
             movieRepository.fetchAndCacheGenres()
             movieRepository.getGenresFlow().collect { list ->
@@ -383,7 +400,7 @@ class SearchViewModel @Inject constructor(
             }
         }
 
-        // Observe user flags (favorite/rating) and update current list items optimistically
+        
         viewModelScope.launch {
             movieRepository.observeUserFlags().collectLatest { flagsList ->
                 if (flagsList.isEmpty()) return@collectLatest
@@ -408,7 +425,7 @@ class SearchViewModel @Inject constructor(
         _selectedGenreIds.value = if (id in current)
             current - id else current + id
         savedStateHandle["selectedGenreIds"] = _selectedGenreIds.value
-        // Trigger search on filter change
+        
         onSearchClick()
     }
     
@@ -418,7 +435,7 @@ class SearchViewModel @Inject constructor(
     }
 
     fun applyFilters(filterState: FilterState) {
-        // Update category filter
+        
         val searchFilter = when (filterState.category) {
             Category.ALL -> SearchFilter.ALL
             Category.MOVIES -> SearchFilter.MOVIES
@@ -433,11 +450,11 @@ class SearchViewModel @Inject constructor(
         )
         savedStateHandle["selectedYear"] = filterState.year
         
-        // Apply filter to current results
+        
         val combined = buildCombinedResults(_searchUiState.value.movies, _lastSeriesResults, _lastPeopleResults)
         _searchUiState.value = _searchUiState.value.copy(results = applyFilter(combined, searchFilter))
         
-        // Trigger search if needed
+        
         if (_searchUiState.value.query.isNotBlank() || hasActiveFilters()) {
             onSearchClick()
         }

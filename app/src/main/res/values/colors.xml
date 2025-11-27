@@ -3,7 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Material 3 dark palette inspired by the mockup -->
+    
     <color name="md_theme_dark_primary">#4DA3FF</color>
     <color name="md_theme_dark_onPrimary">#001C37</color>
     <color name="md_theme_dark_primaryContainer">#00315F</color>
@@ -27,19 +27,24 @@
     <color name="md_theme_dark_errorContainer">#930006</color>
     <color name="md_theme_dark_onErrorContainer">#FFDAD4</color>
 
-    <!-- Splash screen background -->
+    <color name="md_theme_dark_success">#81C784</color>
+    <color name="md_theme_dark_onSuccess">#1B5E20</color>
+    <color name="md_theme_dark_successContainer">#2E7D32</color>
+    <color name="md_theme_dark_onSuccessContainer">#C8E6C9</color>
+
+    
     <color name="splash_background">#DA002C</color>
 
-    <!-- Text colors -->
+    
     <color name="text_primary">#DCE1E6</color>
     <color name="text_secondary">#AAB2BA</color>
 
-    <!-- Chip filter background -->
+    
     <color name="chip_filter_background">#1A2430</color>
 
-    <!-- Genre chip background -->
+    
     <color name="genre_chip_background">#1A2430</color>
 
-    <!-- Button colors -->
+    
     <color name="button_primary">@color/md_theme_dark_primary</color>
 </resources>

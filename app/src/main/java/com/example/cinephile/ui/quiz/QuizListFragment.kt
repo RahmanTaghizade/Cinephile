@@ -11,8 +11,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cinephile.R
 import com.example.cinephile.databinding.FragmentQuizListBinding
-import com.example.cinephile.domain.repository.QuizDifficulty
-import com.example.cinephile.domain.repository.QuizMode
 import com.example.cinephile.ui.quiz.QuizListFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

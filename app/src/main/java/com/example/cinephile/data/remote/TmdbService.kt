@@ -71,9 +71,19 @@ interface TmdbService {
     suspend fun getTrendingMovies(
         @Query("page") page: Int = 1
     ): TmdbSearchResponse
+
+    @GET("tv/{tv_id}")
+    suspend fun getTvSeries(
+        @Path("tv_id") seriesId: Long
+    ): TmdbTvSeriesDetails
+
+    @GET("tv/{tv_id}/credits")
+    suspend fun getTvCredits(
+        @Path("tv_id") seriesId: Long
+    ): TmdbCredits
 }
 
-// DTOs
+
 data class TmdbSearchResponse(
     val page: Int,
     val results: List<TmdbMovie>,
@@ -117,6 +127,20 @@ data class TmdbTvSeries(
     @Json(name = "first_air_date") val firstAirDate: String?,
     @Json(name = "vote_average") val voteAverage: Double,
     @Json(name = "genre_ids") val genreIds: List<Int>
+)
+
+data class TmdbTvSeriesDetails(
+    val id: Long,
+    @Json(name = "name") val name: String,
+    @Json(name = "poster_path") val posterPath: String?,
+    val overview: String?,
+    @Json(name = "first_air_date") val firstAirDate: String?,
+    @Json(name = "last_air_date") val lastAirDate: String?,
+    @Json(name = "vote_average") val voteAverage: Double,
+    val genres: List<TmdbGenre>,
+    @Json(name = "number_of_seasons") val numberOfSeasons: Int?,
+    @Json(name = "number_of_episodes") val numberOfEpisodes: Int?,
+    @Json(name = "episode_run_time") val episodeRunTime: List<Int>?
 )
 
 data class TmdbCredits(

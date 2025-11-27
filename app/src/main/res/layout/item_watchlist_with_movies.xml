@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="32dp">
 
-    <!-- Watchlist title with arrow -->
+    
     <LinearLayout
         android:id="@+id/layout_title"
         android:layout_width="0dp"
@@ -35,6 +35,20 @@
             android:textSize="18sp"
             tools:text="My Watchlist" />
 
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_current"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/current_watchlist"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:chipBackgroundColor="@color/button_primary"
+            app:chipMinHeight="24dp"
+            app:chipStartPadding="8dp"
+            app:chipEndPadding="8dp" />
+
         <ImageView
             android:id="@+id/image_arrow"
             android:layout_width="24dp"
@@ -46,7 +60,7 @@
             android:contentDescription="@string/watchlist_navigate" />
     </LinearLayout>
 
-    <!-- Horizontal RecyclerView for movies -->
+    
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_movies"
         android:layout_width="match_parent"

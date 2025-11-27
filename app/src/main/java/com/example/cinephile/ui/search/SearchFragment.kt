@@ -51,23 +51,11 @@ class SearchFragment : Fragment() {
         setupSearchInput()
         observeUiEvents()
         setupGenreChip()
-        setupFilterButton()
         handleInitialArguments(savedInstanceState)
     }
     
-    private fun setupFilterButton() {
-        binding.buttonFilter.setOnClickListener {
-            showFilterBottomSheet()
-        }
-    }
-    
-    private fun showFilterBottomSheet() {
-        val filterBottomSheet = FilterBottomSheetDialogFragment()
-        filterBottomSheet.show(childFragmentManager, FilterBottomSheetDialogFragment.TAG)
-    }
-    
     private fun setupSearchInput() {
-        // Handle text changes in the search input
+        
         binding.editTextTitle.setOnEditorActionListener { _, _, _ ->
             viewModel.onSearchClick()
             true
@@ -75,11 +63,6 @@ class SearchFragment : Fragment() {
         
         binding.editTextTitle.doAfterTextChanged { text ->
             viewModel.onQueryChanged(text.toString())
-        }
-        
-        // Handle search button click
-        binding.buttonSearch.setOnClickListener {
-            viewModel.onSearchClick()
         }
     }
 
@@ -126,8 +109,15 @@ class SearchFragment : Fragment() {
                 )
                 findNavController().navigate(action)
             },
-            onSeriesClick = {
-                Snackbar.make(requireView(), getString(R.string.series_details_not_available), Snackbar.LENGTH_SHORT).show()
+            onSeriesClick = { seriesId ->
+                val action = SearchFragmentDirections.actionSearchFragmentToSeriesDetailsFragment(seriesId)
+                findNavController().navigate(action)
+            },
+            onMovieLongPress = { movieId ->
+                viewModel.addToCurrentWatchlist(movieId)
+            },
+            onSeriesLongPress = { seriesId ->
+                viewModel.addSeriesToCurrentWatchlist(seriesId)
             }
         )
 
@@ -136,8 +126,8 @@ class SearchFragment : Fragment() {
             gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
                     return when (resultsAdapter.getItemViewType(position)) {
-                        1 -> 2 // Person items span full width (2 columns)
-                        else -> 1 // Movie and Series items span 1 column each
+                        1 -> 2 
+                        else -> 1 
                     }
                 }
             }
@@ -149,18 +139,18 @@ class SearchFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.searchUiState.collect { state ->
-                // Update combined results
+                
                 resultsAdapter.submitList(state.results)
 
-                // Handle loading state
+                
                 binding.progressLoading.visibility = if (state.isLoading && state.results.isEmpty()) View.VISIBLE else View.GONE
                 
-                // Handle empty state
+                
                 val isEmpty = !state.isLoading && state.results.isEmpty() && state.error == null
                 binding.textEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
                 binding.recyclerResults.visibility = if (isEmpty || state.isLoading) View.GONE else View.VISIBLE
                 
-                // Handle error state
+                
                 val hasError = state.error != null && !state.isLoading
                 binding.errorCard.visibility = if (hasError) View.VISIBLE else View.GONE
                 if (hasError) {
@@ -168,12 +158,12 @@ class SearchFragment : Fragment() {
                     binding.recyclerResults.visibility = View.GONE
                 }
                 
-                // Show recycler view when we have data
+                
                 if (!state.isLoading && state.results.isNotEmpty() && state.error == null) {
                     binding.recyclerResults.visibility = View.VISIBLE
                 }
 
-                // When results are from cache, show banner with timestamp text
+                
                 if (state.isOffline && state.cacheTimestamp != null) {
                     val timestamp = java.text.SimpleDateFormat(
                         "MMM dd, yyyy HH:mm",
@@ -190,7 +180,7 @@ class SearchFragment : Fragment() {
             }
         }
         
-        // Setup retry button
+        
         binding.buttonRetry.setOnClickListener {
             viewModel.onSearchClick()
         }
@@ -200,11 +190,11 @@ class SearchFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             connectivityMonitor.isOnlineFlow.collect { isOnline ->
                 if (!isOnline) {
-                    // Show generic offline banner text when offline and no cached timestamp yet
+                    
                     binding.offlineText.text = getString(R.string.results_from_cache)
                     binding.offlineBanner.visibility = View.VISIBLE
                 } else {
-                    // Only hide if not currently showing cached timestamp state
+                    
                     if (!viewModel.searchUiState.value.isOffline) {
                         binding.offlineBanner.visibility = View.GONE
                     }
@@ -250,7 +240,7 @@ class SearchFragment : Fragment() {
         }
     }
 
-    // Removed actor/director suggestion chips in favor of unified filter chips
+    
 
     override fun onDestroyView() {
         super.onDestroyView()

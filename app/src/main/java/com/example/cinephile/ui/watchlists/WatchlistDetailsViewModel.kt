@@ -57,6 +57,12 @@ class WatchlistDetailsViewModel @Inject constructor(
             watchlistRepository.deleteWatchlist(watchlistId)
         }
     }
+
+    fun makeCurrent() {
+        viewModelScope.launch {
+            watchlistRepository.setCurrentWatchlist(watchlistId)
+        }
+    }
 }
 
 

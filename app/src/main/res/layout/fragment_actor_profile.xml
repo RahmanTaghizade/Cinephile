@@ -12,7 +12,11 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/transparent"
         android:paddingTop="@dimen/status_bar_height"
-        app:navigationIcon="?attr/homeAsUpIndicator"
+        android:contentInsetStart="0dp"
+        android:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
+        app:contentInsetLeft="0dp"
+        app:navigationIcon="@drawable/ic_back_button"
         app:titleTextColor="@color/text_primary" />
 
     <androidx.core.widget.NestedScrollView

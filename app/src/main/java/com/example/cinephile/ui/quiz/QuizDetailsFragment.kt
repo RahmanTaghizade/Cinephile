@@ -35,6 +35,7 @@ class QuizDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupBackButton()
         setupRecyclerView()
         setupStartButton()
         setupRetryButton()
@@ -42,9 +43,15 @@ class QuizDetailsFragment : Fragment() {
         collectResults()
     }
     
+    private fun setupBackButton() {
+        binding.buttonBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+    }
+    
     private fun setupRetryButton() {
         binding.buttonRetry.setOnClickListener {
-            // Retry loading quiz data
+            
             viewModel.retry()
         }
     }
@@ -92,8 +99,9 @@ class QuizDetailsFragment : Fragment() {
                         if (quiz != null) {
                             binding.textQuizName.text = quiz.name
                             binding.textWatchlistName.text = "Watchlist: ${quiz.watchlistName}"
-                            binding.textDifficulty.text = "Difficulty: ${quiz.difficulty.name}"
-                            binding.textMode.text = "Mode: ${quiz.mode.name}"
+                            
+                            binding.textDifficulty.visibility = View.GONE
+                            binding.textMode.visibility = View.GONE
                         }
                     }
                 }

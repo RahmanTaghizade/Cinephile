@@ -4,20 +4,20 @@ import org.junit.Test
 import org.junit.Assert.*
 import com.example.cinephile.ui.search.MovieUiModel
 
-/**
- * Test to verify that repository interfaces are properly defined
- */
+
+
+
 class RepositoryInterfacesTest {
 
     @Test
     fun movieRepositoryInterface_hasRequiredMethods() {
-        // This test verifies that the MovieRepository interface has the expected methods
-        // We can't instantiate the interface directly, but we can verify the structure exists
         
-        // The interface should exist and be accessible
+        
+        
+        
         assertNotNull("MovieRepository interface should exist", MovieRepository::class.java)
         
-        // Verify it has the expected methods
+        
         val methods = MovieRepository::class.java.declaredMethods.map { it.name }
         assertTrue("Should have searchMovies method", methods.contains("searchMovies"))
         assertTrue("Should have getMovieDetails method", methods.contains("getMovieDetails"))
@@ -26,7 +26,7 @@ class RepositoryInterfacesTest {
 
     @Test
     fun movieUiModel_hasRequiredProperties() {
-        // Test that MovieUiModel has the expected properties
+        
         val movie = MovieUiModel(
             id = 1L,
             title = "Test Movie",

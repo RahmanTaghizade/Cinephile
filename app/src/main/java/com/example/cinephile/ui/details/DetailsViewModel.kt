@@ -49,7 +49,7 @@ class DetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                // Fetch cast and rating from API
+                
                 val details = kotlin.runCatching { tmdbService.getMovie(movieId) }.getOrNull()
                 val credits = kotlin.runCatching { tmdbService.getCredits(movieId) }.getOrNull()
                 val similarMovies = fetchSimilarMovies(details)
@@ -68,12 +68,12 @@ class DetailsViewModel @Inject constructor(
                 
                 movieRepository.getMovieDetails(movieId).collect { movie ->
                     val posterUrl = movie?.posterUrl
-                    // Check if movie is in current watchlist
+                    
                     val isInWatchlist = movie?.let { 
                         watchlistRepository.isMovieInCurrentWatchlist(it.id) 
                     } ?: false
                     
-                    // Merge movie data with cast and rating
+                    
                     val movieWithDetails = movie?.copy(
                         voteAverage = voteAverage,
                         cast = cast
@@ -137,7 +137,7 @@ class DetailsViewModel @Inject constructor(
     fun toggleFavorite() {
         val current = _uiState.value.movie ?: return
         val newFavorite = !current.isFavorite
-        // optimistic update
+        
         _uiState.value = _uiState.value.copy(
             movie = current.copy(isFavorite = newFavorite),
             isFavorite = newFavorite
@@ -145,7 +145,7 @@ class DetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val result = movieRepository.toggleFavorite(current.id, newFavorite)
             if (result == null) {
-                // rollback on failure
+                
                 _uiState.value = _uiState.value.copy(
                     movie = current,
                     isFavorite = current.isFavorite
@@ -156,15 +156,36 @@ class DetailsViewModel @Inject constructor(
 
     fun setRating(rating: Float) {
         val current = _uiState.value.movie ?: return
-        // optimistic update
+        android.util.Log.d("DetailsViewModel", "setRating: Setting rating $rating for movie ${current.id}")
+        
+        // Optimistically update UI
         _uiState.value = _uiState.value.copy(
             movie = current.copy(userRating = rating),
             userRating = rating
         )
+        
+        // Save to database
         viewModelScope.launch {
-            val result = movieRepository.rateMovie(current.id, rating)
-            if (result == null) {
-                // rollback on failure
+            try {
+                val result = movieRepository.rateMovie(current.id, rating)
+                if (result == null) {
+                    android.util.Log.w("DetailsViewModel", "setRating: Failed to save rating, reverting")
+                    // Revert on error
+                    _uiState.value = _uiState.value.copy(
+                        movie = current,
+                        userRating = current.userRating
+                    )
+                } else {
+                    android.util.Log.d("DetailsViewModel", "setRating: Successfully saved rating $rating")
+                    // Update with the saved entity to ensure consistency
+                    _uiState.value = _uiState.value.copy(
+                        movie = current.copy(userRating = result.userRating),
+                        userRating = result.userRating
+                    )
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("DetailsViewModel", "setRating: Error saving rating", e)
+                // Revert on exception
                 _uiState.value = _uiState.value.copy(
                     movie = current,
                     userRating = current.userRating
@@ -221,17 +242,9 @@ class DetailsViewModel @Inject constructor(
     }
 
     private suspend fun loadWatchlistsEnsuringDefault(): List<WatchlistUiModel> {
-        var watchlists = withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.IO) {
             watchlistRepository.getAllWatchlists().first()
         }
-        if (watchlists.isEmpty()) {
-            val id = watchlistRepository.createWatchlist("My Watchlist")
-            watchlistRepository.setCurrentWatchlist(id)
-            watchlists = withContext(Dispatchers.IO) {
-                watchlistRepository.getAllWatchlists().first()
-            }
-        }
-        return watchlists
     }
 
     private suspend fun addMovieToWatchlist(
@@ -322,5 +335,6 @@ data class DetailsUiState(
 sealed class DetailsEvent {
     data class ShowWatchlistPicker(val watchlists: List<WatchlistUiModel>) : DetailsEvent()
 }
+
 
 

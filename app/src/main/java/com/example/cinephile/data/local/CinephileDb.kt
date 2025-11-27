@@ -21,7 +21,7 @@ import com.example.cinephile.data.local.entities.*
         GenreEntity::class,
         RecommendedMovieEntity::class
     ],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(ListConverters::class)

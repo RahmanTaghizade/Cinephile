@@ -52,7 +52,7 @@ class RecommendationsViewModel @Inject constructor(
             try {
                 movieRepository.fetchAndCacheGenres()
             } catch (_: Exception) {
-                // Ignore fetch failures; we'll still attempt to display cached genres
+                
             }
             movieRepository.getGenresFlow().collect { genres ->
                 val chips = genres
@@ -61,7 +61,7 @@ class RecommendationsViewModel @Inject constructor(
                     .map { GenreChipUiModel(it.id, it.name) }
                 _uiState.update { 
                     val updated = it.copy(genres = chips)
-                    // Reload popular movies when genres are available
+                    
                     if (chips.isNotEmpty() && updated.popularMovies.isEmpty()) {
                         loadPopularMoviesWithGenres(chips.associate { it.id to it.name })
                     }
@@ -93,7 +93,7 @@ class RecommendationsViewModel @Inject constructor(
                 }
                 _uiState.update { it.copy(popularMovies = popularMovies) }
             } catch (e: Exception) {
-                // Silently fail for popular movies - not critical
+                
             }
         }
     }

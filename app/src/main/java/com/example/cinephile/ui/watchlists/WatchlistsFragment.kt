@@ -144,21 +144,21 @@ class WatchlistsFragment : Fragment() {
         val isLoading = viewModel.isLoading.value
         val error = viewModel.error.value
         
-        // Handle loading state
+        
         binding.progressLoading.visibility = if (isLoading && watchlists.isEmpty()) View.VISIBLE else View.GONE
         
-        // Handle error state
+        
         val hasError = error != null && !isLoading
         binding.errorCard.visibility = if (hasError) View.VISIBLE else View.GONE
         if (hasError) {
             binding.textError.text = error
         }
         
-        // Handle empty state
+        
         val isEmpty = watchlists.isEmpty() && !isLoading && error == null
         binding.textEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
         
-        // Show/hide recycler view
+        
         binding.recyclerWatchlists.visibility = if (isEmpty || isLoading || hasError) View.GONE else View.VISIBLE
     }
 

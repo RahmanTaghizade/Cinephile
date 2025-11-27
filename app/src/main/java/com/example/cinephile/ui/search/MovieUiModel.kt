@@ -11,7 +11,8 @@ data class MovieUiModel(
     val voteAverage: Double = 0.0,
     val cast: List<CastMember> = emptyList(),
     val isFavorite: Boolean = false,
-    val userRating: Float = 0f
+    val userRating: Float = 0f,
+    val isSeries: Boolean = false
 )
 
 data class CastMember(

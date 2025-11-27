@@ -19,7 +19,7 @@ class QuizListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), position == 0)
     }
 
     class ViewHolder(
@@ -29,21 +29,29 @@ class QuizListAdapter(
 
         private val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
 
-        fun bind(item: QuizListItem) {
+        fun bind(item: QuizListItem, isFirstItem: Boolean) {
             binding.textTitle.text = item.name
             
             val subtitle = buildString {
                 append(item.watchlistName)
                 append(" • ")
                 append("${item.questionCount} questions")
-                append(" • ")
-                append(item.difficulty.name)
-                append(" • ")
-                append(item.mode.name)
             }
             binding.textSubtitle.text = subtitle
             
             binding.textBadge.text = dateFormat.format(item.createdAt)
+            
+            
+            val topPadding = if (isFirstItem) {
+                (16 * binding.root.context.resources.displayMetrics.density).toInt() 
+            } else {
+                0
+            }
+            val layoutParams = binding.root.layoutParams as? ViewGroup.MarginLayoutParams
+            if (layoutParams != null) {
+                layoutParams.topMargin = topPadding
+                binding.root.layoutParams = layoutParams
+            }
             
             binding.root.setOnClickListener {
                 onItemClick(item.id)

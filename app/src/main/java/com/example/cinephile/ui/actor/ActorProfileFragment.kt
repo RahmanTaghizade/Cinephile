@@ -124,7 +124,7 @@ class ActorProfileFragment : Fragment() {
                 infoRows.add(getString(R.string.actor_also_known) to profile.alsoKnownAs.joinToString(", "))
             }
 
-            // Add all projects summary (count and year range) if available
+            
             val years = state.movies.mapNotNull { it.releaseYear?.toIntOrNull() }
             if (state.movies.isNotEmpty()) {
                 val count = state.movies.size

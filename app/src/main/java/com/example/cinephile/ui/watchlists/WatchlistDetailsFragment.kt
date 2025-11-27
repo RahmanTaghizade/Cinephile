@@ -46,7 +46,7 @@ class WatchlistDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        // Setup window insets for header
+        
         ViewCompat.setOnApplyWindowInsetsListener(binding.headerContainer) { container, insets ->
             val statusBarInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             container.updatePadding(top = statusBarInset)
@@ -77,9 +77,14 @@ class WatchlistDetailsFragment : Fragment() {
 
     private fun setupList() {
         adapter = MovieAdapter(
-            onItemClick = { movieId ->
-                val args = Bundle().apply { putLong("movieId", movieId) }
-                findNavController().navigate(R.id.detailsFragment, args)
+            onItemClick = { movie ->
+                if (movie.isSeries) {
+                    val args = Bundle().apply { putLong("seriesId", movie.id) }
+                    findNavController().navigate(R.id.seriesDetailsFragment, args)
+                } else {
+                    val args = Bundle().apply { putLong("movieId", movie.id) }
+                    findNavController().navigate(R.id.detailsFragment, args)
+                }
             }
         )
         binding.recyclerMovies.apply {
@@ -93,6 +98,11 @@ class WatchlistDetailsFragment : Fragment() {
         binding.buttonSettings.setOnClickListener {
             val popup = android.widget.PopupMenu(requireContext(), it)
             popup.menuInflater.inflate(R.menu.menu_watchlist_details, popup.menu)
+            
+            val watchlist = viewModel.watchlist.value
+            val makeCurrentItem = popup.menu.findItem(R.id.action_make_current)
+            makeCurrentItem?.isEnabled = watchlist?.isCurrent != true
+            
             popup.setOnMenuItemClickListener { menuItem ->
                 handleMenuAction(menuItem)
                 true
@@ -104,6 +114,11 @@ class WatchlistDetailsFragment : Fragment() {
     private fun handleMenuAction(menuItem: MenuItem): Boolean {
         val watchlist = viewModel.watchlist.value ?: return false
         return when (menuItem.itemId) {
+            R.id.action_make_current -> {
+                viewModel.makeCurrent()
+                Snackbar.make(binding.root, getString(R.string.watchlist_set_current, watchlist.name), Snackbar.LENGTH_SHORT).show()
+                true
+            }
             R.id.action_rename -> {
                 RenameWatchlistBottomSheet.newInstance(watchlist.id, watchlist.name)
                     .show(childFragmentManager, "RenameWatchlistBottomSheet")
@@ -119,7 +134,7 @@ class WatchlistDetailsFragment : Fragment() {
     }
 
     private fun setupResultListeners() {
-        // Rename result listener
+        
         childFragmentManager.setFragmentResultListener(
             RenameWatchlistBottomSheet.RESULT_KEY,
             viewLifecycleOwner
@@ -128,7 +143,7 @@ class WatchlistDetailsFragment : Fragment() {
             viewModel.rename(name)
         }
 
-        // Delete result listener
+        
         childFragmentManager.setFragmentResultListener(
             DeleteWatchlistBottomSheet.RESULT_KEY,
             viewLifecycleOwner
@@ -136,7 +151,7 @@ class WatchlistDetailsFragment : Fragment() {
             val id = bundle.getLong(DeleteWatchlistBottomSheet.ARG_ID, -1L)
             if (id > 0L) {
                 viewModel.delete()
-                // Navigate back after deletion
+                
                 if (!findNavController().navigateUp()) {
                     requireActivity().onBackPressedDispatcher.onBackPressed()
                 }
@@ -162,7 +177,7 @@ class WatchlistDetailsFragment : Fragment() {
                 launch {
                     viewModel.movies.collect { list ->
                         adapter.submitList(list)
-                        // Handle empty state
+                        
                         val isEmpty = list.isEmpty()
                         binding.textEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
                         binding.recyclerMovies.visibility = if (isEmpty) View.GONE else View.VISIBLE

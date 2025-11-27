@@ -11,7 +11,7 @@ import com.example.cinephile.databinding.ItemMovieCarouselBinding
 import com.example.cinephile.ui.search.MovieUiModel
 
 class HomeMovieCarouselAdapter(
-    private val onItemClick: (Long) -> Unit
+    private val onItemClick: (MovieUiModel) -> Unit
 ) : ListAdapter<MovieUiModel, HomeMovieCarouselAdapter.CarouselViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CarouselViewHolder {
@@ -40,7 +40,7 @@ class HomeMovieCarouselAdapter(
                 crossfade(true)
             }
             binding.textTitle.text = movie.title
-            binding.root.setOnClickListener { onItemClick(movie.id) }
+            binding.root.setOnClickListener { onItemClick(movie) }
         }
     }
 

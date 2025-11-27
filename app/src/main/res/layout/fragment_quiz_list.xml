@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:text="No quizzes yet. Create one to get started!"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/md_theme_dark_onSurfaceVariant"
         android:visibility="gone"
         android:layout_gravity="center" />
 

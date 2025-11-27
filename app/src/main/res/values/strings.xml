@@ -5,6 +5,7 @@
     <string name="movie_director_prefix">Director: %1$s</string>
     <string name="movie_date_prefix">Release: %1$s</string>
     <string name="rating_badge">⭐ %.1f</string>
+    <string name="your_rating">Your Rating</string>
     <string name="search_actor">Search actors...</string>
     <string name="search_director">Search directors...</string>
     <string name="results_from_cache">Results from cache</string>
@@ -14,6 +15,8 @@
     <string name="undo">Undo</string>
     <string name="action_failed">Something went wrong</string>
     <string name="current_watchlist">Current</string>
+    <string name="make_current">Make current</string>
+    <string name="watchlist_set_current">%1$s is now the current watchlist</string>
     <string name="dialog_rename_title">Rename watchlist</string>
     <string name="dialog_rename_hint">Name</string>
     <string name="dialog_delete_title">Delete watchlist?</string>

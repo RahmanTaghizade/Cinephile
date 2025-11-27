@@ -20,5 +20,6 @@ data class MovieEntity(
     val runtime: Int?,
     val lastUpdated: Long,
     val isFavorite: Boolean = false,
-    val userRating: Float = 0f
+    val userRating: Float = 0f,
+    val voteAverage: Double = 0.0
 )

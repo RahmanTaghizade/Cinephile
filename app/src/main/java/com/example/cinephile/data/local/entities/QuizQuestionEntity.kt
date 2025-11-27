@@ -28,8 +28,10 @@ data class QuizQuestionEntity(
     val id: Long = 0,
     val quizId: Long,
     val movieId: Long,
-    val type: String, // "release_year", "director", "main_actor", "runtime", "genre"
+    val type: String, 
     val correctAnswer: String,
-    val optionsJson: String, // JSON array of all options
-    val difficulty: String
+    val optionsJson: String, 
+    val difficulty: String, 
+    val moviePosterUrl: String? = null, 
+    val movieDescription: String? = null 
 )

@@ -7,7 +7,7 @@
     android:background="@color/md_theme_dark_background"
     tools:context=".ui.details.DetailsFragment">
 
-    <!-- Loading indicator -->
+    
     <ProgressBar
         android:id="@+id/progress_loading"
         android:layout_width="wrap_content"
@@ -15,7 +15,7 @@
         android:layout_gravity="center"
         android:visibility="gone" />
 
-    <!-- Error state -->
+    
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/error_card"
         android:layout_width="0dp"
@@ -51,7 +51,7 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Empty state -->
+    
     <TextView
         android:id="@+id/text_empty"
         android:layout_width="wrap_content"
@@ -73,7 +73,7 @@
             android:layout_height="wrap_content"
             android:background="@color/md_theme_dark_background">
 
-            <!-- Large poster at top with fade effect -->
+            
             <ImageView
                 android:id="@+id/imagePoster"
                 android:layout_width="0dp"
@@ -87,7 +87,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:src="@mipmap/ic_launcher" />
 
-            <!-- Gradient overlay for fade effect -->
+            
             <View
                 android:id="@+id/gradientOverlay"
                 android:layout_width="0dp"
@@ -97,19 +97,23 @@
                 app:layout_constraintStart_toStartOf="@id/imagePoster"
                 app:layout_constraintEnd_toEndOf="@id/imagePoster" />
 
-            <!-- Back button/toolbar -->
+            
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@android:color/transparent"
                 android:paddingTop="@dimen/status_bar_height"
-                app:navigationIcon="?attr/homeAsUpIndicator"
+                android:contentInsetStart="0dp"
+                android:contentInsetLeft="0dp"
+                app:contentInsetStart="0dp"
+                app:contentInsetLeft="0dp"
+                app:navigationIcon="@drawable/ic_back_button"
                 app:title=""
                 app:titleTextColor="@color/text_primary"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Title -->
+            
             <TextView
                 android:id="@+id/textTitle"
                 android:layout_width="0dp"
@@ -125,7 +129,7 @@
                 app:layout_constraintEnd_toStartOf="@id/textRating"
                 tools:text="Dune" />
 
-            <!-- Rating -->
+            
             <TextView
                 android:id="@+id/textRating"
                 android:layout_width="wrap_content"
@@ -139,7 +143,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/textTitle"
                 tools:text="8.2" />
 
-            <!-- Metadata: Year, Director -->
+            
             <TextView
                 android:id="@+id/textMetadata"
                 android:layout_width="0dp"
@@ -154,7 +158,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:text="2021, Denis Villeneuve" />
 
-            <!-- Genre chips -->
+            
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupGenres"
                 android:layout_width="0dp"
@@ -168,7 +172,40 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- Synopsis -->
+            
+            <TextView
+                android:id="@+id/textYourRatingLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="20dp"
+                android:text="@string/your_rating"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/chipGroupGenres"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="8dp"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:rating="0"
+                android:isIndicator="false"
+                android:clickable="true"
+                android:focusable="true"
+                android:progressTint="@color/button_primary"
+                android:progressBackgroundTint="@color/text_secondary"
+                android:secondaryProgressTint="@color/button_primary"
+                style="@style/Widget.AppCompat.RatingBar.Small"
+                app:layout_constraintTop_toBottomOf="@id/textYourRatingLabel"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            
             <TextView
                 android:id="@+id/textOverview"
                 android:layout_width="0dp"
@@ -181,12 +218,12 @@
                 android:lineSpacingExtra="4dp"
                 android:maxLines="4"
                 android:ellipsize="end"
-                app:layout_constraintTop_toBottomOf="@id/chipGroupGenres"
+                app:layout_constraintTop_toBottomOf="@id/ratingBar"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:text="Paul Atreides, a brilliant and gifted young man born into a great destiny beyond understanding, must travel to the most dangerous plane..." />
 
-            <!-- More link -->
+            
             <TextView
                 android:id="@+id/textMore"
                 android:layout_width="wrap_content"
@@ -203,7 +240,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 tools:visibility="visible" />
 
-            <!-- Cast section -->
+            
             <TextView
                 android:id="@+id/textCastLabel"
                 android:layout_width="wrap_content"
@@ -231,7 +268,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:listitem="@layout/item_cast" />
 
-        <!-- More like this section -->
+        
         <TextView
             android:id="@+id/textSimilarLabel"
             android:layout_width="wrap_content"
@@ -261,7 +298,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:listitem="@layout/item_movie_carousel" />
 
-            <!-- Watch now button -->
+            
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonWatchlist"
                 style="@style/Widget.Material3.Button"

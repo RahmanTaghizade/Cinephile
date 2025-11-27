@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Header with profile, welcome text, search bar, and notification -->
+            
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
 
 
 
-                <!-- Small unified search bar -->
+                
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardSearchShortcut"
                     android:layout_width="0dp"
@@ -79,7 +79,7 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Language selector flag emoji -->
+                
                 <TextView
                     android:id="@+id/textLanguageFlag"
                     android:layout_width="wrap_content"
@@ -94,7 +94,7 @@
                     tools:ignore="ContentDescription" />
             </LinearLayout>
 
-            <!-- Headline -->
+            
             <TextView
                 android:id="@+id/textHeadline"
                 style="@style/TextAppearance.Material3.HeadlineMedium"
@@ -114,7 +114,7 @@
                 android:text="@string/recommendations_cached_badge"
                 android:visibility="gone" />
 
-            <!-- Popular Movies Section -->
+            
                 <TextView
                     android:id="@+id/textPopularHeader"
                     android:layout_width="match_parent"
@@ -137,7 +137,7 @@
                 android:visibility="gone"
                 tools:listitem="@layout/item_movie_carousel" />
 
-            <!-- Genre Chips -->
+            
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -12,7 +12,6 @@ android {
     namespace = "com.example.cinephile"
     compileSdk = 36
 
-    // Load TMDB_API_KEY from local.properties (fallback to env var)
     val localProps = Properties().apply {
         val file = rootProject.file("local.properties")
         if (file.exists()) file.inputStream().use { load(it) }
@@ -57,7 +56,6 @@ android {
 }
 
 dependencies {
-    // Core Android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -65,19 +63,15 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.splashscreen)
 
-    // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
-    // Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
-    // Coroutines
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
-    // Network
     implementation(libs.retrofit)
     implementation(libs.retrofit.moshi)
     implementation(libs.okhttp)
@@ -85,19 +79,15 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
 
-    // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
 
-    // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
-    // Image Loading
     implementation(libs.coil)
 
-    // Testing
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.turbine)

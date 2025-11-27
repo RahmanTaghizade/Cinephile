@@ -5,7 +5,7 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
-    <!-- Bottom Navigation Fragments -->
+    
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.example.cinephile.ui.search.SearchFragment"
@@ -31,6 +31,9 @@
         <action
             android:id="@+id/action_searchFragment_to_actorProfileFragment"
             app:destination="@id/actorProfileFragment" />
+        <action
+            android:id="@+id/action_searchFragment_to_seriesDetailsFragment"
+            app:destination="@id/seriesDetailsFragment" />
     </fragment>
 
     <fragment
@@ -56,13 +59,16 @@
         tools:layout="@layout/fragment_recommendations">
         <action
             android:id="@+id/action_homeFragment_to_searchFragment"
-            app:destination="@id/searchFragment" />
+            app:destination="@id/searchFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false"
+            app:launchSingleTop="true" />
         <action
             android:id="@+id/action_homeFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />
     </fragment>
 
-    <!-- Detail Fragments -->
+    
     <fragment
         android:id="@+id/detailsFragment"
         android:name="com.example.cinephile.ui.details.DetailsFragment"
@@ -125,6 +131,19 @@
         <argument
             android:name="quizId"
             app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/seriesDetailsFragment"
+        android:name="com.example.cinephile.ui.series.SeriesDetailsFragment"
+        android:label="Series Details"
+        tools:layout="@layout/fragment_details">
+        <argument
+            android:name="seriesId"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_seriesDetailsFragment_to_actorProfileFragment"
+            app:destination="@id/actorProfileFragment" />
     </fragment>
 
 </navigation>

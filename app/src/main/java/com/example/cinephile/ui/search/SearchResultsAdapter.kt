@@ -14,7 +14,9 @@ import com.example.cinephile.data.remote.TmdbPerson
 class SearchResultsAdapter(
     private val onMovieClick: (Long) -> Unit,
     private val onPersonClick: (TmdbPerson) -> Unit,
-    private val onSeriesClick: ((Long) -> Unit)? = null
+    private val onSeriesClick: ((Long) -> Unit)? = null,
+    private val onMovieLongPress: ((Long) -> Unit)? = null,
+    private val onSeriesLongPress: ((Long) -> Unit)? = null
 ) : ListAdapter<SearchResult, RecyclerView.ViewHolder>(Diff) {
 
     override fun getItemViewType(position: Int): Int = when (getItem(position)) {
@@ -26,8 +28,8 @@ class SearchResultsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
-            0 -> MovieVH(ItemSearchMovieBinding.inflate(inflater, parent, false), onMovieClick)
-            2 -> SeriesVH(ItemSearchMovieBinding.inflate(inflater, parent, false), onSeriesClick)
+            0 -> MovieVH(ItemSearchMovieBinding.inflate(inflater, parent, false), onMovieClick, onMovieLongPress)
+            2 -> SeriesVH(ItemSearchMovieBinding.inflate(inflater, parent, false), onSeriesClick, onSeriesLongPress)
             else -> PersonVH(ItemSearchPersonBinding.inflate(inflater, parent, false), onPersonClick)
         }
     }
@@ -42,7 +44,8 @@ class SearchResultsAdapter(
 
     class MovieVH(
         private val binding: ItemSearchMovieBinding,
-        private val onClick: (Long) -> Unit
+        private val onClick: (Long) -> Unit,
+        private val onLongPress: ((Long) -> Unit)? = null
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(movie: MovieUiModel) {
             val posterUrl = movie.posterUrl?.takeIf { it.isNotBlank() }
@@ -52,7 +55,7 @@ class SearchResultsAdapter(
                 error(R.drawable.ic_placeholder_movie)
                 fallback(R.drawable.ic_placeholder_movie)
             }
-            // Set rounded corners for poster
+            
             binding.imagePoster.post {
                 val radius = 12 * binding.root.context.resources.displayMetrics.density
                 binding.imagePoster.outlineProvider = object : android.view.ViewOutlineProvider() {
@@ -63,7 +66,7 @@ class SearchResultsAdapter(
                 binding.imagePoster.clipToOutline = true
             }
             binding.textTitle.text = movie.title
-            // Show only first 2 genres, centered
+            
             val genres = movie.genres.take(2)
             val subtitle = if (genres.isNotEmpty()) {
                 genres.joinToString(", ")
@@ -76,12 +79,12 @@ class SearchResultsAdapter(
             if (rating > 0) {
                 binding.textBadge.text = String.format("%.1f", rating)
                 binding.textBadge.visibility = android.view.View.VISIBLE
-                // Apply color based on rating
-                // 0-4: red, 4.01-7.00: yellow, 7.01+: green
+                
+                
                 val badgeDrawable = when {
                     rating <= 4.0 -> R.drawable.rating_badge_red
                     rating > 4.0 && rating <= 7.0 -> R.drawable.rating_badge_yellow
-                    else -> R.drawable.rating_badge_bg // green (7.01+)
+                    else -> R.drawable.rating_badge_bg 
                 }
                 binding.textBadge.setBackgroundResource(badgeDrawable)
             } else {
@@ -89,12 +92,17 @@ class SearchResultsAdapter(
             }
             
             binding.root.setOnClickListener { onClick(movie.id) }
+            binding.root.setOnLongClickListener {
+                onLongPress?.invoke(movie.id)
+                true
+            }
         }
     }
 
     class SeriesVH(
         private val binding: ItemSearchMovieBinding,
-        private val onClick: ((Long) -> Unit)?
+        private val onClick: ((Long) -> Unit)?,
+        private val onLongPress: ((Long) -> Unit)? = null
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(series: TvSeriesUiModel) {
             val posterUrl = series.posterUrl?.takeIf { it.isNotBlank() }
@@ -104,7 +112,7 @@ class SearchResultsAdapter(
                 error(R.drawable.ic_placeholder_movie)
                 fallback(R.drawable.ic_placeholder_movie)
             }
-            // Set rounded corners for poster
+            
             binding.imagePoster.post {
                 val radius = 12 * binding.root.context.resources.displayMetrics.density
                 binding.imagePoster.outlineProvider = object : android.view.ViewOutlineProvider() {
@@ -115,7 +123,7 @@ class SearchResultsAdapter(
                 binding.imagePoster.clipToOutline = true
             }
             binding.textTitle.text = series.name
-            // Show only first 2 genres, centered
+            
             val genres = series.genres.take(2)
             val subtitle = if (genres.isNotEmpty()) {
                 genres.joinToString(", ")
@@ -128,12 +136,12 @@ class SearchResultsAdapter(
             if (rating > 0) {
                 binding.textBadge.text = String.format("%.1f", rating)
                 binding.textBadge.visibility = android.view.View.VISIBLE
-                // Apply color based on rating
-                // 0-4: red, 4.01-7.00: yellow, 7.01+: green
+                
+                
                 val badgeDrawable = when {
                     rating <= 4.0 -> R.drawable.rating_badge_red
                     rating > 4.0 && rating <= 7.0 -> R.drawable.rating_badge_yellow
-                    else -> R.drawable.rating_badge_bg // green (7.01+)
+                    else -> R.drawable.rating_badge_bg 
                 }
                 binding.textBadge.setBackgroundResource(badgeDrawable)
             } else {
@@ -141,6 +149,10 @@ class SearchResultsAdapter(
             }
 
             binding.root.setOnClickListener { onClick?.invoke(series.id) }
+            binding.root.setOnLongClickListener {
+                onLongPress?.invoke(series.id)
+                true
+            }
         }
     }
 
@@ -150,13 +162,13 @@ class SearchResultsAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(person: com.example.cinephile.data.remote.TmdbPerson) {
             binding.textName.text = person.name
-            // Format the department nicely - capitalize first letter
+            
             val department = person.knownForDepartment.takeIf { it.isNotBlank() } 
                 ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
                 ?: ""
             binding.textRole.text = department
             
-            // Load profile image
+            
             val profileImageUrl = person.profilePath?.takeIf { it.isNotBlank() }?.let { 
                 "https://image.tmdb.org/t/p/w185$it" 
             }
@@ -167,7 +179,7 @@ class SearchResultsAdapter(
                 fallback(R.drawable.ic_placeholder_person)
             }
             
-            // Make image circular
+            
             binding.imageAvatar.post {
                 binding.imageAvatar.outlineProvider = object : android.view.ViewOutlineProvider() {
                     override fun getOutline(view: android.view.View, outline: android.graphics.Outline) {

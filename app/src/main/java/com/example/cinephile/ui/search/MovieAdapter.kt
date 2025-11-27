@@ -11,7 +11,7 @@ import com.example.cinephile.R
 import com.example.cinephile.databinding.ItemMovieBinding
 
 class MovieAdapter(
-    private val onItemClick: (Long) -> Unit = {},
+    private val onItemClick: (MovieUiModel) -> Unit = { movie -> },
     private val onLongPress: (Long) -> Unit = {}
 ) : ListAdapter<MovieUiModel, MovieAdapter.MovieViewHolder>(MovieDiffCallback()) {
 
@@ -34,7 +34,7 @@ class MovieAdapter(
 
         fun bind(movie: MovieUiModel) {
             with(binding) {
-                // Load poster image with Coil
+                
                 val posterUrl = movie.posterUrl?.takeIf { it.isNotBlank() }
                 imageMoviePoster.load(posterUrl) {
                     placeholder(R.drawable.ic_placeholder_movie)
@@ -43,7 +43,7 @@ class MovieAdapter(
                     crossfade(true)
                 }
 
-                // Set movie details
+                
                 textMovieTitle.text = movie.title
                 textMovieDirector.text = movie.director?.let {
                     root.context.getString(R.string.movie_director_prefix, it)
@@ -52,7 +52,7 @@ class MovieAdapter(
                     root.context.getString(R.string.movie_date_prefix, it)
                 } ?: ""
 
-                // Show/hide rating badge
+                
                 if (movie.userRating > 0f) {
                     textRatingBadge.text = root.context.getString(R.string.rating_badge, movie.userRating)
                     textRatingBadge.visibility = android.view.View.VISIBLE
@@ -60,21 +60,12 @@ class MovieAdapter(
                     textRatingBadge.visibility = android.view.View.GONE
                 }
 
-                // Set heart icon based on favorite status
-                imageHeart.setImageResource(
-                    if (movie.isFavorite) {
-                        android.R.drawable.btn_star_big_on
-                    } else {
-                        android.R.drawable.btn_star_big_off
-                    }
-                )
-
-                // Set click listeners
+                
                 root.setOnClickListener {
-                    onItemClick(movie.id)
+                    onItemClick(movie)
                 }
                 root.setOnLongClickListener {
-                    // Long-press callback, passes movieId (Long) to VM
+                    
                     onLongPress(movie.id)
                     true
                 }

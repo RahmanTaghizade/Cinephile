@@ -18,7 +18,7 @@
             android:orientation="vertical"
             android:paddingBottom="80dp">
 
-            <!-- Header -->
+            
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
 
             </LinearLayout>
 
-            <!-- Categories Section -->
+            
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -111,7 +111,7 @@
 
             </com.google.android.material.chip.ChipGroup>
 
-            <!-- Countries -->
+            
             <LinearLayout
                 android:id="@+id/layout_countries"
                 android:layout_width="match_parent"
@@ -152,7 +152,7 @@
 
             </LinearLayout>
 
-            <!-- Year -->
+            
             <LinearLayout
                 android:id="@+id/layout_year"
                 android:layout_width="match_parent"
@@ -193,7 +193,7 @@
 
             </LinearLayout>
 
-            <!-- Rating -->
+            
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -239,7 +239,7 @@
 
             </LinearLayout>
 
-            <!-- Age Restriction -->
+            
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -312,7 +312,7 @@
 
             </com.google.android.material.chip.ChipGroup>
 
-            <!-- Sort By -->
+            
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -369,7 +369,7 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Show Button - Fixed at bottom -->
+    
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

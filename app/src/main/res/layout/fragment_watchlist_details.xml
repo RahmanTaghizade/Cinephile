@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Header container -->
+        
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/header_container"
             android:layout_width="match_parent"
@@ -24,7 +24,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Circular back button -->
+            
             <ImageButton
                 android:id="@+id/button_back"
                 android:layout_width="40dp"
@@ -38,7 +38,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
-            <!-- Title - centered -->
+            
             <TextView
                 android:id="@+id/text_title"
                 android:layout_width="0dp"
@@ -55,14 +55,14 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 tools:text="My Watchlist" />
 
-            <!-- Circular settings/filter button -->
+            
             <ImageButton
                 android:id="@+id/button_settings"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="@drawable/circle_background"
                 android:contentDescription="@string/settings"
-                android:src="@drawable/ic_filter_lines"
+                android:src="@drawable/ic_settings"
                 android:tint="@color/text_primary"
                 android:padding="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -94,7 +94,7 @@
                 android:textStyle="bold" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- 2-column grid RecyclerView -->
+        
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_movies"
             android:layout_width="0dp"
@@ -110,7 +110,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             tools:listitem="@layout/item_movie" />
 
-        <!-- Loading indicator -->
+        
         <ProgressBar
             android:id="@+id/progress_loading"
             android:layout_width="wrap_content"
@@ -134,7 +134,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:visibility="gone" />
 
-        <!-- Error state -->
+        
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/error_card"
             android:layout_width="0dp"

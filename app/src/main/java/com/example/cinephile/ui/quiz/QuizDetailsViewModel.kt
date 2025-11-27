@@ -47,10 +47,8 @@ class QuizDetailsViewModel @Inject constructor(
         }.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
     val results: StateFlow<List<QuizResultUiModel>> =
-        flow {
-            val source = quizRepository.getQuizResults(quizId)
-            emitAll(source)
-        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        quizRepository.getQuizResults(quizId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val questionCount: StateFlow<Int> =
         flow {
@@ -62,7 +60,7 @@ class QuizDetailsViewModel @Inject constructor(
     fun retry() {
         _error.value = null
         _isLoading.value = true
-        // The quiz flow will automatically retry when collected
+        
     }
 }
 

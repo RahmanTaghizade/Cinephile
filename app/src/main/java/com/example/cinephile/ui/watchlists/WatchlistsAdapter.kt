@@ -1,6 +1,7 @@
 package com.example.cinephile.ui.watchlists
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -61,7 +62,7 @@ class WatchlistsAdapter(
                     false
                 )
                 adapter = moviesAdapter
-                // Add spacing for first item to align with header
+                
                 addItemDecoration(object : RecyclerView.ItemDecoration() {
                     override fun getItemOffsets(
                         outRect: android.graphics.Rect,
@@ -71,7 +72,7 @@ class WatchlistsAdapter(
                     ) {
                         val position = parent.getChildLayoutPosition(view)
                         if (position == 0) {
-                            // Convert 16dp to pixels for alignment with header
+                            
                             outRect.left = (16 * binding.root.context.resources.displayMetrics.density).toInt()
                         }
                     }
@@ -82,22 +83,25 @@ class WatchlistsAdapter(
         fun bind(item: WatchlistUiModel) {
             binding.textTitle.text = item.name
 
-            // Set up click listener for title/arrow to navigate to watchlist details
+            
+            binding.chipCurrent.visibility = if (item.isCurrent) View.VISIBLE else View.GONE
+
+            
             binding.layoutTitle.setOnClickListener {
                 onWatchlistClick(item)
             }
 
-            // Cancel previous job if any
+            
             cancelJob()
 
-            // Load movies for this watchlist
+            
             loadJob = viewHolderScope.launch {
                 try {
                     watchlistRepository.getWatchlistMovies(item.id).collectLatest { movies ->
                         moviesAdapter.submitList(movies)
                     }
                 } catch (e: Exception) {
-                    // Handle error silently or show empty state
+                    
                     moviesAdapter.submitList(emptyList())
                 }
             }

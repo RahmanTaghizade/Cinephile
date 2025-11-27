@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Circular background with #111111 and 0.5 opacity -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#80111111" />
+        </shape>
+    </item>
+    <!-- White chevron icon -->
+    <item
+        android:drawable="@drawable/ic_arrow_back_white"
+        android:gravity="center"
+        android:width="24dp"
+        android:height="24dp" />
+</layer-list>
+

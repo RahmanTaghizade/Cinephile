@@ -64,5 +64,16 @@ class MainActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
 
         bottomNavigationView.setupWithNavController(navController)
+        
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.homeFragment,
+                R.id.searchFragment,
+                R.id.watchlistsFragment,
+                R.id.quizListFragment -> {
+                    bottomNavigationView.menu.findItem(destination.id)?.isChecked = true
+                }
+            }
+        }
     }
 }

@@ -22,9 +22,10 @@ data class QuizResultEntity(
     val id: Long = 0,
     val quizId: Long,
     val playedAt: Long,
-    val score: Int,
+    val xpEarned: Int, 
     val durationSec: Int,
     val correctCount: Int,
     val wrongCount: Int,
-    val mode: String
+    val score: Int = 0, 
+    val mode: String = "" 
 )

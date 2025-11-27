@@ -7,7 +7,7 @@
     android:background="@color/md_theme_dark_background"
     tools:context=".ui.quiz.QuizDetailsFragment">
 
-    <!-- Loading indicator -->
+    
     <ProgressBar
         android:id="@+id/progress_loading"
         android:layout_width="wrap_content"
@@ -15,7 +15,7 @@
         android:layout_gravity="center"
         android:visibility="gone" />
 
-    <!-- Error state -->
+    
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/error_card"
         android:layout_width="0dp"
@@ -51,6 +51,19 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="@dimen/status_bar_height"
+        android:contentDescription="Back"
+        style="@style/Widget.Material3.Button.TextButton"
+        app:icon="@android:drawable/ic_menu_revert"
+        app:iconTint="@color/white"
+        app:iconGravity="textStart" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll_content"
         android:layout_width="match_parent"
@@ -60,10 +73,10 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:padding="16dp">
 
-            <!-- Quiz Name -->
+            
             <TextView
                 android:id="@+id/text_quiz_name"
                 android:layout_width="0dp"
@@ -76,7 +89,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="My Quiz" />
 
-            <!-- Watchlist Name -->
+            
             <TextView
                 android:id="@+id/text_watchlist_name"
                 android:layout_width="0dp"
@@ -89,7 +102,7 @@
                 app:layout_constraintTop_toBottomOf="@id/text_quiz_name"
                 tools:text="Watchlist: My Watchlist" />
 
-            <!-- Difficulty -->
+            
             <TextView
                 android:id="@+id/text_difficulty"
                 android:layout_width="0dp"
@@ -102,7 +115,7 @@
                 app:layout_constraintTop_toBottomOf="@id/text_watchlist_name"
                 tools:text="Difficulty: Easy" />
 
-            <!-- Mode -->
+            
             <TextView
                 android:id="@+id/text_mode"
                 android:layout_width="0dp"
@@ -115,7 +128,7 @@
                 app:layout_constraintTop_toBottomOf="@id/text_difficulty"
                 tools:text="Mode: Timed" />
 
-            <!-- Question Count -->
+            
             <TextView
                 android:id="@+id/text_question_count"
                 android:layout_width="0dp"
@@ -128,7 +141,7 @@
                 app:layout_constraintTop_toBottomOf="@id/text_mode"
                 tools:text="Questions: 10" />
 
-            <!-- Past Results Section -->
+            
             <TextView
                 android:id="@+id/text_results_label"
                 android:layout_width="0dp"
@@ -166,17 +179,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/text_results_label" />
 
-            <!-- Start Button -->
+            
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_start"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"
                 android:text="Start"
                 android:textSize="18sp"
+                style="@style/Widget.Cinephile.Button.White"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/recycler_results"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

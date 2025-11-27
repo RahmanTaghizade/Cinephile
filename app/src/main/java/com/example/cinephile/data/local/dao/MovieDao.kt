@@ -1,16 +1,20 @@
 package com.example.cinephile.data.local.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Upsert
 import com.example.cinephile.data.local.entities.MovieEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MovieDao {
     
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsert(movie: MovieEntity)
     
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsertAll(movies: List<MovieEntity>)
     
     @Query("SELECT * FROM movies WHERE id = :id")
@@ -46,10 +50,16 @@ interface MovieDao {
     @Query("SELECT * FROM movies ORDER BY lastUpdated DESC LIMIT :limit")
     suspend fun getRecentMovies(limit: Int = 50): List<MovieEntity>
     
-    @Query("DELETE FROM movies WHERE lastUpdated < :cutoffTime")
+    @Query("DELETE FROM movies WHERE lastUpdated < :cutoffTime AND id NOT IN (SELECT DISTINCT movieId FROM watchlist_movies) AND isFavorite = 0 AND userRating = 0")
     suspend fun deleteOldMovies(cutoffTime: Long)
+    
+    @Query("UPDATE movies SET lastUpdated = :timestamp WHERE id IN (SELECT DISTINCT movieId FROM watchlist_movies)")
+    suspend fun refreshWatchlistMoviesTimestamp(timestamp: Long)
+    
+    @Query("UPDATE movies SET lastUpdated = :timestamp WHERE id = :movieId")
+    suspend fun updateLastUpdated(movieId: Long, timestamp: Long)
 
-    // Observe minimal user flag updates for all movies (for badge updates in lists)
+    
     @Query("SELECT id, isFavorite, userRating FROM movies")
     fun observeUserFlags(): Flow<List<MovieUserFlags>>
 }

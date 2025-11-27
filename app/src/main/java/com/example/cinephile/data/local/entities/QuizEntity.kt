@@ -10,7 +10,7 @@ data class QuizEntity(
     val name: String,
     val watchlistId: Long,
     val createdAt: Long,
-    val difficulty: String, // "Easy", "Medium", "Hard"
-    val mode: String, // "Timed", "Survival"
+    val difficulty: String, 
+    val mode: String, 
     val questionCount: Int
 )

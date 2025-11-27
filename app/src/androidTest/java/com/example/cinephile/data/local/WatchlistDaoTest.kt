@@ -34,17 +34,17 @@ class WatchlistDaoTest {
     
     @Test
     fun insertAndGetWatchlist() = runBlocking {
-        // Given
+        
         val watchlist = WatchlistEntity(
             name = "Test Watchlist",
             isCurrent = true
         )
         
-        // When
+        
         val insertedId = watchlistDao.insert(watchlist)
         val retrievedWatchlist = watchlistDao.getCurrent()
         
-        // Then
+        
         assertNotNull(retrievedWatchlist)
         assertEquals("Test Watchlist", retrievedWatchlist?.name)
         assertTrue(retrievedWatchlist?.isCurrent ?: false)
@@ -53,17 +53,17 @@ class WatchlistDaoTest {
     
     @Test
     fun setCurrentWatchlist() = runBlocking {
-        // Given
+        
         val watchlist1 = WatchlistEntity(name = "Watchlist 1", isCurrent = false)
         val watchlist2 = WatchlistEntity(name = "Watchlist 2", isCurrent = false)
         
         val id1 = watchlistDao.insert(watchlist1)
         val id2 = watchlistDao.insert(watchlist2)
         
-        // When
+        
         watchlistDao.setCurrentWatchlist(id2)
         
-        // Then
+        
         val current = watchlistDao.getCurrent()
         assertNotNull(current)
         assertEquals(id2, current?.id)

@@ -25,7 +25,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:listitem="@layout/item_watchlist" />
 
-        <!-- Loading indicator -->
+        
         <ProgressBar
             android:id="@+id/progress_loading"
             android:layout_width="wrap_content"
@@ -36,7 +36,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Empty state -->
+        
         <TextView
             android:id="@+id/text_empty"
             android:layout_width="wrap_content"
@@ -50,7 +50,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Error state -->
+        
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/error_card"
             android:layout_width="0dp"
